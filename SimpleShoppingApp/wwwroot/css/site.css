@@ -16,3 +16,29 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.bi-cart {
+    font-size: 15px;
+}
+.search-input:focus {
+    outline: none;
+}
+
+.search-form {
+    padding-left: 6px;
+    padding-top: 8px;
+}
+
+.search-btn {
+    width: 40px;
+    margin-right: 6px;
+    margin-bottom: 5px;
+}
+
+.search-btn:hover {
+    background-color: #eaeaea;
+}
+
+.search-container {
+    height: 50px;
+}

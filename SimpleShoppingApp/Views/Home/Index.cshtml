@@ -2,7 +2,42 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-4">
+    <h1 class="display-6">Welcome to the best shop in the world!</h1>
 </div>
+
+<div class="row mb-4">
+    <div class="offset-md-4 col-md-5">
+        <div class="card">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Total products:</li>
+                <li class="list-group-item">Total users:</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <p class="fs-4 fst-italic">Some random products:</p>
+</div>
+
+<div class="row">
+
+    @for (int i = 0; i < 9; i++)
+    {
+        <div class="col-md-4 mb-3">
+            <a asp-controller="Products" asp-action="Index" asp-route-id="@(i+1)" class="link-dark text-decoration-none">
+                <div class="card">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Product Name</h5>
+                        <p class="card-text">Rating:<br /><br /><span class="text-danger fw-bold fs-6">Product Price</span></p>
+
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+
+</div>
+
