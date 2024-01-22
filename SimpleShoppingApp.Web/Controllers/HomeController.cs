@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SimpleShoppingApp.Web.Models;
+using SimpleShoppingApp.Models;
 using System.Diagnostics;
 
 namespace SimpleShoppingApp.Web.Controllers

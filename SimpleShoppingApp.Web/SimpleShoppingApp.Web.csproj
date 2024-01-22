@@ -17,7 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimpleShoppingApp.Data\SimpleShoppingApp.Data.csproj" />
+    <ProjectReference Include="..\SimpleShoppingApp.Models\SimpleShoppingApp.Models.csproj" />
+    <ProjectReference Include="..\SimpleShoppingApp.Services\SimpleShoppingApp.Services.csproj" />
   </ItemGroup>
 
 </Project>
