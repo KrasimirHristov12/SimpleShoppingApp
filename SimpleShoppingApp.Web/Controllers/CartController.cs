@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SimpleShoppingApp.Controllers
+namespace SimpleShoppingApp.Web.Controllers
 {
     public class CartController : Controller
     {

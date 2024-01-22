@@ -1,4 +1,4 @@
-namespace SimpleShoppingApp.Models
+namespace SimpleShoppingApp.Web.Models
 {
     public class ErrorViewModel
     {

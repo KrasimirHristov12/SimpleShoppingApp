@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleShoppingApp", "SimpleShoppingApp\SimpleShoppingApp.csproj", "{5252337F-39A6-406A-9C7B-2D50B661217A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleShoppingApp.Web", "SimpleShoppingApp.Web\SimpleShoppingApp.Web.csproj", "{5252337F-39A6-406A-9C7B-2D50B661217A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleShoppingApp.Data", "SimpleShoppingApp.Data\SimpleShoppingApp.Data.csproj", "{ED4EAC2E-0E3F-40D5-88E7-E27D1DEFCA9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleShoppingApp.Services", "SimpleShoppingApp.Services\SimpleShoppingApp.Services.csproj", "{B7861B40-4575-4A32-8B55-6BCD49BB41A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{5252337F-39A6-406A-9C7B-2D50B661217A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5252337F-39A6-406A-9C7B-2D50B661217A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5252337F-39A6-406A-9C7B-2D50B661217A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED4EAC2E-0E3F-40D5-88E7-E27D1DEFCA9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED4EAC2E-0E3F-40D5-88E7-E27D1DEFCA9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED4EAC2E-0E3F-40D5-88E7-E27D1DEFCA9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED4EAC2E-0E3F-40D5-88E7-E27D1DEFCA9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7861B40-4575-4A32-8B55-6BCD49BB41A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7861B40-4575-4A32-8B55-6BCD49BB41A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7861B40-4575-4A32-8B55-6BCD49BB41A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7861B40-4575-4A32-8B55-6BCD49BB41A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

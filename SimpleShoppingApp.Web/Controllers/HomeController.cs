@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SimpleShoppingApp.Models;
+using SimpleShoppingApp.Web.Models;
 using System.Diagnostics;
 
-namespace SimpleShoppingApp.Controllers
+namespace SimpleShoppingApp.Web.Controllers
 {
     public class HomeController : Controller
     {
