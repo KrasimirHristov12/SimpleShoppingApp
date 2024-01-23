@@ -22,10 +22,16 @@ namespace SimpleShoppingApp.Web.Controllers
             env = _env;
             imagesService = _imagesService;
         }
-        public IActionResult Index(int id)
+        public async Task<IActionResult> Index(int id)
         {
+            var product = await productsService.GetAsync(id);
 
-            return View();
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
         }
 
         [Route("/[controller]/[action]/{name}")]

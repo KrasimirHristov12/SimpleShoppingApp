@@ -1,6 +1,54 @@
-﻿@{
-    ViewData["Title"] = "Title of product";
+﻿@model ProductViewModel
+@{
+    ViewData["Title"] = Model.Name;
+    var Images = Model.Images.ToList();
 }
 
-<h1>@ViewData["Title"]</h1>
+<h3>@ViewData["Title"]</h3>
+
+<div class="row">
+    <div id="carouselExample" class="carousel carousel-dark slide col-md-8">
+        <div class="carousel-inner">
+            @for (int i = 0; i < Images.Count; i++)
+            {
+
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <img src="~/images/products/@(Images[i].Name + "." + Images[i].Extension)" class="d-block w-100" alt="@Model.Name Image" />
+                </div>
+
+            }
+        </div>
+
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <div class="col-md-4 my-auto">
+        <div class="text-center fs-5"><p>We have @Model.Quantity products in stock.</p></div>
+
+        <div class="text-center">
+            <span class="fs-4">Price: @Model.Price lv.</span>
+        </div>
+    </div>
+</div>
+
+<hr/>
+
+
+
+<div class ="text-center">
+    <h5>Description:</h5>
+    <p>@Model.Description</p>
+</div>
+
+
+
+
+
 
