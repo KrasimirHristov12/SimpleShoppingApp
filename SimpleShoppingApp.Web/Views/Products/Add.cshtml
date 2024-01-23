@@ -4,7 +4,7 @@
 }
 
 <div class="offset-md-4 col-md-5">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <div>
             <label asp-for="Name"></label>
             <input asp-for="Name" class="form-control" />
@@ -30,6 +30,12 @@
         </div>
 
         <div>
+            <label asp-for="Images"></label>
+            <input asp-for="Images" class="form-control" />
+            <span asp-validation-for="Images" class="text-danger"></span>
+        </div>
+
+        <div class="mt-3">
             <button type="submit" class="btn btn-success">Save</button>
         </div>
 

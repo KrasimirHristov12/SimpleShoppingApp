@@ -21,4 +21,8 @@
     <ProjectReference Include="..\SimpleShoppingApp.Services\SimpleShoppingApp.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\products\" />
+  </ItemGroup>
+
 </Project>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SimpleShoppingApp.Data;
 using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductsService, ProductsService>();
+builder.Services.AddScoped<IImagesService, ImagesService>();
 
 var app = builder.Build();
 

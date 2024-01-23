@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace SimpleShoppingApp.Models.Products
 {
@@ -18,6 +19,6 @@ namespace SimpleShoppingApp.Models.Products
         [Range(typeof(int), "1", "1000000")]
         public int Quantity { get; set; }
 
-        // Rating to be 0 and it will be updated based on users.
+        public IEnumerable<IFormFile> Images { get; set; }
     }
 }
