@@ -19,8 +19,8 @@ namespace SimpleShoppingApp.Services.Products
             {
                 Name = model.Name,
                 Description = model.Description,
-                Price = model.Price,
-                Quantity = model.Quantity,
+                Price = (decimal)model.Price,
+                Quantity = (int)model.Quantity,
                 Rating = 0,
 
 

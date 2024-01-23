@@ -10,4 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.32" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleShoppingApp.ValidationAttributes\SimpleShoppingApp.ValidationAttributes.csproj" />
+    <ProjectReference Include="..\SimpleShoppingApp.Web.ValidationAttributes\SimpleShoppingApp.ValidationAttributes.csproj" />
+  </ItemGroup>
+
 </Project>

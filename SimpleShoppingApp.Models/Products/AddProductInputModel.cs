@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using SimpleShoppingApp.ValidationAttributes;
+using SimpleShoppingApp.Web.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace SimpleShoppingApp.Models.Products
@@ -13,12 +15,18 @@ namespace SimpleShoppingApp.Models.Products
         [MinLength(10)]
         public string? Description { get; set; }
 
+        [Required]
         [Range(typeof(decimal), "0.50", "10000", ConvertValueInInvariantCulture = true)]
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
+        [Required]
         [Range(typeof(int), "1", "1000000")]
-        public int Quantity { get; set; }
+        public int? Quantity { get; set; }
 
-        public IEnumerable<IFormFile> Images { get; set; }
+        [Required]
+        [ValidateImage]
+        [FileMaxSize(5)]
+        public IEnumerable<IFormFile>? Images { get; set; }
+
     }
 }

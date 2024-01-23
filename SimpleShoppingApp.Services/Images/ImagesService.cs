@@ -20,9 +20,8 @@ namespace SimpleShoppingApp.Services.Images
                 { ImageType.Product, "products" },
             };
 
-            string[] fileNamePlusExtension = image.FileName.Split(".");
 
-            string extension = fileNamePlusExtension[1];
+            string extension = Path.GetExtension(image.FileName);
 
             var imageDb = new Image
             {
