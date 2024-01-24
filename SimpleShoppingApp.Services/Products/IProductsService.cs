@@ -7,5 +7,7 @@ namespace SimpleShoppingApp.Services.Products
         Task<int> AddAsync(AddProductInputModel model);
 
         Task<ProductViewModel?> GetAsync(int id);
+
+        Task<IEnumerable<ProductOnIndexViewModel>> GetRandomProductsAsync(int n);
     }
 }

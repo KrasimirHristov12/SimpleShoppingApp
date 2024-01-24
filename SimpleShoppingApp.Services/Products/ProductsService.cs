@@ -63,5 +63,27 @@ namespace SimpleShoppingApp.Services.Products
 
             return product;
         }
+
+        public async Task<IEnumerable<ProductOnIndexViewModel>> GetRandomProductsAsync(int n)
+        {
+            var products = await productsRepo.AllAsNoTracking()
+                .OrderBy(p => Guid.NewGuid())
+                .Take(n)
+                .Select(p => new ProductOnIndexViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Rating = p.Rating,
+                }).ToListAsync();
+
+            foreach (var product in products)
+            {
+                product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+            }
+
+            return products;
+
+        }
     }
 }

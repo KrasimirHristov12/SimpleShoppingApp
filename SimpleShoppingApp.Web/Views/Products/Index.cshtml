@@ -30,23 +30,48 @@
         </button>
     </div>
     <div class="col-md-4 my-auto">
-        <div class="text-center fs-5"><p>We have @Model.Quantity products in stock.</p></div>
 
-        <div class="text-center">
-            <span class="fs-4">Price: @Model.Price lv.</span>
+        <div class="rating-container text-center">
+            <span class="rating-number">@Model.Rating</span>
+            @for (int i = 0; i < 5; i++)
+            {
+                <i class="bi bi-star-fill"></i>
+            }
         </div>
+
+        <ul class="list-group mt-3">
+            <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
+            <li class="list-group-item text-center">Price: <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span></li>
+            <li class="list-group-item text-center"><button class="btn btn-success">Add to cart</button></li>
+        </ul>
     </div>
 </div>
 
-<hr/>
-
-
-
-<div class ="text-center">
+<hr />
+<div class="text-center">
     <h5>Description:</h5>
     <p>@Model.Description</p>
 </div>
 
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".bi-star-fill").on("mouseenter", function () {
+                let indexOfThis = $(".bi-star-fill").index($(this));
+
+                for (let i = 0; i < indexOfThis + 1; i++) {
+                    $(".bi-star-fill").eq(i).addClass("stars-yellow")
+                }
+
+            });
+
+            $(".bi-star-fill").on("mouseleave", function () {
+                $(".bi-star-fill").removeClass("stars-yellow");
+            });
+
+        });
+    </script>
+}
 
 
 

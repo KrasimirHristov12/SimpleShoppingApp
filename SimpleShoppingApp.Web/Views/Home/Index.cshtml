@@ -1,5 +1,7 @@
-﻿@{
+﻿@model IndexViewModel
+@{
     ViewData["Title"] = "Home Page";
+    var RandomProducts = Model.RandomProducts.ToList();
 }
 
 <div class="text-center mb-4">
@@ -23,16 +25,15 @@
 
 <div class="row">
 
-    @for (int i = 0; i < 9; i++)
+    @for (int i = 0; i < RandomProducts.Count; i++)
     {
         <div class="col-md-4 mb-3">
-            <a asp-controller="Products" asp-action="Index" asp-route-id="@(i+1)" class="link-dark text-decoration-none">
+            <a asp-controller="Products" asp-action="Index" asp-route-id="@RandomProducts[i].Id" class="link-dark text-decoration-none">
                 <div class="card">
-                    <img src="..." class="card-img-top" alt="...">
+                    <img src="~/images/products/@(RandomProducts[i].Image.Name + "." + RandomProducts[i].Image.Extension)" class="card-img-top" alt="@RandomProducts[i].Name Image" />
                     <div class="card-body">
-                        <h5 class="card-title">Product Name</h5>
-                        <p class="card-text">Rating:<br /><br /><span class="text-danger fw-bold fs-6">Product Price</span></p>
-
+                        <h5 class="card-title">@RandomProducts[i].Name</h5>
+                        <p class="card-text">Rating: @RandomProducts[i].Rating<br /><br /><span class="text-danger fw-bold fs-6">$@RandomProducts[i].Price</span></p>
                     </div>
                 </div>
             </a>

@@ -42,3 +42,15 @@ body {
 .search-container {
     height: 50px;
 }
+
+.bi-star-fill {
+    cursor: pointer;
+}
+
+.stars-yellow {
+    color: rgb(254, 189, 105);
+}
+
+.card img {
+    max-height: 220px;
+}

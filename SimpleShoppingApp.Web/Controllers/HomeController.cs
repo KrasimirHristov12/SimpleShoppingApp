@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Models;
+using SimpleShoppingApp.Models.Index;
+using SimpleShoppingApp.Services.Products;
 using System.Diagnostics;
 
 namespace SimpleShoppingApp.Web.Controllers
@@ -7,15 +9,21 @@ namespace SimpleShoppingApp.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IProductsService productsService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IProductsService _productsService)
         {
             _logger = logger;
+            productsService = _productsService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var model = new IndexViewModel();
+
+            model.RandomProducts = await productsService.GetRandomProductsAsync(9);
+
+            return View(model);
         }
 
         public IActionResult Privacy()
