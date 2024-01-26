@@ -2,7 +2,9 @@
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Models.Categories;
 using SimpleShoppingApp.Models.Products;
+using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
 
@@ -13,14 +15,17 @@ namespace SimpleShoppingApp.Web.Controllers
         private readonly IProductsService productsService;
         private readonly IWebHostEnvironment env;
         private readonly IImagesService imagesService;
+        private readonly ICategoriesService categoriesService;
 
         public ProductsController(IProductsService _productsService, 
             IWebHostEnvironment _env,
-            IImagesService _imagesService)
+            IImagesService _imagesService,
+            ICategoriesService _categoriesService)
         {
             productsService = _productsService;
             env = _env;
             imagesService = _imagesService;
+            categoriesService = _categoriesService;
         }
         public async Task<IActionResult> Index(int id)
         {
@@ -34,12 +39,20 @@ namespace SimpleShoppingApp.Web.Controllers
             return View(product);
         }
 
-        [Route("/[controller]/[action]/{name}")]
-        public IActionResult Category(string name)
+        public async Task<IActionResult> Category(int id, string name, int page = 1)
         {
             // Get category products - Get count, Implement Paging, filters (like in Emag)
 
-            return View();
+            var productsPerPage = await productsService.GetByCategoryAsync(id, 9, page);
+
+            var model = new CategoryProductsViewModel
+            {
+                CategoryName = name,
+                ProductsPerPage = productsPerPage,
+                TotalProductsCount = await categoriesService.GetCountOfProductsAsync(id),
+            };
+
+            return View(model);
         }
 
         public IActionResult Add()

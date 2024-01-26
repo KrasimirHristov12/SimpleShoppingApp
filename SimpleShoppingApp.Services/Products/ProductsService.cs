@@ -49,6 +49,8 @@ namespace SimpleShoppingApp.Services.Products
                     Price = p.Price,
                     Quantity = p.Quantity,
                     Rating = p.Rating,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.Name,
                 })
                .FirstOrDefaultAsync();
 
@@ -64,12 +66,12 @@ namespace SimpleShoppingApp.Services.Products
             return product;
         }
 
-        public async Task<IEnumerable<ProductOnIndexViewModel>> GetRandomProductsAsync(int n)
+        public async Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n)
         {
             var products = await productsRepo.AllAsNoTracking()
                 .OrderBy(p => Guid.NewGuid())
                 .Take(n)
-                .Select(p => new ProductOnIndexViewModel
+                .Select(p => new ListProductsViewModel
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -83,7 +85,28 @@ namespace SimpleShoppingApp.Services.Products
             }
 
             return products;
+        }
 
+        public async Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage)
+        {
+            var products = await productsRepo.AllAsNoTracking()
+                .Where(p => p.CategoryId == categoryId)
+                .Skip((currentPage - 1) * elementsPerPage)
+                .Take(elementsPerPage)
+                .Select(p => new ListProductsViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Rating = p.Rating,
+                }).ToListAsync();
+
+            foreach (var product in products)
+            {
+                product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+            }
+
+            return products;
         }
     }
 }

@@ -18,5 +18,9 @@ namespace SimpleShoppingApp.Data.Models
         public int Quantity { get; set; }
 
         public double Rating { get; set; }
+
+        public Category? Category { get; set; }
+
+        public int CategoryId { get; set; }
     }
 }

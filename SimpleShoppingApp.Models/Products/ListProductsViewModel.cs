@@ -2,7 +2,7 @@
 
 namespace SimpleShoppingApp.Models.Products
 {
-    public class ProductOnIndexViewModel
+    public class ListProductsViewModel
     {
         public int Id { get; set; }
 

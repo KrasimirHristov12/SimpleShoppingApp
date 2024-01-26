@@ -8,6 +8,8 @@ namespace SimpleShoppingApp.Services.Products
 
         Task<ProductViewModel?> GetAsync(int id);
 
-        Task<IEnumerable<ProductOnIndexViewModel>> GetRandomProductsAsync(int n);
+        Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n);
+
+        Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage);
     }
 }

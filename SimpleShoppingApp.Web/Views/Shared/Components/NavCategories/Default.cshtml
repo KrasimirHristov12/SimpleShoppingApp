@@ -1,0 +1,9 @@
+﻿@model IEnumerable<CategoryViewModel>
+
+<ul class="dropdown-menu">
+    @foreach (var cat in Model)
+    {
+        <li><a class="dropdown-item" asp-area="" asp-controller="Products" asp-action="Category" asp-route-name="@cat.Name" asp-route-id="@cat.Id">@cat.Name</a></li>
+    }
+    
+</ul>

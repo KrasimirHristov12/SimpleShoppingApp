@@ -4,6 +4,7 @@
     var Images = Model.Images.ToList();
 }
 
+<h6><a asp-action="Category" asp-route-name="@Model.CategoryName" asp-route-id="@Model.CategoryId" asp-route-page="1">@Model.CategoryName</a></h6>
 <h3>@ViewData["Title"]</h3>
 
 <div class="row">

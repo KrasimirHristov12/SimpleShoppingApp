@@ -1,5 +1,8 @@
-﻿@{
-    ViewData["Title"] = "Category Name";
+﻿@model CategoryProductsViewModel
+@{
+    ViewData["Title"] = Model.CategoryName;
 }
 
-<h1>@ViewData["Title"] - N products</h1>
+<h1>@ViewData["Title"] - @Model.TotalProductsCount products</h1>
+
+<partial name="_ListProducts" model="@Model.ProductsPerPage" />
