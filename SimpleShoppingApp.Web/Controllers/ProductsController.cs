@@ -43,12 +43,14 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             // Get category products - Get count, Implement Paging, filters (like in Emag)
 
-            var productsPerPage = await productsService.GetByCategoryAsync(id, 9, page);
+            var productsPerPage = await productsService.GetByCategoryAsync(id, 1, page);
 
             var model = new CategoryProductsViewModel
             {
                 CategoryName = name,
+                CategoryId = id,
                 ProductsPerPage = productsPerPage,
+                CurrentPage = page,
                 TotalProductsCount = await categoriesService.GetCountOfProductsAsync(id),
             };
 
