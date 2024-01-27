@@ -16,6 +16,11 @@ namespace SimpleShoppingApp.Data.Repository
             return db.Set<T>().AsNoTracking();
         }
 
+        public IQueryable<T> AllAsTracking()
+        {
+            return db.Set<T>().AsTracking();
+        }
+
         public async Task AddAsync(T item)
         {
             await db.AddAsync<T>(item);

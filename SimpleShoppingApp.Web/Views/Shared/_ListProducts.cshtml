@@ -17,7 +17,7 @@ else
             <div class="col-md-4 mb-3">
                 <a asp-controller="Products" asp-action="Index" asp-route-id="@Products[i].Id" class="link-dark text-decoration-none">
                     <div class="card">
-                        <img src="~/images/products/@(Products[i].Image.Name + "." + Products[i].Image.Extension)" class="card-img-top" alt="@Products[i].Name Image" />
+                        <img src="~/images/products/@(Products[i].Image.Name + Products[i].Image.Extension)" class="card-img-top" alt="@Products[i].Name Image" />
                         <div class="card-body">
                             <h5 class="card-title">@Products[i].Name</h5>
                             <p class="card-text">Rating: @Products[i].Rating<br /><br /><span class="text-danger fw-bold fs-6">$@Products[i].Price</span></p>

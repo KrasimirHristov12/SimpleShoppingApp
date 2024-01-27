@@ -25,12 +25,5 @@ namespace SimpleShoppingApp.Services.Categories
             return categories;
         }
 
-        public async Task<int> GetCountOfProductsAsync(int categoryId)
-        {
-            return await categoryRepo.AllAsNoTracking()
-                .Where(c => c.Id == categoryId)
-                .Select(c => c.Products.Count)
-                .FirstOrDefaultAsync();
-        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
@@ -51,15 +52,20 @@ namespace SimpleShoppingApp.Web.Controllers
                 CategoryId = id,
                 ProductsPerPage = productsPerPage,
                 CurrentPage = page,
-                TotalProductsCount = await categoriesService.GetCountOfProductsAsync(id),
+                TotalProductsCount = await productsService.GetCountForCategoryAsync(id),
             };
 
             return View(model);
         }
 
-        public IActionResult Add()
+        public async Task<IActionResult> Add()
         {
-            return View();
+            var categories = await categoriesService.GetAllAsync();
+            var model = new AddProductInputModel
+            {
+                Categories = categories,
+            };
+            return View(model);
         }
 
         [HttpPost]
@@ -67,6 +73,7 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.Categories = await categoriesService.GetAllAsync();
                 return View(model);
             }
 
@@ -89,6 +96,47 @@ namespace SimpleShoppingApp.Web.Controllers
 
             return RedirectToAction(nameof(Index), new { id = newProductId });
            
+        }
+
+        [HttpPost]
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            bool deleteResult = await productsService.DeleteAsync(id);
+
+            if (!deleteResult)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(Index), "Home");
+        }
+
+        public async Task<IActionResult> Update(int id)
+        {
+            var productToEdit = await productsService.GetToEditAsync(id);
+
+            if (productToEdit == null)
+            {
+                return NotFound();
+            }
+
+            return View(productToEdit);
+        }
+
+        [HttpPost]
+
+        public async Task<IActionResult> Update(EditProductInputModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.Categories = await categoriesService.GetAllAsync();
+                return View(model);
+            }
+
+            await productsService.UpdateAsync(model);
+
+            return RedirectToAction(nameof(Index), new { id = model.Id });
         }
     }
 }

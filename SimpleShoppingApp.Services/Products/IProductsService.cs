@@ -11,5 +11,13 @@ namespace SimpleShoppingApp.Services.Products
         Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n);
 
         Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage);
+
+        Task<bool> DeleteAsync(int id);
+
+        Task<int> GetCountForCategoryAsync(int categoryId);
+
+        Task<EditProductInputModel?> GetToEditAsync(int id);
+
+        Task UpdateAsync(EditProductInputModel model);
     }
 }

@@ -5,5 +5,7 @@
         Task AddAsync(T item);
         Task SaveChangesAsync();
         IQueryable<T> AllAsNoTracking();
+
+        IQueryable<T> AllAsTracking();
     }
 }
