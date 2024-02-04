@@ -5,7 +5,16 @@
 
 <h1>@ViewData["Title"] - @Model.TotalProductsCount products</h1>
 
-<partial name="_ListProducts" model="@Model.ProductsPerPage" />
+@if (Model.ProductsPerPageCount == 0)
+{
+    <h5>No products in this category</h5>
+}
+else
+{
+    <partial name="_ListProducts" model="@Model.ProductsPerPage" />
+}
+
+
 
 
 <nav aria-label="Page navigation example">

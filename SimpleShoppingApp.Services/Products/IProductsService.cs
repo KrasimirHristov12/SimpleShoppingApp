@@ -19,5 +19,7 @@ namespace SimpleShoppingApp.Services.Products
         Task<EditProductInputModel?> GetToEditAsync(int id);
 
         Task UpdateAsync(EditProductInputModel model);
+
+        Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name);
     }
 }

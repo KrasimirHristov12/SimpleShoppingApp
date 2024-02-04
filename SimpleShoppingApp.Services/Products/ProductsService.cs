@@ -2,6 +2,7 @@
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
@@ -172,6 +173,25 @@ namespace SimpleShoppingApp.Services.Products
             productToEdit.Description = model.Description;
 
             await productsRepo.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name)
+        {
+            var filteredProducts = await productsRepo.AllAsNoTracking()
+                .Where(p => p.Name.ToLower().Contains(name.ToLower()))
+                .Select(p => new ListProductsViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Rating = p.Rating,
+                }).ToListAsync();
+
+            foreach (var product in filteredProducts)
+            {
+                product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+            }
+            return filteredProducts;
         }
     }
 }

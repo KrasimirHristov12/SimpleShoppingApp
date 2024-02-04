@@ -138,5 +138,19 @@ namespace SimpleShoppingApp.Web.Controllers
 
             return RedirectToAction(nameof(Index), new { id = model.Id });
         }
+
+        public async Task<IActionResult> Search(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) // If JS turned off
+            {
+                return BadRequest();
+            }
+
+            ViewBag.Name = name;
+
+            var model = await productsService.GetByNameAsync(name);
+
+            return View(model);
+        }
     }
 }
