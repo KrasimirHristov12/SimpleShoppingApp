@@ -5,16 +5,19 @@
 }
 
 <h6><a asp-action="Category" asp-route-name="@Model.CategoryName" asp-route-id="@Model.CategoryId" asp-route-page="1">@Model.CategoryName</a></h6>
-<div class="row">
-    <div class="col-md-9"><h3>@ViewData["Title"]</h3></div>
-    <div class="col-md-3">
-        <a class="btn btn-warning" asp-action="Update" asp-route-id="@Model.Id">Edit</a>
-        <form asp-action="Delete" method="post" class="delete-product-form d-inline">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-danger delete-btn">Delete</button>
-        </form>
+<div class="row mb-2">
+    <div class="col-md-9"><h3>@ViewData["Title"]</h3><span class="fst-italic">Added By: @Model.UserName</span></div>
+    @if (Model.BelongsToCurrentUser)
+    {
+        <div class="col-md-3">
+            <a class="btn btn-warning" asp-action="Update" asp-route-id="@Model.Id">Edit</a>
+            <form asp-action="Delete" method="post" class="delete-product-form d-inline">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-danger delete-btn">Delete</button>
+            </form>
+        </div>
+    }
 
-    </div>
 </div>
 
 
@@ -43,18 +46,31 @@
     </div>
     <div class="col-md-4 my-auto">
 
-        <div class="rating-container text-center">
-            <span class="rating-number">@Model.Rating</span>
-            @for (int i = 0; i < 5; i++)
-            {
-                <i class="bi bi-star-fill"></i>
-            }
-        </div>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="rating-container text-center">
+                <span class="rating-number">@Model.Rating</span>
+                @for (int i = 0; i < 5; i++)
+                {
+                    <i class="bi bi-star-fill"></i>
+                }
+            </div>
+        }
+
 
         <ul class="list-group mt-3">
             <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
             <li class="list-group-item text-center">Price: <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span></li>
-            <li class="list-group-item text-center"><button class="btn btn-success">Add to cart</button></li>
+            <li class="list-group-item text-center">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <button class="btn btn-success">Add to cart</button>
+                }
+                else
+                {
+                    <span><a href="/Identity/Account/Login?returnUrl=@Context.Request.Path">Log-in</a> to be able to buy this product.</span>
+                }
+            </li>
         </ul>
     </div>
 </div>

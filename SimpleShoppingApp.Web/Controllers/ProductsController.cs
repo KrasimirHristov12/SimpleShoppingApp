@@ -1,33 +1,38 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Data.Enums;
-using SimpleShoppingApp.Data.Models;
-using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Categories;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
+using SimpleShoppingApp.Services.Users;
+using System.Security.Claims;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController : BaseController
     {
         private readonly IProductsService productsService;
         private readonly IWebHostEnvironment env;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
+        private readonly IUsersService usersService;
 
         public ProductsController(IProductsService _productsService, 
             IWebHostEnvironment _env,
             IImagesService _imagesService,
-            ICategoriesService _categoriesService)
+            ICategoriesService _categoriesService,
+            IUsersService _usersService)
         {
             productsService = _productsService;
             env = _env;
             imagesService = _imagesService;
             categoriesService = _categoriesService;
+            usersService = _usersService;
         }
+
+        [AllowAnonymous]
         public async Task<IActionResult> Index(int id)
         {
             var product = await productsService.GetAsync(id);
@@ -37,9 +42,24 @@ namespace SimpleShoppingApp.Web.Controllers
                 return NotFound();
             }
 
+            if (User.Identity.IsAuthenticated)
+            {
+                string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+                product.BelongsToCurrentUser = await productsService.BelognsToUserAsync(id, loggedInUserId);
+            }
+
+            else
+            {
+                product.BelongsToCurrentUser = false;
+            }
+
+            
+
             return View(product);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Category(int id, string name, int page = 1)
         {
             // Get category products - Get count, Implement Paging, filters (like in Emag)
@@ -99,9 +119,16 @@ namespace SimpleShoppingApp.Web.Controllers
         }
 
         [HttpPost]
-
         public async Task<IActionResult> Delete(int id)
         {
+
+            string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+            if (!await productsService.BelognsToUserAsync(id, loggedInUserId))
+            {
+                return Forbid();
+            }
+
             bool deleteResult = await productsService.DeleteAsync(id);
 
             if (!deleteResult)
@@ -114,6 +141,12 @@ namespace SimpleShoppingApp.Web.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
+            string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+            if (!await productsService.BelognsToUserAsync(id, loggedInUserId))
+            {
+                return Forbid();
+            }
             var productToEdit = await productsService.GetToEditAsync(id);
 
             if (productToEdit == null)
@@ -125,9 +158,15 @@ namespace SimpleShoppingApp.Web.Controllers
         }
 
         [HttpPost]
-
         public async Task<IActionResult> Update(EditProductInputModel model)
         {
+            string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+            if (!await productsService.BelognsToUserAsync(model.Id, loggedInUserId))
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
                 model.Categories = await categoriesService.GetAllAsync();
@@ -139,6 +178,7 @@ namespace SimpleShoppingApp.Web.Controllers
             return RedirectToAction(nameof(Index), new { id = model.Id });
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Search(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) // If JS turned off

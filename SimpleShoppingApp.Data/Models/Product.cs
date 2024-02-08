@@ -19,7 +19,11 @@ namespace SimpleShoppingApp.Data.Models
 
         public double Rating { get; set; }
 
-        public Category Category { get; set; } = null!;
+        public string? UserId { get; set; }
+
+        public ApplicationUser? User { get; set; }
+
+        public Category Category { get; set; } = new Category();
 
         public int CategoryId { get; set; }
 

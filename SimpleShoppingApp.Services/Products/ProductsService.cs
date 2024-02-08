@@ -2,11 +2,10 @@
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
-using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
-using System.Security.AccessControl;
+using SimpleShoppingApp.Services.Users;
 
 namespace SimpleShoppingApp.Services.Products
 {
@@ -15,14 +14,17 @@ namespace SimpleShoppingApp.Services.Products
         private readonly IRepository<Product> productsRepo;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
+        private readonly IUsersService usersService;
 
         public ProductsService(IRepository<Product> _productsRepo, 
             IImagesService _imagesService,
-            ICategoriesService _categoriesService)
+            ICategoriesService _categoriesService,
+            IUsersService _usersService)
         {
             productsRepo = _productsRepo;
             imagesService = _imagesService;
             categoriesService = _categoriesService;
+            usersService = _usersService;
         }
 
         public async Task<int> AddAsync(AddProductInputModel model)
@@ -57,6 +59,7 @@ namespace SimpleShoppingApp.Services.Products
                     Rating = p.Rating,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category.Name,
+                    UserName = p.User.UserName
                 })
                .FirstOrDefaultAsync();
 
@@ -192,6 +195,23 @@ namespace SimpleShoppingApp.Services.Products
                 product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
             }
             return filteredProducts;
+        }
+
+        public async Task<bool> BelognsToUserAsync(int productId, string loggedInUserId)
+        {
+            string adminUserId = await usersService.GetAdminUserIdAsync();
+
+            if (loggedInUserId == adminUserId)
+            {
+                return true;
+            }
+
+            var creatorUserId = await productsRepo.AllAsNoTracking()
+                .Where(p => p.Id == productId)
+                .Select(p => p.UserId)
+                .FirstAsync();
+
+            return loggedInUserId == creatorUserId;
         }
     }
 }

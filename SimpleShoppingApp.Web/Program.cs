@@ -7,6 +7,7 @@ using SimpleShoppingApp.Data.Seeders;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
+using SimpleShoppingApp.Services.Users;
 using SimpleShoppingApp.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IImagesService, ImagesService>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 builder.Services.AddScoped<UserSeeder>();
 builder.Services.AddScoped<AdminRoleSeeder>();
+builder.Services.AddScoped<IUsersService, UsersService>();
 
 var app = builder.Build();
 

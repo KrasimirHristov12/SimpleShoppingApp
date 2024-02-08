@@ -21,5 +21,7 @@ namespace SimpleShoppingApp.Services.Products
         Task UpdateAsync(EditProductInputModel model);
 
         Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name);
+
+        Task<bool> BelognsToUserAsync(int productId, string loggedInUserId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Models;
 using SimpleShoppingApp.Models.Index;
 using SimpleShoppingApp.Services.Products;
@@ -6,7 +7,7 @@ using System.Diagnostics;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductsService productsService;
@@ -17,6 +18,7 @@ namespace SimpleShoppingApp.Web.Controllers
             productsService = _productsService;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var model = new IndexViewModel();
@@ -26,11 +28,13 @@ namespace SimpleShoppingApp.Web.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
