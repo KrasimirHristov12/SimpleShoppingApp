@@ -9,9 +9,9 @@
     <div class="col-md-9"><h3>@ViewData["Title"]</h3></div>
     <div class="col-md-3">
         <a class="btn btn-warning" asp-action="Update" asp-route-id="@Model.Id">Edit</a>
-        <form asp-action="Delete" method="post" class="d-inline">
+        <form asp-action="Delete" method="post" class="delete-product-form d-inline">
             <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-danger">Delete</button>
+            <button type="submit" class="btn btn-danger delete-btn">Delete</button>
         </form>
 
     </div>
@@ -64,26 +64,6 @@
     <h5>Description:</h5>
     <p>@Model.Description</p>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $(".bi-star-fill").on("mouseenter", function () {
-                let indexOfThis = $(".bi-star-fill").index($(this));
-
-                for (let i = 0; i < indexOfThis + 1; i++) {
-                    $(".bi-star-fill").eq(i).addClass("stars-yellow")
-                }
-
-            });
-
-            $(".bi-star-fill").on("mouseleave", function () {
-                $(".bi-star-fill").removeClass("stars-yellow");
-            });
-
-        });
-    </script>
-}
 
 
 
