@@ -42,7 +42,7 @@ namespace SimpleShoppingApp.Web.Controllers
                 return NotFound();
             }
 
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
 

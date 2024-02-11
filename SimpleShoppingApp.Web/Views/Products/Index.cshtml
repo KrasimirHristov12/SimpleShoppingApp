@@ -46,7 +46,7 @@
     </div>
     <div class="col-md-4 my-auto">
 
-        @if (User.Identity.IsAuthenticated)
+        @if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             <div class="rating-container text-center">
                 <span class="rating-number">@Model.Rating</span>
@@ -62,7 +62,7 @@
             <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
             <li class="list-group-item text-center">Price: <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span></li>
             <li class="list-group-item text-center">
-                @if (User.Identity.IsAuthenticated)
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
                     <button class="btn btn-success">Add to cart</button>
                 }

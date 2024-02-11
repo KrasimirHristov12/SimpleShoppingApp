@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SimpleShoppingApp.Data.Models;
 
@@ -32,6 +31,17 @@ namespace SimpleShoppingApp.Data
                 .Property(p => p.CategoryId)
                 .HasDefaultValue(1);
 
+            builder.Entity<ShoppingCart>()
+                .HasOne(c => c.User)
+                .WithOne(u => u.Cart)
+                .HasForeignKey<ShoppingCart>(c => c.UserId);
+
+            builder.Entity<Product>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Products)
+                .HasForeignKey("UserId")
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(builder);
         }
         public DbSet<Product> Products { get; set; }
@@ -39,5 +49,7 @@ namespace SimpleShoppingApp.Data
         public DbSet<Image> Images { get; set; }
 
         public DbSet<Category> Categories { get; set; }
+
+        public DbSet<CartsProducts> CartsProducts { get; set; }
     }
 }
