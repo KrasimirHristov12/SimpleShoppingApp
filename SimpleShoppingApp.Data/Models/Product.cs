@@ -6,22 +6,16 @@ namespace SimpleShoppingApp.Data.Models
     {
         public Product()
         {
-            Description = string.Empty;
-            UserId = string.Empty;
-            Name = string.Empty;
-            User = new ApplicationUser();
-            Category = new Category();
             CartsProducts = new HashSet<CartsProducts>();
-            Category = new Category();
         }
         public int Id { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required]
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         public decimal Price { get; set; }
 
@@ -30,13 +24,13 @@ namespace SimpleShoppingApp.Data.Models
         public double Rating { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [Required]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; } = null!;
 
         [Required]
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
         public int CategoryId { get; set; }
 

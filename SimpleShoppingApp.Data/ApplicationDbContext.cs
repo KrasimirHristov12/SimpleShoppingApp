@@ -44,12 +44,12 @@ namespace SimpleShoppingApp.Data
 
             base.OnModelCreating(builder);
         }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
-        public DbSet<Image> Images { get; set; }
+        public DbSet<Image> Images { get; set; } = null!;
 
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; } = null!;
 
-        public DbSet<CartsProducts> CartsProducts { get; set; }
+        public DbSet<CartsProducts> CartsProducts { get; set; } = null!;
     }
 }

@@ -199,7 +199,12 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<bool> BelognsToUserAsync(int productId, string loggedInUserId)
         {
-            string adminUserId = await usersService.GetAdminUserIdAsync();
+            string? adminUserId = await usersService.GetAdminIdAsync();
+
+            if (adminUserId == null)
+            {
+                return false;
+            }
 
             if (loggedInUserId == adminUserId)
             {
@@ -212,6 +217,20 @@ namespace SimpleShoppingApp.Services.Products
                 .FirstAsync();
 
             return loggedInUserId == creatorUserId;
+        }
+
+        public async Task<int?> GetQuantityAsync(int id) 
+        {
+            return await productsRepo.AllAsNoTracking()
+                .Where(p => p.Id == id)
+                .Select(p => p.Quantity)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> DoesProductExistAsync(int productId)
+        {
+            return await productsRepo.AllAsNoTracking()
+                .AnyAsync(p => p.Id == productId);
         }
     }
 }

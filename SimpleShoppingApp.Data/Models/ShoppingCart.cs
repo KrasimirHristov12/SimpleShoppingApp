@@ -6,18 +6,16 @@ namespace SimpleShoppingApp.Data.Models
     {
         public ShoppingCart()
         {
-            UserId = string.Empty;
             CartsProducts = new HashSet<CartsProducts>();
-            User = new ApplicationUser();
         }
 
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [Required]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; } = null!;
 
         public bool IsDeleted { get; set; }
 

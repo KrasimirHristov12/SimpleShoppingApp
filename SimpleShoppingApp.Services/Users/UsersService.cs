@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using SimpleShoppingApp.Data.Models;
+using System.Security.Claims;
 
 namespace SimpleShoppingApp.Services.Users
 {
@@ -14,11 +15,15 @@ namespace SimpleShoppingApp.Services.Users
             userManager = _userManager;
             configuration = _configuration;
         }
-        public async Task<string> GetAdminUserIdAsync()
+        public async Task<string?> GetAdminIdAsync()
         {
             string adminUsername = configuration["AdminAccount:Email"];
             var adminUser = await userManager.FindByNameAsync(adminUsername);
             return await userManager.GetUserIdAsync(adminUser);
+        }
+        public string? GetId(ClaimsPrincipal user)
+        {
+            return userManager.GetUserId(user);
         }
     }
 }

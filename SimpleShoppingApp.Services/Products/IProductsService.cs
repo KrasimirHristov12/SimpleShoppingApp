@@ -23,5 +23,9 @@ namespace SimpleShoppingApp.Services.Products
         Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name);
 
         Task<bool> BelognsToUserAsync(int productId, string loggedInUserId);
+
+        Task<int?> GetQuantityAsync(int id);
+
+        Task<bool> DoesProductExistAsync(int productId);
     }
 }

@@ -1,7 +1,11 @@
-﻿namespace SimpleShoppingApp.Services.Users
+﻿using System.Security.Claims;
+
+namespace SimpleShoppingApp.Services.Users
 {
     public interface IUsersService
     {
-        Task<string> GetAdminUserIdAsync();
+        Task<string?> GetAdminIdAsync();
+
+        string? GetId(ClaimsPrincipal user);
     }
 }

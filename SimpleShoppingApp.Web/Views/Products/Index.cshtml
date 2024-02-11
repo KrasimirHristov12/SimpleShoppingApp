@@ -64,7 +64,11 @@
             <li class="list-group-item text-center">
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
-                    <button class="btn btn-success">Add to cart</button>
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                        <input type="hidden" name="id" value="@Model.Id"/>
+                        <button class="btn btn-success">Add to cart</button>
+                    </form>
+                    
                 }
                 else
                 {

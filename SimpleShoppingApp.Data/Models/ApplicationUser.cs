@@ -7,24 +7,21 @@ namespace SimpleShoppingApp.Data.Models
     {
         public ApplicationUser()
         {
-            FirstName = string.Empty;
-            LastName = string.Empty;
             Products = new HashSet<Product>();
-            Cart = new ShoppingCart();
         }
 
         [Required]
         [MaxLength(50)]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = null!;
 
         [Required]
         [MaxLength(50)]   
-        public string LastName { get; set; }
+        public string LastName { get; set; } = null!;
 
         public ICollection<Product> Products { get; set; }
 
         [Required]
-        public ShoppingCart Cart { get; set; }
+        public ShoppingCart Cart { get; set; } = null!;
 
         public int CartId { get; set; }
 
