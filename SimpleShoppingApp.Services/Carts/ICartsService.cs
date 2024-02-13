@@ -19,5 +19,7 @@ namespace SimpleShoppingApp.Services.Carts
 
         Task<CartJsonViewModel?> RemoveProductAsync(int cartId, int productId);
 
+        Task<UpdateQuantityJsonViewModel?> UpdateProductQuantityAsync(int cartId, int productId, int updatedQuantity);
+
     }
 }

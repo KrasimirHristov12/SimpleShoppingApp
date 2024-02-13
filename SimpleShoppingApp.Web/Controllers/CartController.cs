@@ -93,6 +93,37 @@ namespace SimpleShoppingApp.Web.Controllers
             }
             
             return Ok(removedProductInfo);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateQuantity(int productId, int updatedQuantity)
+        {
+            if (User == null)
+            {
+                return Unauthorized();
+            }
+            var controllerName = "Cart";
+            var actionName = "Index";
+            var userId = usersService.GetId(User);
+            if (userId == null)
+            {
+                return Redirect($"/Identity/Login?returnUrl=/{controllerName}/{actionName}");
+            }
+            var cartId = await cartService.GetIdAsync(userId);
+
+            if (cartId == null)
+            {
+                return NotFound();
+            }
+
+            var updatedInfo = await cartService.UpdateProductQuantityAsync((int)cartId, productId, updatedQuantity);
+
+            if (updatedInfo == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedInfo);
 
         }
     }

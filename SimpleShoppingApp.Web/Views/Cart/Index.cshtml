@@ -16,7 +16,8 @@
                     <div class="card-body">
                         @foreach (var product in Model.CartProducts)
                         {
-                            <div class="row product-@product.ProductId">
+                            <div class="row product">
+                                <input type="hidden" value="@product.ProductId" />
                                 <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
                                     <!-- Image -->
                                     <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
@@ -36,30 +37,23 @@
                                             title="Remove item">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" value="@product.ProductId" />
                                     <!-- Data -->
                                 </div>
 
                                 <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                                     <!-- Quantity -->
-                                    <div class="d-flex mb-4" style="max-width: 300px">
-                                        <button class="btn btn-primary px-3 me-2">
-                                            <i class="bi bi-dash"></i>
-                                        </button>
+                                    <div class="mb-4" >
 
                                         <div class="form-outline">
-                                            <input id="form1" min="0" name="quantity" value="1" type="number" class="form-control" />
-                                            <label class="form-label" for="form1">Quantity</label>
+                                            <input class="quantity-input" min="0" name="quantity" value="@product.ProductQuantity" type="number"/>
+                                            <label class="form-label" for="quantity-input">Quantity</label>
                                         </div>
-
-                                        <button class="btn btn-primary px-3 ms-2">
-                                            <i class="bi bi-plus"></i>
-                                        </button>
                                     </div>
                                     <!-- Quantity -->
                                     <!-- Price -->
                                     <p class="text-start text-md-center">
-                                        <strong>$@product.ProductPrice</strong>
+                                        <span>Total Price: </span>
+                                        <strong class="product-price">$@product.ProductTotalPrice</strong>
                                     </p>
                                     <!-- Price -->
                                 </div>
@@ -101,29 +95,3 @@
         </div>
     </div>
 </section>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $(".remove-btn").on("click", function () {
-                let idOfProduct = $(this).next().val();
-                $.ajax({
-                    type: "POST",
-                    url: "/Cart/DeleteProduct",
-                    data: {
-                        productId: idOfProduct,
-                    },
-                    success: function (data) {
-                        console.log(data);
-                        let deletedProductId = data.productId;
-                        $(".product-" + deletedProductId).next().remove();
-                        $(".product-" + deletedProductId).remove();
-                        $(".products-count").text(data.newCount);
-                        $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
-                    },
-                    dataType: "json",
-                });
-            });
-        });
-    </script>
-}

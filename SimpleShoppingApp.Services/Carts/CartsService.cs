@@ -59,6 +59,7 @@ namespace SimpleShoppingApp.Services.Carts
             if (foundCartProduct.IsDeleted)
             {
                 foundCartProduct.IsDeleted = false;
+                foundCartProduct.Quantity = 1;
                 await cartsProductsRepo.SaveChangesAsync();
             }
 
@@ -119,7 +120,7 @@ namespace SimpleShoppingApp.Services.Carts
                         ProductId = cp.ProductId,
                         ProductName = cp.Product.Name,
                         ProductPrice = cp.Product.Price,
-                        ProductQuantity = 1,
+                        ProductQuantity = cp.Quantity,
                     })
                 }).FirstOrDefaultAsync();
             if (cart == null)
@@ -171,7 +172,35 @@ namespace SimpleShoppingApp.Services.Carts
             }
 
             return null;
+        }
 
+        public async Task<UpdateQuantityJsonViewModel?> UpdateProductQuantityAsync(int cartId, int productId, int updatedQuantity)
+        {
+            var cartProduct = await cartsProductsRepo.AllAsTracking()
+                .Include(cp => cp.Product)
+                .FirstOrDefaultAsync(cp => cp.CartId == cartId && cp.ProductId == productId);
+            if (cartProduct == null)
+            {
+                return null;
+            }
+
+            if (updatedQuantity == 0)
+            {
+                return null;
+            }
+
+            cartProduct.Quantity = updatedQuantity;
+            await cartsProductsRepo.SaveChangesAsync();
+
+            var cartUpdatedInfo = await cartsProductsRepo.AllAsTracking()
+                .Where(cp => cp.CartId == cartId && !cp.IsDeleted)
+                .Select(cp => cp.Product.Price * cp.Quantity)
+                .ToListAsync();
+            return new UpdateQuantityJsonViewModel
+            {
+                NewProductPrice = updatedQuantity * cartProduct.Product.Price,
+                NewTotalPrice =  cartUpdatedInfo.Sum(),
+            };
 
 
         }

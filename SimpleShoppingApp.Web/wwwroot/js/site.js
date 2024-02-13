@@ -43,4 +43,57 @@ $(".bi-star-fill").on("mouseenter", function () {
 $(".bi-star-fill").on("mouseleave", function () {
     $(".bi-star-fill").removeClass("stars-yellow");
 });
+$(".remove-btn").on("click", function () {
+    let removeBtn = $(this);
+    let idOfProduct = removeBtn.closest(".product").find("input:hidden").val();
+    $.ajax({
+        type: "POST",
+        url: "/Cart/DeleteProduct",
+        data: {
+            productId: idOfProduct,
+        },
+        success: function (data) {
+            let deletedProductId = data.productId;
+            removeBtn.closest(".product").next().remove();
+            removeBtn.closest(".product").remove();
+            $(".products-count").text(data.newCount);
+            $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
+        },
+        dataType: "json",
+    });
+});
+
+$(".quantity-input").on("keyup change", function () {
+    let quantityInput = $(this)
+    let updatedQuantity = quantityInput.val();
+    if (!isNaN(updatedQuantity)) {
+        let updatedQuantityNum = parseInt(updatedQuantity);
+        if (updatedQuantityNum <= 0) {
+            alert("Product quantity must be a positive number.");
+            $(this).val("1");
+        }
+        else {
+            let idOfProduct = quantityInput.closest(".product").find("input:hidden").val();
+            $.ajax({
+                type: "POST",
+                url: "/Cart/UpdateQuantity",
+                data: {
+                    productId: idOfProduct,
+                    updatedQuantity: updatedQuantityNum.toString(),
+                },
+                success: function (data) {
+                    quantityInput.closest("div.mb-4").next().find(".product-price").text('$' + parseFloat(data.newProductPrice).toFixed(2));
+                    $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
+                },
+                dataType: "json",
+            });
+        }
+    }
+    else {
+        alert("Product quantity must be a number");
+        $(this).val("1");
+    }
+});
+
+
 
