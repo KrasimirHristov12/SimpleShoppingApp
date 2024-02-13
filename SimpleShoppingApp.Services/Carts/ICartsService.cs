@@ -9,12 +9,15 @@ namespace SimpleShoppingApp.Services.Carts
 
         Task<bool> DoesUserHaveCartAsync(string userId);
 
-        Task<bool> AddProductAsync(int cartId, int productId);
+        Task AddProductAsync(int cartId, int productId);
 
         Task<int?> UpdateQuantityInCartAsync(int cartId, int productId, QuantityOperation operation);
 
         Task<CartViewModel?> GetAsync(string userId);
 
-        Task<int> GetIdAsync(string userId);
+        Task<int?> GetIdAsync(string userId);
+
+        Task<CartJsonViewModel?> RemoveProductAsync(int cartId, int productId);
+
     }
 }

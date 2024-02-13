@@ -11,12 +11,12 @@
             <div class="col-md-8">
                 <div class="card mb-4">
                     <div class="card-header py-3">
-                        <h5 class="mb-0">Cart - @Model.ProductsCount items</h5>
+                        <h5 class="mb-0">Cart - <span class="products-count">@Model.ProductsCount</span> items</h5>
                     </div>
                     <div class="card-body">
                         @foreach (var product in Model.CartProducts)
                         {
-                            <div class="row">
+                            <div class="row product-@product.ProductId">
                                 <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
                                     <!-- Image -->
                                     <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
@@ -32,10 +32,11 @@
                                 <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
                                     <!-- Data -->
                                     <p><strong>@product.ProductName</strong></p>
-                                    <button type="button" class="btn btn-primary btn-sm me-1 mb-2" data-mdb-toggle="tooltip"
+                                    <button type="button" class="btn btn-danger btn-sm me-1 mb-2 remove-btn" data-mdb-toggle="tooltip"
                                             title="Remove item">
                                         <i class="bi bi-trash"></i>
                                     </button>
+                                    <input type="hidden" value="@product.ProductId" />
                                     <!-- Data -->
                                 </div>
 
@@ -87,7 +88,7 @@
                                 <div>
                                     <strong>Total amount</strong>
                                 </div>
-                                <span><strong>$@Model.TotalPrice</strong></span>
+                                <span><strong class="total-price">$@Model.TotalPrice</strong></span>
                             </li>
                         </ul>
 
@@ -100,3 +101,29 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".remove-btn").on("click", function () {
+                let idOfProduct = $(this).next().val();
+                $.ajax({
+                    type: "POST",
+                    url: "/Cart/DeleteProduct",
+                    data: {
+                        productId: idOfProduct,
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        let deletedProductId = data.productId;
+                        $(".product-" + deletedProductId).next().remove();
+                        $(".product-" + deletedProductId).remove();
+                        $(".products-count").text(data.newCount);
+                        $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
+                    },
+                    dataType: "json",
+                });
+            });
+        });
+    </script>
+}

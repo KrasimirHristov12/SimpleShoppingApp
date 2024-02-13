@@ -41,10 +41,10 @@ namespace SimpleShoppingApp.Services.Carts
         {
             return await cartsRepo.AllAsNoTracking().AnyAsync(c => c.UserId == userId);
         }
-
-        public async Task<bool> AddProductAsync(int cartId, int productId)
+        public async Task AddProductAsync(int cartId, int productId)
         {
-            if (!await cartsProductsRepo.AllAsTracking().AnyAsync(cp => cp.CartId == cartId && cp.ProductId == productId))
+            var foundCartProduct = await cartsProductsRepo.AllAsTracking().FirstOrDefaultAsync(cp => cp.CartId == cartId && cp.ProductId == productId);
+            if (foundCartProduct == null)
             {
                 await cartsProductsRepo.AddAsync(new CartsProducts
                 {
@@ -53,10 +53,14 @@ namespace SimpleShoppingApp.Services.Carts
                     Quantity = 1,
                 });
                 await cartsProductsRepo.SaveChangesAsync();
-                return true;
+                return;
             }
 
-            return false;
+            if (foundCartProduct.IsDeleted)
+            {
+                foundCartProduct.IsDeleted = false;
+                await cartsProductsRepo.SaveChangesAsync();
+            }
 
         }
 
@@ -110,7 +114,7 @@ namespace SimpleShoppingApp.Services.Carts
                 .Where(c => c.UserId == userId)
                 .Select(c => new CartViewModel
                 {
-                    CartProducts = c.CartsProducts.Select(cp => new CartProductsViewModel
+                    CartProducts = c.CartsProducts.Where(cp => !cp.IsDeleted).Select(cp => new CartProductsViewModel
                     {
                         ProductId = cp.ProductId,
                         ProductName = cp.Product.Name,
@@ -130,12 +134,46 @@ namespace SimpleShoppingApp.Services.Carts
 
             return cart;
         }
-        public async Task<int> GetIdAsync(string userId)
+        public async Task<int?> GetIdAsync(string userId)
         {
             return await cartsRepo.AllAsNoTracking()
                 .Where(c => c.UserId == userId)
                 .Select(c => c.Id)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<CartJsonViewModel?> RemoveProductAsync(int cartId, int productId)
+        {
+            var cartProduct = await cartsProductsRepo.AllAsTracking()
+                .Where(cp => cp.CartId == cartId && cp.ProductId == productId)
+                .FirstOrDefaultAsync();
+
+            if (cartProduct == null)
+            {
+                return null;
+            }
+
+            if (!cartProduct.IsDeleted)
+            {
+                cartProduct.IsDeleted = true;
+                await cartsProductsRepo.SaveChangesAsync();
+                var cartUpdatedInfo = await cartsProductsRepo.AllAsTracking()
+                .Where(cp => cp.CartId == cartId && !cp.IsDeleted)
+                .Select(cp => cp.Product.Price * cp.Quantity)
+                .ToListAsync();
+
+                return new CartJsonViewModel
+                {
+                    ProductId = productId,
+                    NewCount = cartUpdatedInfo.Count,
+                    NewTotalPrice = cartUpdatedInfo.Sum(),
+                };
+            }
+
+            return null;
+
+
+
         }
     }
 }

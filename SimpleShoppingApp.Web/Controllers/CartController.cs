@@ -56,12 +56,44 @@ namespace SimpleShoppingApp.Web.Controllers
                 return Redirect($"/Identity/Login?returnUrl=/{controllerName}/{actionName}");
             }
             var cartId = await cartService.GetIdAsync(userId);
-            if (cartId == 0)
+            if (cartId == null)
             {
                 return NotFound();
             }
-            await cartService.AddProductAsync(cartId, id);
+            await cartService.AddProductAsync((int)cartId, id);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteProduct(int productId)
+        {
+            if (User == null)
+            {
+                return Unauthorized();
+            }
+
+            string? userId = usersService.GetId(User);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            int? cartId = await cartService.GetIdAsync(userId);
+
+            if (cartId == null)
+            {
+                return NotFound();
+            }
+            var removedProductInfo = await cartService.RemoveProductAsync((int)cartId, productId);
+
+            if (removedProductInfo == null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(removedProductInfo);
+
         }
     }
 }
