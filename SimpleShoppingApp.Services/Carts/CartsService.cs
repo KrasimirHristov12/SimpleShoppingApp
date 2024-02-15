@@ -174,6 +174,23 @@ namespace SimpleShoppingApp.Services.Carts
             return null;
         }
 
+        public async Task RemoveAllProductsAsync(int cartId)
+        {
+            var cartProduct = await cartsProductsRepo.AllAsTracking()
+                .Where(cp => cp.CartId == cartId)
+                .ToListAsync();
+            foreach (var cp in cartProduct)
+            {
+                if (!cp.IsDeleted)
+                {
+                    cp.IsDeleted = true;
+                }
+            }
+
+            await cartsProductsRepo.SaveChangesAsync();
+                
+        }
+
         public async Task<UpdateQuantityJsonViewModel?> UpdateProductQuantityAsync(int cartId, int productId, int updatedQuantity)
         {
             var cartProduct = await cartsProductsRepo.AllAsTracking()
@@ -201,6 +218,7 @@ namespace SimpleShoppingApp.Services.Carts
                 NewProductPrice = updatedQuantity * cartProduct.Product.Price,
                 NewTotalPrice =  cartUpdatedInfo.Sum(),
             };
+
 
 
         }

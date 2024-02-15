@@ -8,6 +8,7 @@ namespace SimpleShoppingApp.Data.Models
         public ApplicationUser()
         {
             Products = new HashSet<Product>();
+            Orders = new HashSet<Order>();
         }
 
         [Required]
@@ -24,6 +25,8 @@ namespace SimpleShoppingApp.Data.Models
         public ShoppingCart Cart { get; set; } = null!;
 
         public int CartId { get; set; }
+
+        public ICollection<Order> Orders { get; set; }
 
 
     }

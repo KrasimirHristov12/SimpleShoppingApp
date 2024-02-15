@@ -7,6 +7,7 @@
 
 <section class="h-100 gradient-custom">
     <div class="container py-5">
+        <form asp-controller="Orders" asp-action="Make" method="post">
         <div class="row d-flex justify-content-center my-4">
             <div class="col-md-8">
                 <div class="card mb-4">
@@ -17,7 +18,7 @@
                         @foreach (var product in Model.CartProducts)
                         {
                             <div class="row product">
-                                <input type="hidden" value="@product.ProductId" />
+                                <input type="hidden" name="productIds" value="@product.ProductId" />
                                 <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
                                     <!-- Image -->
                                     <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
@@ -45,7 +46,7 @@
                                     <div class="mb-4" >
 
                                         <div class="form-outline">
-                                            <input class="quantity-input" min="0" name="quantity" value="@product.ProductQuantity" type="number"/>
+                                            <input class="quantity-input" min="0" name="quantities" value="@product.ProductQuantity" type="number"/>
                                             <label class="form-label" for="quantity-input">Quantity</label>
                                         </div>
                                     </div>
@@ -85,13 +86,13 @@
                                 <span><strong class="total-price">$@Model.TotalPrice</strong></span>
                             </li>
                         </ul>
-
-                        <button type="button" class="btn btn-primary btn-lg btn-block">
-                            Go to checkout
-                        </button>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                Make an order
+                            </button>
                     </div>
                 </div>
             </div>
         </div>
+        </form>
     </div>
 </section>

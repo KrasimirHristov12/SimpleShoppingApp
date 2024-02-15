@@ -51,5 +51,9 @@ namespace SimpleShoppingApp.Data
         public DbSet<Category> Categories { get; set; } = null!;
 
         public DbSet<CartsProducts> CartsProducts { get; set; } = null!;
+
+        public DbSet<Order> Orders { get; set; } = null!;
+
+        public DbSet<OrdersProducts> OrdersProducts { get; set; } = null!;
     }
 }

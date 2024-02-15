@@ -7,6 +7,7 @@ namespace SimpleShoppingApp.Data.Models
         public Product()
         {
             CartsProducts = new HashSet<CartsProducts>();
+            OrdersProducts = new HashSet<OrdersProducts>();
         }
         public int Id { get; set; }
 
@@ -37,5 +38,7 @@ namespace SimpleShoppingApp.Data.Models
         public bool IsDeleted { get; set; }
 
         public ICollection<CartsProducts> CartsProducts { get; set; }
+
+        public ICollection<OrdersProducts> OrdersProducts { get; set; }
     }
 }

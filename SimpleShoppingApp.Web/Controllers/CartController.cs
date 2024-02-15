@@ -19,12 +19,10 @@ namespace SimpleShoppingApp.Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var controllerName = "Cart";
-            var actionName = "Index";
             var userId = usersService.GetId(User);
             if (userId == null)
             {
-                return Redirect($"/Identity/Login?returnUrl=/{controllerName}/{actionName}");
+                return Unauthorized();
             }
             if (!await cartService.DoesUserHaveCartAsync(userId))
             {
@@ -44,16 +42,14 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int id)
         {
-            if (!await productsService.DoesProductExistAsync(id))
+            if (id <= 0 || !await productsService.DoesProductExistAsync(id))
             {
                 return NotFound();
             }
-            var controllerName = "Cart";
-            var actionName = "Index";
             var userId = usersService.GetId(User);
             if (userId == null)
             {
-                return Redirect($"/Identity/Login?returnUrl=/{controllerName}/{actionName}");
+                return Unauthorized();
             }
             var cartId = await cartService.GetIdAsync(userId);
             if (cartId == null)
@@ -67,11 +63,6 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteProduct(int productId)
         {
-            if (User == null)
-            {
-                return Unauthorized();
-            }
-
             string? userId = usersService.GetId(User);
 
             if (userId == null)
@@ -102,12 +93,10 @@ namespace SimpleShoppingApp.Web.Controllers
             {
                 return Unauthorized();
             }
-            var controllerName = "Cart";
-            var actionName = "Index";
             var userId = usersService.GetId(User);
             if (userId == null)
             {
-                return Redirect($"/Identity/Login?returnUrl=/{controllerName}/{actionName}");
+                return Unauthorized();
             }
             var cartId = await cartService.GetIdAsync(userId);
 
