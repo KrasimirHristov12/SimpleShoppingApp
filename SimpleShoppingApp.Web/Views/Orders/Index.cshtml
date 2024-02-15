@@ -1,0 +1,31 @@
+﻿@model IEnumerable<OrderViewModel>
+@{
+    ViewData["Title"] = "My orders";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+    <input type="radio" class="btn-check btn-delivered checked" name="btnradio" id="btnradio1" autocomplete="off" checked>
+    <label class="btn btn-outline-primary" for="btnradio1">Delivered</label>
+
+    <input type="radio" class="btn-check btn-not-delivered" name="btnradio" id="btnradio2" autocomplete="off">
+    <label class="btn btn-outline-primary" for="btnradio2">Not delivered</label>
+</div>
+
+<div class="my-orders mt-2">
+    @if (Model.Count() > 0)
+    {
+        <ul class="list-group">
+            @foreach (var order in Model)
+            {
+                <li class="list-group-item">Order #@order.Id - Total price: $@order.TotalPrice.ToString("F2")<br /><br /><a asp-action="Details" asp-route-id="@order.Id">View Details</a></li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No orders found!</p>
+    }
+
+</div>

@@ -1,4 +1,6 @@
-﻿using SimpleShoppingApp.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimpleShoppingApp.Data.Enums;
+using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Products;
@@ -48,6 +50,18 @@ namespace SimpleShoppingApp.Services.Orders
             await orderRepo.SaveChangesAsync();
             return true;
 
+        }
+
+        public async Task<IEnumerable<OrderViewModel>> GetByStatusAsync(OrderStatus status, string userId)
+        {
+           return await orderRepo.AllAsNoTracking()
+                .Where(o => o.OrderStatus == status && o.UserId == userId && !o.IsDeleted)
+                .Select(o => new OrderViewModel
+                {
+                    Id = o.Id,
+                    TotalPrice = o.OrdersProducts.Select(op => op.Product.Price * op.Quantity).Sum(),
+
+                }).ToListAsync();
         }
     }
 }

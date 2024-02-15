@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SimpleShoppingApp.Data.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace SimpleShoppingApp.Data.Models
 {
@@ -21,6 +22,9 @@ namespace SimpleShoppingApp.Data.Models
 
         public DateTime CreatedOn { get; set; }
 
+        public OrderStatus OrderStatus { get; set; }
+
+        public bool IsDeleted { get; set; }
 
     }
 }
