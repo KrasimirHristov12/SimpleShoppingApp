@@ -11,20 +11,20 @@ namespace SimpleShoppingApp.Data.Models
             Orders = new HashSet<Order>();
         }
 
-        [Required]
         [MaxLength(50)]
-        public string FirstName { get; set; } = null!;
+        public string? FirstName { get; set; }
 
-        [Required]
         [MaxLength(50)]   
-        public string LastName { get; set; } = null!;
+        public string? LastName { get; set; }
+
+        [MaxLength(100)]
+        public string? Address { get; set; }
+
+        public ShoppingCart? Cart { get; set; }
+
+        public int? CartId { get; set; }
 
         public ICollection<Product> Products { get; set; }
-
-        [Required]
-        public ShoppingCart Cart { get; set; } = null!;
-
-        public int CartId { get; set; }
 
         public ICollection<Order> Orders { get; set; }
 

@@ -101,6 +101,17 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
             [StringLength(50, MinimumLength = 2)]
             [Display(Name = "Last Name")]
             public string LastName { get; set; }
+
+            [MaxLength(100)]
+            public string Address { get; set; }
+
+            [Display(Name = "Will specify my address later")]
+            public bool NotSpecifiedAddress { get; set; }
+
+            [Required]
+            [Phone]
+            [Display(Name = "Phone Number")]
+            public string PhoneNumber { get; set; }
         }
 
 
@@ -114,6 +125,14 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (Input.NotSpecifiedAddress && !string.IsNullOrWhiteSpace(Input.Address))
+            {
+                ModelState.AddModelError("Input.Address", "If you want to specify address, please uncheck the checkbox.");
+            }
+            else if (!Input.NotSpecifiedAddress && string.IsNullOrWhiteSpace(Input.Address))
+            {
+                ModelState.AddModelError("Input.Address", "Please either specify the address or check the checkbox.");
+            }
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -122,6 +141,11 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
+                user.PhoneNumber = Input.PhoneNumber;
+                if (!string.IsNullOrWhiteSpace(Input.Address))
+                {
+                    user.Address = Input.Address;
+                }
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)

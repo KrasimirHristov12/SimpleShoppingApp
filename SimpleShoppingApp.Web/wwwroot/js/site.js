@@ -122,5 +122,15 @@ $(".btn-check").on("click", function () {
     }
 });
 
+$(".specify-address-flag").on("change", function () {
+    let addressTextField = $(this).closest(".form-check").prev().find("input:text");
+    if ($(this).is(":checked")) {
+        addressTextField.val('').prop("disabled", true);
+    }
+    else {
+        addressTextField.prop("disabled", false);
+    }
+}).trigger("change");
+
 
 

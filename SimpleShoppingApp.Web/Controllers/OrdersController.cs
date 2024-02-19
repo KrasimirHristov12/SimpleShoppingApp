@@ -81,5 +81,10 @@ namespace SimpleShoppingApp.Web.Controllers
 
             return Redirect("/");
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            return View();
+        }
     }
 }

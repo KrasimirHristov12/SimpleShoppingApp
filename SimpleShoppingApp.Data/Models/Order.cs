@@ -25,6 +25,5 @@ namespace SimpleShoppingApp.Data.Models
         public OrderStatus OrderStatus { get; set; }
 
         public bool IsDeleted { get; set; }
-
     }
 }
