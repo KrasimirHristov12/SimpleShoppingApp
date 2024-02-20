@@ -1,0 +1,31 @@
+﻿@using SimpleShoppingApp.Data.Enums
+@model MakeOrderInputModel
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <h5 class="card-header">Payment / Shipment info</h5>
+            <div class="card-body">
+                <div>
+                    <vc:address-form></vc:address-form>
+                    <label asp-for="AddressId"></label>
+                    <select class="form-select address-select" asp-for="AddressId">
+                        @foreach (var address in Model.Addresses)
+                        {
+                            <option value="@address.Id">@address.Name</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label asp-for="PhoneNumber"></label>
+                    <input class="form-control" asp-for="PhoneNumber" />
+
+                </div>
+                <div>
+                    <label asp-for="PaymentMethod"></label>
+                    <select class="form-select paymentMethod-dropdown" asp-for="PaymentMethod" asp-items="Html.GetEnumSelectList<PaymentMethod>()"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

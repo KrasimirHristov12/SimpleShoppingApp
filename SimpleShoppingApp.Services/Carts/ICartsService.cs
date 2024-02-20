@@ -5,7 +5,7 @@ namespace SimpleShoppingApp.Services.Carts
 {
     public interface ICartsService
     {
-        Task AddAsync(string userId);
+        Task<int> AddAsync(string userId);
 
         Task<bool> DoesUserHaveCartAsync(string userId);
 

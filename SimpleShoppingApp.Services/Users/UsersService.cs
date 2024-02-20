@@ -21,9 +21,15 @@ namespace SimpleShoppingApp.Services.Users
             var adminUser = await userManager.FindByNameAsync(adminUsername);
             return await userManager.GetUserIdAsync(adminUser);
         }
-        public string? GetId(ClaimsPrincipal user)
+        public string GetId(ClaimsPrincipal user)
         {
-            return userManager.GetUserId(user);
+            return user.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+        }
+
+        public async Task<string> GetPhoneNumberAsync(string userId)
+        {
+            var foundUser = await userManager.FindByIdAsync(userId);
+            return await userManager.GetPhoneNumberAsync(foundUser);
         }
     }
 }

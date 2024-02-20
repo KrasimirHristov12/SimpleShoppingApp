@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SimpleShoppingApp.Models.Orders;
+using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
@@ -10,31 +12,33 @@ namespace SimpleShoppingApp.Web.Controllers
         private readonly ICartsService cartService;
         private readonly IUsersService usersService;
         private readonly IProductsService productsService;
+        private readonly IAddressesService addressesService;
 
-        public CartController(ICartsService _cartService, IUsersService _usersService, IProductsService _productsService)
+        public CartController(ICartsService _cartService, 
+            IUsersService _usersService, 
+            IProductsService _productsService,
+            IAddressesService _addressesService)
         {
             cartService = _cartService;
             usersService = _usersService;
             productsService = _productsService;
+            addressesService = _addressesService;
         }
         public async Task<IActionResult> Index()
         {
             var userId = usersService.GetId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-            if (!await cartService.DoesUserHaveCartAsync(userId))
-            {
-                await cartService.AddAsync(userId);
-            }
-
             var cart = await cartService.GetAsync(userId);
 
             if (cart == null)
             {
                 return NotFound();
             }
+
+            cart.Input = new MakeOrderInputModel();
+
+            cart.Input.PhoneNumber = await usersService.GetPhoneNumberAsync(userId);
+
+            cart.Input.Addresses = await addressesService.GetAllForUserAsync(userId);
 
             return View(cart);
         }
@@ -47,10 +51,6 @@ namespace SimpleShoppingApp.Web.Controllers
                 return NotFound();
             }
             var userId = usersService.GetId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
             var cartId = await cartService.GetIdAsync(userId);
             if (cartId == null)
             {
@@ -63,12 +63,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteProduct(int productId)
         {
-            string? userId = usersService.GetId(User);
-
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
+            string userId = usersService.GetId(User);
 
             int? cartId = await cartService.GetIdAsync(userId);
 
@@ -89,15 +84,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int productId, int updatedQuantity)
         {
-            if (User == null)
-            {
-                return Unauthorized();
-            }
             var userId = usersService.GetId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
             var cartId = await cartService.GetIdAsync(userId);
 
             if (cartId == null)

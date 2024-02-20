@@ -25,7 +25,7 @@ namespace SimpleShoppingApp.Services.Carts
             productsService = _productsService;
             imagesService = _imagesService;
         }
-        public async Task AddAsync(string userId)
+        public async Task<int> AddAsync(string userId)
         {
             var cart = new ShoppingCart()
             {
@@ -34,6 +34,7 @@ namespace SimpleShoppingApp.Services.Carts
 
             await cartsRepo.AddAsync(cart);
             await cartsRepo.SaveChangesAsync();
+            return cart.Id;
 
         }
 

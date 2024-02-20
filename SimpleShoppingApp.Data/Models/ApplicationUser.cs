@@ -9,6 +9,7 @@ namespace SimpleShoppingApp.Data.Models
         {
             Products = new HashSet<Product>();
             Orders = new HashSet<Order>();
+            Addresses = new HashSet<ShippingAddress>();
         }
 
         [MaxLength(50)]
@@ -17,16 +18,15 @@ namespace SimpleShoppingApp.Data.Models
         [MaxLength(50)]   
         public string? LastName { get; set; }
 
-        [MaxLength(100)]
-        public string? Address { get; set; }
+        public ShoppingCart Cart { get; set; } = null!;
 
-        public ShoppingCart? Cart { get; set; }
-
-        public int? CartId { get; set; }
+        public int CartId { get; set; }
 
         public ICollection<Product> Products { get; set; }
 
         public ICollection<Order> Orders { get; set; }
+
+        public ICollection<ShippingAddress> Addresses { get; set; }
 
 
     }

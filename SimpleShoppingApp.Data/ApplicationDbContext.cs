@@ -42,6 +42,15 @@ namespace SimpleShoppingApp.Data
                 .HasForeignKey("UserId")
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<ShippingAddress>()
+                .HasMany(a => a.Orders)
+                .WithOne(o => o.Address)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Order>()
+                .Property(o => o.AddressId)
+                .HasDefaultValue(1);
+
             base.OnModelCreating(builder);
         }
         public DbSet<Product> Products { get; set; } = null!;
@@ -55,5 +64,7 @@ namespace SimpleShoppingApp.Data
         public DbSet<Order> Orders { get; set; } = null!;
 
         public DbSet<OrdersProducts> OrdersProducts { get; set; } = null!;
+
+        public DbSet<ShippingAddress> Addresses { get; set; } = null!;
     }
 }

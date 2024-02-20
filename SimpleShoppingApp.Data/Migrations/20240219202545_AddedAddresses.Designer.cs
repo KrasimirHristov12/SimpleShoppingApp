@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleShoppingApp.Data;
 
@@ -11,9 +12,10 @@ using SimpleShoppingApp.Data;
 namespace SimpleShoppingApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240219202545_AddedAddresses")]
+    partial class AddedAddresses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -338,11 +340,6 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("AddressId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
@@ -352,21 +349,11 @@ namespace SimpleShoppingApp.Data.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("UserId");
 
@@ -571,19 +558,11 @@ namespace SimpleShoppingApp.Data.Migrations
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.Order", b =>
                 {
-                    b.HasOne("SimpleShoppingApp.Data.Models.ShippingAddress", "Address")
-                        .WithMany("Orders")
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SimpleShoppingApp.Data.Models.ApplicationUser", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("User");
                 });
@@ -675,11 +654,6 @@ namespace SimpleShoppingApp.Data.Migrations
                     b.Navigation("CartsProducts");
 
                     b.Navigation("OrdersProducts");
-                });
-
-            modelBuilder.Entity("SimpleShoppingApp.Data.Models.ShippingAddress", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.ShoppingCart", b =>

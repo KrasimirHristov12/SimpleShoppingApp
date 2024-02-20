@@ -6,6 +6,8 @@ namespace SimpleShoppingApp.Services.Users
     {
         Task<string?> GetAdminIdAsync();
 
-        string? GetId(ClaimsPrincipal user);
+        string GetId(ClaimsPrincipal user);
+
+        Task<string> GetPhoneNumberAsync(string userId);
     }
 }

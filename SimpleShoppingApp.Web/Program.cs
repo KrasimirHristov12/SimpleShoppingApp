@@ -4,6 +4,7 @@ using SimpleShoppingApp.Data;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Data.Seeders;
+using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
@@ -42,6 +43,7 @@ builder.Services.AddScoped<AdminRoleSeeder>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ICartsService, CartsService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IAddressesService, AddressesService>();
 
 var app = builder.Build();
 

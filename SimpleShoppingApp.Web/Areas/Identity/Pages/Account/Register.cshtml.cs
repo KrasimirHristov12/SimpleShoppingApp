@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SimpleShoppingApp.Data.Models;
+using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Services.Carts;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -23,13 +25,17 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ICartsService _cartsService;
+        private readonly IRepository<ShoppingCart> _cartsRepo;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ICartsService cartsService,
+            IRepository<ShoppingCart> cartsRepo)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -37,6 +43,8 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _cartsService = cartsService;
+            _cartsRepo = cartsRepo;
         }
 
         /// <summary>
@@ -102,12 +110,6 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
             [Display(Name = "Last Name")]
             public string LastName { get; set; }
 
-            [MaxLength(100)]
-            public string Address { get; set; }
-
-            [Display(Name = "Will specify my address later")]
-            public bool NotSpecifiedAddress { get; set; }
-
             [Required]
             [Phone]
             [Display(Name = "Phone Number")]
@@ -125,14 +127,6 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (Input.NotSpecifiedAddress && !string.IsNullOrWhiteSpace(Input.Address))
-            {
-                ModelState.AddModelError("Input.Address", "If you want to specify address, please uncheck the checkbox.");
-            }
-            else if (!Input.NotSpecifiedAddress && string.IsNullOrWhiteSpace(Input.Address))
-            {
-                ModelState.AddModelError("Input.Address", "Please either specify the address or check the checkbox.");
-            }
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -142,10 +136,6 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
                 user.PhoneNumber = Input.PhoneNumber;
-                if (!string.IsNullOrWhiteSpace(Input.Address))
-                {
-                    user.Address = Input.Address;
-                }
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -163,6 +153,14 @@ namespace SimpleShoppingApp.Web.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    var cartId = await _cartsService.AddAsync(userId);
+
+                    user.CartId = cartId;
+
+                    await _cartsRepo.SaveChangesAsync();
+
+
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

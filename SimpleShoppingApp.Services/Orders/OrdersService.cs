@@ -22,6 +22,9 @@ namespace SimpleShoppingApp.Services.Orders
             var order = new Order
             {
                 UserId = userId,
+                PaymentMethod = model.PaymentMethod,
+                PhoneNumber = model.PhoneNumber,
+                AddressId = model.AddressId,
             };
 
             for (int i = 0; i < model.ProductIds.Count; i++)

@@ -132,5 +132,40 @@ $(".specify-address-flag").on("change", function () {
     }
 }).trigger("change");
 
+$(".address-select").on("change", function () {
+    $(".address-list span").text($(".address-select option:selected").text());
+}).trigger("change");
+
+$(".paymentMethod-dropdown").on("change", function () {
+    $(".payment-method span").text($(".paymentMethod-dropdown option:selected").text());
+}).trigger("change");
+
+$("#PhoneNumber").on("keyup", function () {
+    $(".phone-number span").text($(this).val());
+}).trigger("keyup");
+
+$(".modal-address-footer .submit").on("click", function () {
+    let address = $(".modal input#Name")
+    if (address.val()) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Orders/AddAddress",
+            data: {
+                name: address.val(),
+            },
+            success: function (data) {
+                $(".address-select").append(`<option value="${data.id}">${data.name}</option>`);
+                address.val('');
+                $(".modal-address-footer .close").click();
+            },
+            dataType: "json",
+        });
+    }
+
+   
+
+});
+
 
 
