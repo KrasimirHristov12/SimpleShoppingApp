@@ -16,7 +16,8 @@ namespace SimpleShoppingApp.Services.Products
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
 
-        public ProductsService(IRepository<Product> _productsRepo, 
+        public ProductsService(
+            IRepository<Product> _productsRepo,
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
             IUsersService _usersService)
@@ -27,28 +28,42 @@ namespace SimpleShoppingApp.Services.Products
             usersService = _usersService;
         }
 
-        public async Task<int> AddAsync(AddProductInputModel model)
+        public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId)
         {
+            if (!await categoriesService.DoesCategoryExist(model.CategoryId))
+            {
+                return new AddProductModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    ProductId = null,
+                };
+            }
+
             var product = new Product()
             {
                 Name = model.Name,
                 Description = model.Description,
-                Price = (decimal)model.Price,
-                Quantity = (int)model.Quantity,
+                Price = model.Price ?? 0,
+                Quantity = model.Quantity ?? 0,
                 Rating = 0,
                 CategoryId = model.CategoryId,
+                UserId = userId,
             };
 
             await productsRepo.AddAsync(product);
             await productsRepo.SaveChangesAsync();
 
-            return product.Id;
+            return new AddProductModel
+            {
+                Result = AddUpdateDeleteResult.Success,
+                ProductId = product.Id,
+            };
         }
 
         public async Task<ProductViewModel?> GetAsync(int id)
         {
             var product = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == id)
+                .Where(p => p.Id == id && !p.IsDeleted)
                 .Select(p => new ProductViewModel
                 {
                     Id = id,
@@ -87,11 +102,18 @@ namespace SimpleShoppingApp.Services.Products
                     Name = p.Name,
                     Price = p.Price,
                     Rating = p.Rating,
-                }).ToListAsync();
+
+                })
+                .ToListAsync();
 
             foreach (var product in products)
             {
-                product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                if (image != null)
+                {
+                    product.Image = image;
+                }
+                
             }
 
             return products;
@@ -109,43 +131,54 @@ namespace SimpleShoppingApp.Services.Products
                     Name = p.Name,
                     Price = p.Price,
                     Rating = p.Rating,
+
                 }).ToListAsync();
 
             foreach (var product in products)
             {
-                product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                if (image != null)
+                {
+                    product.Image = image;
+                }
             }
 
             return products;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId)
         {
-            var productToDelete = await productsRepo.AllAsTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var productToDelete = await productsRepo.AllAsTracking()
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
             if (productToDelete == null)
             {
-                return false;
+                return AddUpdateDeleteResult.NotFound;
+            }
+
+            if (productToDelete.UserId != currentUserId)
+            {
+                return AddUpdateDeleteResult.Forbidden;
             }
 
             productToDelete.IsDeleted = true;
-
             await productsRepo.SaveChangesAsync();
+            return AddUpdateDeleteResult.Success;
 
-            return true;
         }
-        
+
         public async Task<int> GetCountForCategoryAsync(int categoryId)
         {
-            return await productsRepo.AllAsNoTracking()
+            return await productsRepo
+                .AllAsNoTracking()
                 .Where(p => p.CategoryId == categoryId && !p.IsDeleted)
                 .CountAsync();
         }
 
-        public async Task<EditProductInputModel?> GetToEditAsync(int id)
+        public async Task<EditProductModel> GetToEditAsync(int id, string currentUserId)
         {
             var productToEdit = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == id)
+                .Where(p => p.Id == id && !p.IsDeleted)
                 .Select(p => new EditProductInputModel
                 {
                     Id = p.Id,
@@ -157,31 +190,64 @@ namespace SimpleShoppingApp.Services.Products
 
                 }).FirstOrDefaultAsync();
 
-            if (productToEdit != null)
+            if (productToEdit == null)
             {
-                productToEdit.Categories = await categoriesService.GetAllAsync();
+                return new EditProductModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    Model = null,
+                };
             }
 
-            return productToEdit;
+            if (!await BelognsToUserAsync(id, currentUserId))
+            {
+                return new EditProductModel
+                {
+                    Result = AddUpdateDeleteResult.Forbidden,
+                    Model = null,
+                };
+            }
+
+            productToEdit.Categories = await categoriesService.GetAllAsync();
+
+            return new EditProductModel
+            {
+                Result = AddUpdateDeleteResult.Success,
+                Model = productToEdit,
+            };
         }
 
-        public async Task UpdateAsync(EditProductInputModel model)
+        public async Task<AddUpdateDeleteResult> UpdateAsync(EditProductInputModel model, string currentUserId)
         {
-            var productToEdit = await productsRepo.AllAsTracking().FirstOrDefaultAsync(p => p.Id == model.Id);
+            var productToEdit = await productsRepo
+                .AllAsTracking()
+                .FirstOrDefaultAsync(p => p.Id == model.Id && !p.IsDeleted);
+
+            if (productToEdit == null)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
+            if (!await BelognsToUserAsync(model.Id, currentUserId))
+            {
+                return AddUpdateDeleteResult.Forbidden;
+            }
 
             productToEdit.Name = model.Name;
-            productToEdit.Price = (decimal)model.Price;
-            productToEdit.Quantity = (int)model.Quantity;
+            productToEdit.Price = model.Price ?? 0;
+            productToEdit.Quantity = model.Quantity ?? 0;
             productToEdit.CategoryId = model.CategoryId;
             productToEdit.Description = model.Description;
 
             await productsRepo.SaveChangesAsync();
+
+            return AddUpdateDeleteResult.Success;
         }
 
         public async Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name)
         {
             var filteredProducts = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Name.ToLower().Contains(name.ToLower()))
+                .Where(p => p.Name.ToLower().Contains(name.ToLower()) && !p.IsDeleted)
                 .Select(p => new ListProductsViewModel
                 {
                     Id = p.Id,
@@ -192,13 +258,29 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in filteredProducts)
             {
-                product.Image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                if (image != null)
+                {
+                    product.Image = image;
+                }
             }
             return filteredProducts;
         }
 
         public async Task<bool> BelognsToUserAsync(int productId, string loggedInUserId)
         {
+
+            var creatorUserId = await productsRepo
+                .AllAsNoTracking()
+                .Where(p => p.Id == productId && !p.IsDeleted)
+                .Select(p => p.UserId)
+                .FirstAsync();
+
+            if (loggedInUserId == creatorUserId)
+            {
+                return true;
+            }
+
             string? adminUserId = await usersService.GetAdminIdAsync();
 
             if (adminUserId == null)
@@ -211,26 +293,24 @@ namespace SimpleShoppingApp.Services.Products
                 return true;
             }
 
-            var creatorUserId = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == productId)
-                .Select(p => p.UserId)
-                .FirstAsync();
+            return false;
 
-            return loggedInUserId == creatorUserId;
         }
 
-        public async Task<int?> GetQuantityAsync(int id) 
+        public async Task<int> GetQuantityAsync(int id)
         {
-            return await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == id)
+            return await productsRepo
+                .AllAsNoTracking()
+                .Where(p => p.Id == id && !p.IsDeleted)
                 .Select(p => p.Quantity)
-                .FirstOrDefaultAsync();
+                .FirstAsync();
         }
 
         public async Task<bool> DoesProductExistAsync(int productId)
         {
-            return await productsRepo.AllAsNoTracking()
-                .AnyAsync(p => p.Id == productId);
+            return await productsRepo
+                .AllAsNoTracking()
+                .AnyAsync(p => p.Id == productId && !p.IsDeleted);
         }
     }
 }

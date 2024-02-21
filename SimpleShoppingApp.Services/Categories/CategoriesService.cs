@@ -13,9 +13,17 @@ namespace SimpleShoppingApp.Services.Categories
         {
             categoryRepo = _categoryRepo;
         }
+
+        public async Task<bool> DoesCategoryExist(int id)
+        {
+            return await categoryRepo
+                .AllAsNoTracking()
+                .AnyAsync(c => c.Id == id && !c.IsDeleted);
+        }
         public async Task<IEnumerable<CategoryViewModel>> GetAllAsync()
         {
             var categories = await categoryRepo.AllAsNoTracking()
+                .Where(c => !c.IsDeleted)
                 .Select(c => new CategoryViewModel
                 {
                     Id = c.Id,

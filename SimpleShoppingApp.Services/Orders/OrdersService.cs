@@ -17,7 +17,7 @@ namespace SimpleShoppingApp.Services.Orders
             orderRepo = _orderRepo;
             productsService = _productsService;
         }
-        public async Task<bool> AddAsync(MakeOrderInputModel model, string userId)
+        public async Task<AddUpdateDeleteResult> AddAsync(MakeOrderInputModel model, string userId)
         {
             var order = new Order
             {
@@ -34,12 +34,12 @@ namespace SimpleShoppingApp.Services.Orders
 
                 if (productQuantity <= 0)
                 {
-                    return false;
+                    return AddUpdateDeleteResult.NotFound;
                 }
 
                 if (productId <= 0 || !await productsService.DoesProductExistAsync(productId))
                 {
-                    return false;
+                    return AddUpdateDeleteResult.NotFound;
                 }
 
                 order.OrdersProducts.Add(new OrdersProducts
@@ -51,7 +51,7 @@ namespace SimpleShoppingApp.Services.Orders
 
             await orderRepo.AddAsync(order);
             await orderRepo.SaveChangesAsync();
-            return true;
+            return AddUpdateDeleteResult.Success;
 
         }
 
@@ -62,7 +62,7 @@ namespace SimpleShoppingApp.Services.Orders
                 .Select(o => new OrderViewModel
                 {
                     Id = o.Id,
-                    TotalPrice = o.OrdersProducts.Select(op => op.Product.Price * op.Quantity).Sum(),
+                    TotalPrice = o.OrdersProducts.Where(op => !op.IsDeleted).Select(op => op.Product.Price * op.Quantity).Sum(),
 
                 }).ToListAsync();
         }

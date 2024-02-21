@@ -1,5 +1,6 @@
 ﻿using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Models.Carts;
+using System.Threading.Tasks;
 
 namespace SimpleShoppingApp.Services.Carts
 {
@@ -7,21 +8,23 @@ namespace SimpleShoppingApp.Services.Carts
     {
         Task<int> AddAsync(string userId);
 
-        Task<bool> DoesUserHaveCartAsync(string userId);
+        Task<bool> CartExistsAsync(int id);
 
-        Task AddProductAsync(int cartId, int productId);
+        Task<AddUpdateDeleteResult> AddProductAsync(int cartId, int productId, string currentUserId);
 
-        Task<int?> UpdateQuantityInCartAsync(int cartId, int productId, QuantityOperation operation);
+        Task<UpdateQuantityModel> UpdateQuantityInCartAsync(int cartId, int productId, int updatedQuantity, string currentUserId);
 
-        Task<CartViewModel?> GetAsync(string userId);
+        Task<CartViewModel?> GetAsync(string currentUserId);
 
-        Task<int?> GetIdAsync(string userId);
+        Task<int> GetIdAsync(string userId);
 
-        Task<CartJsonViewModel?> RemoveProductAsync(int cartId, int productId);
+        Task<RemoveProductFromCartModel> RemoveProductAsync(int cartId, int productId, string currentUserId);
 
-        Task RemoveAllProductsAsync(int cartId);
+        Task<AddUpdateDeleteResult> RemoveAllProductsAsync(int cartId, string currentUserId);
 
-        Task<UpdateQuantityJsonViewModel?> UpdateProductQuantityAsync(int cartId, int productId, int updatedQuantity);
+        Task<string?> GetUserIdAsync(int id);
+
+        Task<bool> BelongsToUserAsync(string ownerUserId, string currentUserId);
 
     }
 }

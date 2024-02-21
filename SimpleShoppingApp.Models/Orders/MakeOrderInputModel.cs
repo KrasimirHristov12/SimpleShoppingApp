@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleShoppingApp.Models.Orders
 {
-    public class MakeOrderInputModel
+    public class MakeOrderInputModel : IValidatableObject
     {
         public MakeOrderInputModel()
         {
@@ -29,5 +29,13 @@ namespace SimpleShoppingApp.Models.Orders
         public List<int> ProductIds { get; set; }
 
         public List<int> Quantities { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (ProductIds.Count == 0 || Quantities.Count == 0)
+            {
+                yield return new ValidationResult("You should add at least one product to proceed with the order");
+            }
+        }
     }
 }

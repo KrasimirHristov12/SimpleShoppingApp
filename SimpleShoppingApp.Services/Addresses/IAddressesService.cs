@@ -6,7 +6,7 @@ namespace SimpleShoppingApp.Services.Addresses
     public interface IAddressesService
     {
        Task<AddressViewModel> AddAsync(string name, string userId);
-       Task<CRUDResult> DeleteAsync(int id, string currentUserId);
+       Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId);
        Task<IEnumerable<AddressViewModel>> GetAllForUserAsync(string userId);
        Task<AddressViewModel> GetByIdAsync(int id);
     }

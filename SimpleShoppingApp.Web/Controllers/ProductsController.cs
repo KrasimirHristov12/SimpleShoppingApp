@@ -97,14 +97,20 @@ namespace SimpleShoppingApp.Web.Controllers
                 return View(model);
             }
 
-            int newProductId = await productsService.AddAsync(model);
+            var userId = usersService.GetId(User);
 
+            var addProductResult = await productsService.AddAsync(model, userId);
+
+            if (addProductResult.Result == AddUpdateDeleteResult.NotFound)
+            {
+                return NotFound();
+            }
 
             foreach (var imageFromModel in model.Images)
             {
                 string imageUID = Guid.NewGuid().ToString();
 
-                string imageName = $"prod{newProductId}_{imageUID}";
+                string imageName = $"prod{addProductResult.ProductId}_{imageUID}";
 
                 string wwwrootDir = env.WebRootPath;
 
@@ -112,28 +118,25 @@ namespace SimpleShoppingApp.Web.Controllers
 
             }
 
-
-
-            return RedirectToAction(nameof(Index), new { id = newProductId });
+            return RedirectToAction(nameof(Index), new { id = addProductResult.ProductId });
            
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
+            string loggedInUserId = usersService.GetId(User);
 
-            string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var deleteResult = await productsService.DeleteAsync(id, loggedInUserId);
 
-            if (!await productsService.BelognsToUserAsync(id, loggedInUserId))
-            {
-                return Forbid();
-            }
-
-            bool deleteResult = await productsService.DeleteAsync(id);
-
-            if (!deleteResult)
+            if (deleteResult == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
+            }
+
+            if (deleteResult == AddUpdateDeleteResult.Forbidden)
+            {
+                return Forbid();
             }
 
             return RedirectToAction(nameof(Index), "Home");
@@ -141,39 +144,45 @@ namespace SimpleShoppingApp.Web.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
-            string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            string loggedInUserId = usersService.GetId(User);
 
-            if (!await productsService.BelognsToUserAsync(id, loggedInUserId))
-            {
-                return Forbid();
-            }
-            var productToEdit = await productsService.GetToEditAsync(id);
+            var productToEdit = await productsService.GetToEditAsync(id, loggedInUserId);
 
-            if (productToEdit == null)
+            if (productToEdit.Result == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
             }
 
-            return View(productToEdit);
+            if (productToEdit.Result == AddUpdateDeleteResult.Forbidden)
+            {
+                return Forbid();
+            }
+
+            return View(productToEdit.Model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Update(EditProductInputModel model)
         {
-            string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-
-            if (!await productsService.BelognsToUserAsync(model.Id, loggedInUserId))
-            {
-                return Forbid();
-            }
-
             if (!ModelState.IsValid)
             {
                 model.Categories = await categoriesService.GetAllAsync();
                 return View(model);
             }
 
-            await productsService.UpdateAsync(model);
+            string loggedInUserId = usersService.GetId(User);
+
+            var result =  await productsService.UpdateAsync(model, loggedInUserId);
+
+            if (result == AddUpdateDeleteResult.NotFound)
+            {
+                return NotFound();
+            }
+
+            if (result == AddUpdateDeleteResult.Forbidden)
+            {
+                return Forbid();
+            }
 
             return RedirectToAction(nameof(Index), new { id = model.Id });
         }

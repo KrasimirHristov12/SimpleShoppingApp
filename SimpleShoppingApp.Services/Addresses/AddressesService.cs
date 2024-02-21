@@ -28,25 +28,25 @@ namespace SimpleShoppingApp.Services.Addresses
             return await GetByIdAsync(address.Id);
         }
 
-        public async Task<CRUDResult> DeleteAsync(int id, string currentUserId)
+        public async Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId)
         {
             var foundAddress = await addressesRepo
                 .AllAsNoTracking()
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
             if (foundAddress == null) 
             {
-                return CRUDResult.NotFound;
+                return AddUpdateDeleteResult.NotFound;
             }
 
             if (foundAddress.UserId != currentUserId)
             {
-                return CRUDResult.Forbidden;
+                return AddUpdateDeleteResult.Forbidden;
             }
 
             foundAddress.IsDeleted = true;
             await addressesRepo.SaveChangesAsync();
-            return CRUDResult.Success;
+            return AddUpdateDeleteResult.Success;
         }
 
         public async Task<IEnumerable<AddressViewModel>> GetAllForUserAsync(string userId)
@@ -66,7 +66,7 @@ namespace SimpleShoppingApp.Services.Addresses
         {
             return await addressesRepo
                 .AllAsNoTracking()
-                .Where(a => a.Id == id)
+                .Where(a => a.Id == id && !a.IsDeleted)
                 .Select(a => new AddressViewModel
                 {
                     Id = a.Id,

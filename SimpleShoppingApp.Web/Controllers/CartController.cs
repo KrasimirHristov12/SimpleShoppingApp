@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
@@ -52,11 +53,7 @@ namespace SimpleShoppingApp.Web.Controllers
             }
             var userId = usersService.GetId(User);
             var cartId = await cartService.GetIdAsync(userId);
-            if (cartId == null)
-            {
-                return NotFound();
-            }
-            await cartService.AddProductAsync((int)cartId, id);
+            await cartService.AddProductAsync(cartId, id, userId);
             return RedirectToAction(nameof(Index));
         }
 
@@ -65,20 +62,26 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             string userId = usersService.GetId(User);
 
-            int? cartId = await cartService.GetIdAsync(userId);
+            int cartId = await cartService.GetIdAsync(userId);
 
-            if (cartId == null)
+            var removedProductInfo = await cartService.RemoveProductAsync(cartId, productId, userId);
+
+            if (removedProductInfo.Result == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
             }
-            var removedProductInfo = await cartService.RemoveProductAsync((int)cartId, productId);
 
-            if (removedProductInfo == null)
+            if (removedProductInfo.Result == AddUpdateDeleteResult.Forbidden)
             {
-                return NotFound();
+                return Forbid();
+            }
+
+            if (removedProductInfo.Result == AddUpdateDeleteResult.AlreadyDeleted)
+            {
+                return BadRequest();
             }
             
-            return Ok(removedProductInfo);
+            return Ok(removedProductInfo.Model);
         }
 
         [HttpPost]
@@ -87,12 +90,7 @@ namespace SimpleShoppingApp.Web.Controllers
             var userId = usersService.GetId(User);
             var cartId = await cartService.GetIdAsync(userId);
 
-            if (cartId == null)
-            {
-                return NotFound();
-            }
-
-            var updatedInfo = await cartService.UpdateProductQuantityAsync((int)cartId, productId, updatedQuantity);
+            var updatedInfo = await cartService.UpdateQuantityInCartAsync(cartId, productId, updatedQuantity, userId);
 
             if (updatedInfo == null)
             {

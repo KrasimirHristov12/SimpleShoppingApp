@@ -1,10 +1,11 @@
-﻿using SimpleShoppingApp.Models.Products;
+﻿using SimpleShoppingApp.Data.Enums;
+using SimpleShoppingApp.Models.Products;
 
 namespace SimpleShoppingApp.Services.Products
 {
     public interface IProductsService
     {
-        Task<int> AddAsync(AddProductInputModel model);
+        Task<AddProductModel> AddAsync(AddProductInputModel model, string userId);
 
         Task<ProductViewModel?> GetAsync(int id);
 
@@ -12,19 +13,19 @@ namespace SimpleShoppingApp.Services.Products
 
         Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage);
 
-        Task<bool> DeleteAsync(int id);
+        Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId);
 
         Task<int> GetCountForCategoryAsync(int categoryId);
 
-        Task<EditProductInputModel?> GetToEditAsync(int id);
+        Task<EditProductModel> GetToEditAsync(int id, string currentUserId);
 
-        Task UpdateAsync(EditProductInputModel model);
+        Task<AddUpdateDeleteResult> UpdateAsync(EditProductInputModel model, string currentUserId);
 
         Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name);
 
         Task<bool> BelognsToUserAsync(int productId, string loggedInUserId);
 
-        Task<int?> GetQuantityAsync(int id);
+        Task<int> GetQuantityAsync(int id);
 
         Task<bool> DoesProductExistAsync(int productId);
     }

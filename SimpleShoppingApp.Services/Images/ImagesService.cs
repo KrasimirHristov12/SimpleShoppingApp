@@ -53,7 +53,7 @@ namespace SimpleShoppingApp.Services.Images
 
             var images = await imagesRepo
                 .AllAsNoTracking()
-                .Where(i => i.Name.StartsWith($"{startImageName}{entityId}"))
+                .Where(i => i.Name.StartsWith($"{startImageName}{entityId}") && !i.IsDeleted)
                 .Select(i => new ImageViewModel
                 {
                     Name = i.Name,
@@ -64,24 +64,19 @@ namespace SimpleShoppingApp.Services.Images
             return images;
         }
 
-        public async Task<ImageViewModel> GetFirstAsync(int entityId, ImageType imageType)
+        public async Task<ImageViewModel?> GetFirstAsync(int entityId, ImageType imageType)
         {
             var entityDirName = imageTypeDirectoryMap[imageType];
 
             var startImageName = imageTypeNameMap[entityDirName];
 
             var image = await imagesRepo.AllAsNoTracking()
-                .Where(i => i.Name.StartsWith($"{startImageName}{entityId}"))
+                .Where(i => i.Name.StartsWith($"{startImageName}{entityId}") && !i.IsDeleted)
                 .Select(i => new ImageViewModel
                 {
                     Name = i.Name,
                     Extension = i.Extension,
                 }).FirstOrDefaultAsync();
-
-            if (image == null)
-            {
-                return null;
-            }
 
             return image;
         }

@@ -59,21 +59,21 @@ namespace SimpleShoppingApp.Web.Controllers
             //}
             string userId = usersService.GetId(User);
 
-            var result = await ordersService.AddAsync(model, userId);
+            var addResult = await ordersService.AddAsync(model, userId);
 
-            if (!result)
-            {
-                return BadRequest();
-            }
-
-            int? cartId = await cartsService.GetIdAsync(userId);
-
-            if (cartId == null)
+            if (addResult == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
             }
 
-            await cartsService.RemoveAllProductsAsync((int)cartId);
+            int cartId = await cartsService.GetIdAsync(userId);
+
+            var removeResult = await cartsService.RemoveAllProductsAsync(cartId, userId);
+
+            if (removeResult == AddUpdateDeleteResult.Forbidden)
+            {
+                return Forbid();
+            }
 
             return Redirect("/");
         }
