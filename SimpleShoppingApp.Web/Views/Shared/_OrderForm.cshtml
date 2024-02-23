@@ -15,15 +15,18 @@
                             <option value="@address.Id">@address.Name</option>
                         }
                     </select>
+                    <span asp-validation-for="AddressId" class="text-danger"></span>
                 </div>
                 <div>
                     <label asp-for="PhoneNumber"></label>
                     <input class="form-control" asp-for="PhoneNumber" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
 
                 </div>
                 <div>
                     <label asp-for="PaymentMethod"></label>
                     <select class="form-select paymentMethod-dropdown" asp-for="PaymentMethod" asp-items="Html.GetEnumSelectList<PaymentMethod>()"></select>
+                    <span asp-validation-for="PaymentMethod" class="text-danger"></span>
                 </div>
             </div>
         </div>

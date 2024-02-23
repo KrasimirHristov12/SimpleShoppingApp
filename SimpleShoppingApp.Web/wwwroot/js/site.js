@@ -82,6 +82,7 @@ $(".quantity-input").on("keyup change", function () {
                     updatedQuantity: updatedQuantityNum.toString(),
                 },
                 success: function (data) {
+                    quantityInput.val(data.updatedQuantity);
                     quantityInput.closest("div.mb-4").next().find(".product-price").text('$' + parseFloat(data.newProductPrice).toFixed(2));
                     $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
                 },

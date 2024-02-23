@@ -50,14 +50,20 @@ namespace SimpleShoppingApp.Web.Controllers
             var userId = usersService.GetId(User);
             var cartId = await cartService.GetIdAsync(userId);
             var addResult = await cartService.AddProductAsync(cartId, id, userId);
-            if (addResult == AddUpdateDeleteResult.NotFound)
+            if (addResult == AddUpdateProductToCartResult.NotFound)
             {
                 return NotFound();
             }
 
-            if (addResult == AddUpdateDeleteResult.Forbidden)
+            if (addResult == AddUpdateProductToCartResult.Forbidden)
             {
                 return Forbid();
+            }
+
+            if (addResult == AddUpdateProductToCartResult.NotInStock)
+            {
+                TempData["NotInStock"] = "You can't add this product to your cart because it's currently not in stock.";
+                return RedirectToAction("Index", "Products", new { id });
             }
 
             return RedirectToAction(nameof(Index));
@@ -98,7 +104,7 @@ namespace SimpleShoppingApp.Web.Controllers
                 return NotFound();
             }
 
-            return Ok(updatedInfo);
+            return Json(updatedInfo.Model);
 
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Models.Addresses;
+using SimpleShoppingApp.Models.Carts;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
@@ -53,17 +54,37 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Make(MakeOrderInputModel model)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return View("~/Views/Cart/Index.cshtml", model);
-            //}
             string userId = usersService.GetId(User);
+            if (!ModelState.IsValid)
+            {
+                var viewModel = await cartsService.GetAsync(userId);
+                if (viewModel == null)
+                {
+                    return NotFound();
+                }
+                model.Addresses = await addressesService.GetAllForUserAsync(userId);
+                viewModel.Input = model;
+                return View("~/Views/Cart/Index.cshtml", viewModel);
+            }
 
             var addResult = await ordersService.AddAsync(model, userId);
 
-            if (addResult == AddUpdateDeleteResult.NotFound)
+            if (addResult == MakeOrderResult.NotFound)
             {
                 return NotFound();
+            }
+
+            if (addResult == MakeOrderResult.InvalidQuantity)
+            {
+                var viewModel = await cartsService.GetAsync(userId);
+                if (viewModel == null)
+                {
+                    return NotFound();
+                }
+                model.Addresses = await addressesService.GetAllForUserAsync(userId);
+                viewModel.Input = model;
+                ModelState.AddModelError("", "Invalid quantity to one or more products.");
+                return View("~/Views/Cart/Index.cshtml", viewModel);
             }
 
             int cartId = await cartsService.GetIdAsync(userId);

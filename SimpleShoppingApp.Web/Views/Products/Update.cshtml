@@ -1,5 +1,8 @@
 ﻿@model EditProductInputModel
 @{
+    ViewData["Title"] = "Edit Product";
+}
+@{
     var Categories = Model.Categories.Select(c => new SelectListItem
             {
                 Text = c.Name,

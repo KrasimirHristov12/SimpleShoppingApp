@@ -1,9 +1,9 @@
 ﻿namespace SimpleShoppingApp.Data.Enums
 {
-    public enum CRUDResult
+    public enum MakeOrderResult
     {
         NotFound,
-        Forbidden,
-        Success,
+        InvalidQuantity,
+        Success
     }
 }

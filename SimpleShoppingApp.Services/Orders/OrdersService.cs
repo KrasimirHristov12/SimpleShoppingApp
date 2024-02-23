@@ -11,37 +11,40 @@ namespace SimpleShoppingApp.Services.Orders
     public class OrdersService : IOrdersService
     {
         private readonly IRepository<Order> orderRepo;
+        private readonly IRepository<Product> productRepo;
         private readonly IProductsService productsService;
         private readonly IAddressesService addressesService;
 
-        public OrdersService(IRepository<Order> _orderRepo, 
+        public OrdersService(IRepository<Order> _orderRepo,
+            IRepository<Product> _productRepo,
             IProductsService _productsService,
             IAddressesService _addressesService)
         {
             orderRepo = _orderRepo;
+            productRepo = _productRepo;
             productsService = _productsService;
             addressesService = _addressesService;
         }
-        public async Task<AddUpdateDeleteResult> AddAsync(MakeOrderInputModel model, string userId)
+        public async Task<MakeOrderResult> AddAsync(MakeOrderInputModel model, string userId)
         {
             if (model.AddressId <= 0)
             {
-                return AddUpdateDeleteResult.NotFound;
+                return MakeOrderResult.NotFound;
             }
 
             if (!await addressesService.DoesAddressExistAsync(model.AddressId))
             {
-                return AddUpdateDeleteResult.NotFound;
+                return MakeOrderResult.NotFound;
             }
 
             if (model.ProductIds.Count == 0 || model.Quantities.Count == 0)
             {
-                return AddUpdateDeleteResult.NotFound;
+                return MakeOrderResult.NotFound;
             }
 
             if (model.ProductIds.Count != model.Quantities.Count)
             {
-                return AddUpdateDeleteResult.NotFound;
+                return MakeOrderResult.NotFound;
             }
 
             var order = new Order
@@ -57,14 +60,31 @@ namespace SimpleShoppingApp.Services.Orders
                 int productId = model.ProductIds[i];
                 int productQuantity = model.Quantities[i];
 
-                if (productQuantity <= 0 || productId <= 0)
+                if (productQuantity <= 0)
                 {
-                    return AddUpdateDeleteResult.NotFound;
+                    return MakeOrderResult.InvalidQuantity;
                 }
 
-                if (!await productsService.DoesProductExistAsync(productId))
+                if (productId <= 0)
                 {
-                    return AddUpdateDeleteResult.NotFound;
+                    return MakeOrderResult.NotFound;
+                }
+
+                var actualProduct = await productRepo.AllAsTracking()
+                    .FirstOrDefaultAsync(p => p.Id == productId);
+
+                if (actualProduct == null)
+                {
+                    return MakeOrderResult.NotFound;
+                }
+
+                var actualProductQuantity = actualProduct.Quantity;
+
+
+
+                if (productQuantity > actualProductQuantity)
+                {
+                    return MakeOrderResult.InvalidQuantity;
                 }
 
                 order.OrdersProducts.Add(new OrdersProducts
@@ -72,11 +92,14 @@ namespace SimpleShoppingApp.Services.Orders
                     ProductId = productId,
                     Quantity = productQuantity,
                 });
+
+                actualProduct.Quantity = actualProductQuantity - productQuantity;
+
             }
 
             await orderRepo.AddAsync(order);
             await orderRepo.SaveChangesAsync();
-            return AddUpdateDeleteResult.Success;
+            return MakeOrderResult.Success;
 
         }
 

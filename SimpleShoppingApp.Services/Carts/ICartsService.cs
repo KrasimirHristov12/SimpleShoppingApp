@@ -10,7 +10,7 @@ namespace SimpleShoppingApp.Services.Carts
 
         Task<bool> CartExistsAsync(int id);
 
-        Task<AddUpdateDeleteResult> AddProductAsync(int cartId, int productId, string currentUserId);
+        Task<AddUpdateProductToCartResult> AddProductAsync(int cartId, int productId, string currentUserId);
 
         Task<UpdateQuantityModel> UpdateQuantityInCartAsync(int cartId, int productId, int updatedQuantity, string currentUserId);
 

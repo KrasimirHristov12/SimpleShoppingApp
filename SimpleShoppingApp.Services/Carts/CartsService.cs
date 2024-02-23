@@ -54,28 +54,28 @@ namespace SimpleShoppingApp.Services.Carts
                .AnyAsync(c => c.Id == id && !c.IsDeleted);
         }
 
-        public async Task<AddUpdateDeleteResult> AddProductAsync(int cartId, int productId, string currentUserId)
+        public async Task<AddUpdateProductToCartResult> AddProductAsync(int cartId, int productId, string currentUserId)
         {
             if (cartId <= 0 || productId <= 0)
             {
-                return AddUpdateDeleteResult.NotFound;
+                return AddUpdateProductToCartResult.NotFound;
             }
 
             if (!await productsService.DoesProductExistAsync(productId))
             {
-                return AddUpdateDeleteResult.NotFound;
+                return AddUpdateProductToCartResult.NotFound;
             }
 
             var ownerUserId = await GetUserIdAsync(cartId);
 
             if (ownerUserId == null)
             {
-                return AddUpdateDeleteResult.NotFound;
+                return AddUpdateProductToCartResult.NotFound;
             }
 
             if (!await BelongsToUserAsync(ownerUserId, currentUserId))
             {
-                return AddUpdateDeleteResult.Forbidden;
+                return AddUpdateProductToCartResult.Forbidden;
             }
 
             var foundCartProduct = await cartsProductsRepo
@@ -84,11 +84,21 @@ namespace SimpleShoppingApp.Services.Carts
 
             if (foundCartProduct != null && !foundCartProduct.IsDeleted)
             {
-                return AddUpdateDeleteResult.AlreadyExist;
+                return AddUpdateProductToCartResult.AlreadyExist;
             }
 
             else if (foundCartProduct != null && foundCartProduct.IsDeleted)
             {
+                var productQuantity = await productsService.GetQuantityAsync(productId);
+                if (productQuantity == null)
+                {
+                    return AddUpdateProductToCartResult.NotFound;
+                }
+                if (productQuantity == 0)
+                {
+                    return AddUpdateProductToCartResult.NotInStock;
+                }
+
                 foundCartProduct.IsDeleted = false;
                 foundCartProduct.Quantity = 1;
                 await cartsProductsRepo.SaveChangesAsync();
@@ -96,6 +106,16 @@ namespace SimpleShoppingApp.Services.Carts
 
             if (foundCartProduct == null)
             {
+                var productQuantity = await productsService.GetQuantityAsync(productId);
+                if (productQuantity == null)
+                {
+                    return AddUpdateProductToCartResult.NotFound;
+                }
+                if (productQuantity == 0)
+                {
+                    return AddUpdateProductToCartResult.NotInStock;
+                }
+
                 await cartsProductsRepo.AddAsync(new CartsProducts
                 {
                     CartId = cartId,
@@ -105,7 +125,7 @@ namespace SimpleShoppingApp.Services.Carts
                 await cartsProductsRepo.SaveChangesAsync();
             }
 
-            return AddUpdateDeleteResult.Success;
+            return AddUpdateProductToCartResult.Success;
 
         }
 
@@ -305,7 +325,11 @@ namespace SimpleShoppingApp.Services.Carts
                 };
             }
 
-            if (updatedQuantity > productQuantity)
+            if (productQuantity == 0)
+            {
+                updatedQuantity = 0;
+            }
+            else if (updatedQuantity > productQuantity)
             {
                 updatedQuantity = (int)productQuantity;
             }
@@ -329,6 +353,7 @@ namespace SimpleShoppingApp.Services.Carts
                 Result = AddUpdateDeleteResult.Success,
                 Model = new UpdateQuantityJsonViewModel
                 {
+                    UpdatedQuantity = updatedQuantity,
                     NewProductPrice = productCart.Quantity * productCart.Product.Price,
                     NewTotalPrice = cartUpdatedInfo.Sum(),
                 },

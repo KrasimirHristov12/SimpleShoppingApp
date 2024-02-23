@@ -4,6 +4,14 @@
     var Images = Model.Images.ToList();
 }
 
+@if (TempData.ContainsKey("NotInStock"))
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["NotInStock"]
+    </div>
+}
+
+
 <h6><a asp-action="Category" asp-route-name="@Model.CategoryName" asp-route-id="@Model.CategoryId" asp-route-page="1">@Model.CategoryName</a></h6>
 <div class="row mb-2">
     <div class="col-md-9"><h3>@ViewData["Title"]</h3><span class="fst-italic">Added By: @Model.UserName</span></div>
@@ -59,7 +67,15 @@
 
 
         <ul class="list-group mt-3">
-            <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
+            @if (Model.Quantity == 0)
+            {
+                <li class="list-group-item text-center">Availability: <span class="text-danger fw-bold text-decoration-underline fs-4">Not In stock</span></li>
+            }
+            else
+            {
+                <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
+            }
+            
             <li class="list-group-item text-center">Price: <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span></li>
             <li class="list-group-item text-center">
                 @if (User.Identity != null && User.Identity.IsAuthenticated)

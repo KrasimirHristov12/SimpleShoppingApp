@@ -2,6 +2,9 @@
 {
     public class UpdateQuantityJsonViewModel
     {
+
+        public int UpdatedQuantity { get; set; }
+
         public decimal NewProductPrice { get; set; }
 
         public decimal NewTotalPrice { get; set; }

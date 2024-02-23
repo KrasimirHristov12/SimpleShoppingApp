@@ -5,6 +5,8 @@
 
 <h1>Your @ViewData["Title"]</h1>
 
+<div asp-validation-summary="All" class="text-danger"></div>
+
 <section class="h-100 gradient-custom">
     <div class="container py-5">
         <form asp-controller="Orders" asp-action="Make" method="post">

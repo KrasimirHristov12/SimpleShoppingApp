@@ -4,7 +4,6 @@
     {
         NotFound,
         Forbidden,
-        AlreadyExist,
         AlreadyDeleted,
         Success,
     }
