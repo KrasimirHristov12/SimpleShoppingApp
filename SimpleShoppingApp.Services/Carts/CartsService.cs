@@ -44,6 +44,11 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<bool> CartExistsAsync(int id)
         {
+            if (id <= 0)
+            {
+                return false;
+            }
+
             return await cartsRepo.
                 AllAsNoTracking()
                .AnyAsync(c => c.Id == id && !c.IsDeleted);
@@ -51,6 +56,11 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<AddUpdateDeleteResult> AddProductAsync(int cartId, int productId, string currentUserId)
         {
+            if (cartId <= 0 || productId <= 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
             if (!await productsService.DoesProductExistAsync(productId))
             {
                 return AddUpdateDeleteResult.NotFound;
@@ -140,6 +150,14 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<RemoveProductFromCartModel> RemoveProductAsync(int cartId, int productId, string currentUserId)
         {
+            if (cartId <= 0 || productId <= 0)
+            {
+                return new RemoveProductFromCartModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    Model = null,
+                };
+            }
             var cartProduct = await cartsProductsRepo.AllAsTracking()
             .Where(cp => cp.CartId == cartId && cp.ProductId == productId && !cp.IsDeleted)
             .FirstOrDefaultAsync();
@@ -194,6 +212,11 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<AddUpdateDeleteResult> RemoveAllProductsAsync(int cartId, string currentUserId)
         {
+            if (cartId <= 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
             var cartProduct = await cartsProductsRepo
                 .AllAsTracking()
                 .Where(cp => cp.CartId == cartId && !cp.IsDeleted)
@@ -228,6 +251,14 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<UpdateQuantityModel> UpdateQuantityInCartAsync(int cartId, int productId, int updatedQuantity, string currentUserId)
         {
+            if (cartId <= 0 || productId <= 0)
+            {
+                return new UpdateQuantityModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    Model = null,
+                };
+            }
 
             var productCart = await cartsProductsRepo
                 .AllAsTracking()
@@ -263,11 +294,20 @@ namespace SimpleShoppingApp.Services.Carts
                 };
             }
 
-            int productQuantity = await productsService.GetQuantityAsync(productId);
+            int? productQuantity = await productsService.GetQuantityAsync(productId);
+
+            if (productQuantity == null)
+            {
+                return new UpdateQuantityModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    Model = null,
+                };
+            }
 
             if (updatedQuantity > productQuantity)
             {
-                updatedQuantity = productQuantity;
+                updatedQuantity = (int)productQuantity;
             }
             else if (updatedQuantity <= 0)
             {
@@ -298,6 +338,11 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<string?> GetUserIdAsync(int id)
         {
+            if (id <= 0)
+            {
+                return null;
+            }
+
             return await cartsRepo.
                 AllAsNoTracking()
                 .Where(c => c.Id == id && !c.IsDeleted)

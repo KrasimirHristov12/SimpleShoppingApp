@@ -16,6 +16,11 @@ namespace SimpleShoppingApp.Services.Categories
 
         public async Task<bool> DoesCategoryExist(int id)
         {
+            if (id <= 0)
+            {
+                return false;
+            }
+
             return await categoryRepo
                 .AllAsNoTracking()
                 .AnyAsync(c => c.Id == id && !c.IsDeleted);

@@ -38,8 +38,7 @@ namespace SimpleShoppingApp.Services.Images
             await imagesRepo.AddAsync(imageDb);
             await imagesRepo.SaveChangesAsync();
 
-            string path = $"{wwwrootDirectory}\\images\\{imageTypeDirectoryMap[imageType]}\\{imageName}{extension}";
-
+            string path = Path.Combine(wwwrootDirectory, "images", imageTypeDirectoryMap[imageType], imageName, imageName + extension);
 
             using FileStream fs = new FileStream(path, FileMode.Create);
             await image.CopyToAsync(fs);
@@ -47,6 +46,11 @@ namespace SimpleShoppingApp.Services.Images
 
         public async Task<IEnumerable<ImageViewModel>> GetAsync(int entityId, ImageType imageType)
         {
+            if (entityId <= 0)
+            {
+                return new List<ImageViewModel>();
+            }
+
             var entityDirName = imageTypeDirectoryMap[imageType];
 
             var startImageName = imageTypeNameMap[entityDirName];
@@ -66,6 +70,11 @@ namespace SimpleShoppingApp.Services.Images
 
         public async Task<ImageViewModel?> GetFirstAsync(int entityId, ImageType imageType)
         {
+            if (entityId <= 0)
+            {
+                return null;
+            }
+
             var entityDirName = imageTypeDirectoryMap[imageType];
 
             var startImageName = imageTypeNameMap[entityDirName];

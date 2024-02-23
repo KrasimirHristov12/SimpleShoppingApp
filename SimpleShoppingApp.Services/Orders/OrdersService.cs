@@ -3,6 +3,7 @@ using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Orders;
+using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Products;
 
 namespace SimpleShoppingApp.Services.Orders
@@ -11,14 +12,38 @@ namespace SimpleShoppingApp.Services.Orders
     {
         private readonly IRepository<Order> orderRepo;
         private readonly IProductsService productsService;
+        private readonly IAddressesService addressesService;
 
-        public OrdersService(IRepository<Order> _orderRepo, IProductsService _productsService)
+        public OrdersService(IRepository<Order> _orderRepo, 
+            IProductsService _productsService,
+            IAddressesService _addressesService)
         {
             orderRepo = _orderRepo;
             productsService = _productsService;
+            addressesService = _addressesService;
         }
         public async Task<AddUpdateDeleteResult> AddAsync(MakeOrderInputModel model, string userId)
         {
+            if (model.AddressId <= 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
+            if (!await addressesService.DoesAddressExistAsync(model.AddressId))
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
+            if (model.ProductIds.Count == 0 || model.Quantities.Count == 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
+            if (model.ProductIds.Count != model.Quantities.Count)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
             var order = new Order
             {
                 UserId = userId,
@@ -32,12 +57,12 @@ namespace SimpleShoppingApp.Services.Orders
                 int productId = model.ProductIds[i];
                 int productQuantity = model.Quantities[i];
 
-                if (productQuantity <= 0)
+                if (productQuantity <= 0 || productId <= 0)
                 {
                     return AddUpdateDeleteResult.NotFound;
                 }
 
-                if (productId <= 0 || !await productsService.DoesProductExistAsync(productId))
+                if (!await productsService.DoesProductExistAsync(productId))
                 {
                     return AddUpdateDeleteResult.NotFound;
                 }

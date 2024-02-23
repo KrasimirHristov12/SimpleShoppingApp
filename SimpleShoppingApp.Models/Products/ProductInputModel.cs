@@ -1,4 +1,5 @@
-﻿using SimpleShoppingApp.Models.Categories;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using SimpleShoppingApp.Models.Categories;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -28,6 +29,7 @@ namespace SimpleShoppingApp.Models.Products
         [Range(typeof(int), "1", "1000000")]
         public int? Quantity { get; set; }
 
+        [BindNever]
         public IEnumerable<CategoryViewModel> Categories { get; set; }
 
         [Display(Name = "Category")]

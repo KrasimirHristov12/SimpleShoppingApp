@@ -14,9 +14,9 @@ namespace SimpleShoppingApp.Services.Addresses
         {
             addressesRepo = _addressesRepo;
         }
-        public async Task<AddressViewModel> AddAsync(string name, string userId)
+        public async Task<AddressViewModel?> AddAsync(string name, string userId)
         {
-            var address = new ShippingAddress 
+            var address = new ShippingAddress
             {
                 Name = name, 
                 UserId = userId, 
@@ -24,12 +24,17 @@ namespace SimpleShoppingApp.Services.Addresses
 
             await addressesRepo.AddAsync(address);
             await addressesRepo.SaveChangesAsync();
-
-            return await GetByIdAsync(address.Id);
+            var addressModel = await GetByIdAsync(address.Id);
+            return addressModel ?? null;
         }
 
         public async Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId)
         {
+            if (id <= 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
             var foundAddress = await addressesRepo
                 .AllAsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
@@ -62,8 +67,13 @@ namespace SimpleShoppingApp.Services.Addresses
                 .ToListAsync();
         }
 
-        public async Task<AddressViewModel> GetByIdAsync(int id)
+        public async Task<AddressViewModel?> GetByIdAsync(int id)
         {
+            if (id <= 0)
+            {
+                return null;
+            }
+
             return await addressesRepo
                 .AllAsNoTracking()
                 .Where(a => a.Id == id && !a.IsDeleted)
@@ -73,7 +83,13 @@ namespace SimpleShoppingApp.Services.Addresses
                     Name = a.Name,
                 })
                 .FirstAsync();
+        }
 
+        public async Task<bool> DoesAddressExistAsync(int id)
+        {
+            return await addressesRepo
+                .AllAsNoTracking()
+                .AnyAsync(a => a.Id == id);
         }
     }
 }

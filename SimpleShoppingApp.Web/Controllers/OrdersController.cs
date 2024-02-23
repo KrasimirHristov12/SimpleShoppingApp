@@ -37,7 +37,7 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             if (!Enum.IsDefined(typeof(OrderStatus), status))
             {
-                return BadRequest();
+                return NotFound();
                 
             }
             string userId = usersService.GetId(User);
@@ -69,6 +69,11 @@ namespace SimpleShoppingApp.Web.Controllers
             int cartId = await cartsService.GetIdAsync(userId);
 
             var removeResult = await cartsService.RemoveAllProductsAsync(cartId, userId);
+
+            if (removeResult == AddUpdateDeleteResult.NotFound)
+            {
+                return NotFound();
+            }
 
             if (removeResult == AddUpdateDeleteResult.Forbidden)
             {

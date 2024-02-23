@@ -30,6 +30,15 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId)
         {
+            if (model.CategoryId <= 0)
+            {
+                return new AddProductModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    ProductId = null,
+                };
+            }
+
             if (!await categoriesService.DoesCategoryExist(model.CategoryId))
             {
                 return new AddProductModel
@@ -60,8 +69,13 @@ namespace SimpleShoppingApp.Services.Products
             };
         }
 
-        public async Task<ProductViewModel?> GetAsync(int id)
+        public async Task<ProductViewModel?> GetAsync(int id, string? userId)
         {
+            if (id <= 0)
+            {
+                return null;
+            }
+
             var product = await productsRepo.AllAsNoTracking()
                 .Where(p => p.Id == id && !p.IsDeleted)
                 .Select(p => new ProductViewModel
@@ -87,11 +101,25 @@ namespace SimpleShoppingApp.Services.Products
 
             product.Images = images;
 
+            if (userId == null)
+            {
+                product.BelongsToCurrentUser = false;
+            }
+            else
+            {
+                product.BelongsToCurrentUser = await BelognsToUserAsync(id, userId);
+            }
+
             return product;
         }
 
         public async Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n)
         {
+            if (n <= 0)
+            {
+                return new List<ListProductsViewModel>();
+            }
+
             var products = await productsRepo.AllAsNoTracking()
                 .Where(p => !p.IsDeleted)
                 .OrderBy(p => Guid.NewGuid())
@@ -119,8 +147,18 @@ namespace SimpleShoppingApp.Services.Products
             return products;
         }
 
-        public async Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage)
+        public async Task<IEnumerable<ListProductsViewModel>?> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage)
         {
+            if (categoryId <= 0 || elementsPerPage <= 0 || currentPage <= 0)
+            {
+                return null;
+            }
+
+            if (!await categoriesService.DoesCategoryExist(categoryId))
+            {
+                return null;
+            }
+
             var products = await productsRepo.AllAsNoTracking()
                 .Where(p => p.CategoryId == categoryId && !p.IsDeleted)
                 .Skip((currentPage - 1) * elementsPerPage)
@@ -148,6 +186,11 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId)
         {
+            if (id <= 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
             var productToDelete = await productsRepo.AllAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
@@ -169,6 +212,11 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<int> GetCountForCategoryAsync(int categoryId)
         {
+            if (categoryId <= 0)
+            {
+                return 0;
+            }
+
             return await productsRepo
                 .AllAsNoTracking()
                 .Where(p => p.CategoryId == categoryId && !p.IsDeleted)
@@ -177,6 +225,15 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<EditProductModel> GetToEditAsync(int id, string currentUserId)
         {
+            if (id <= 0)
+            {
+                return new EditProductModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    Model = null,
+                };
+            }
+
             var productToEdit = await productsRepo.AllAsNoTracking()
                 .Where(p => p.Id == id && !p.IsDeleted)
                 .Select(p => new EditProductInputModel
@@ -219,6 +276,16 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<AddUpdateDeleteResult> UpdateAsync(EditProductInputModel model, string currentUserId)
         {
+            if (model.Id <= 0 || model.CategoryId <= 0)
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
+            if (!await categoriesService.DoesCategoryExist(model.CategoryId))
+            {
+                return AddUpdateDeleteResult.NotFound;
+            }
+
             var productToEdit = await productsRepo
                 .AllAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == model.Id && !p.IsDeleted);
@@ -246,6 +313,11 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return new List<ListProductsViewModel>();
+            }
+
             var filteredProducts = await productsRepo.AllAsNoTracking()
                 .Where(p => p.Name.ToLower().Contains(name.ToLower()) && !p.IsDeleted)
                 .Select(p => new ListProductsViewModel
@@ -269,12 +341,20 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<bool> BelognsToUserAsync(int productId, string loggedInUserId)
         {
-
+            if (productId <= 0)
+            {
+                return false;
+            }
             var creatorUserId = await productsRepo
                 .AllAsNoTracking()
                 .Where(p => p.Id == productId && !p.IsDeleted)
                 .Select(p => p.UserId)
-                .FirstAsync();
+                .FirstOrDefaultAsync();
+
+            if (creatorUserId == null) 
+            {
+                return false;
+            }
 
             if (loggedInUserId == creatorUserId)
             {
@@ -297,17 +377,26 @@ namespace SimpleShoppingApp.Services.Products
 
         }
 
-        public async Task<int> GetQuantityAsync(int id)
+        public async Task<int?> GetQuantityAsync(int id)
         {
+            if (id <= 0)
+            {
+                return null;
+            }
+
             return await productsRepo
                 .AllAsNoTracking()
                 .Where(p => p.Id == id && !p.IsDeleted)
                 .Select(p => p.Quantity)
-                .FirstAsync();
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> DoesProductExistAsync(int productId)
         {
+            if (productId <= 0)
+            {
+                return false;
+            }
             return await productsRepo
                 .AllAsNoTracking()
                 .AnyAsync(p => p.Id == productId && !p.IsDeleted);

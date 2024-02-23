@@ -47,13 +47,19 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int id)
         {
-            if (id <= 0 || !await productsService.DoesProductExistAsync(id))
+            var userId = usersService.GetId(User);
+            var cartId = await cartService.GetIdAsync(userId);
+            var addResult = await cartService.AddProductAsync(cartId, id, userId);
+            if (addResult == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
             }
-            var userId = usersService.GetId(User);
-            var cartId = await cartService.GetIdAsync(userId);
-            await cartService.AddProductAsync(cartId, id, userId);
+
+            if (addResult == AddUpdateDeleteResult.Forbidden)
+            {
+                return Forbid();
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -74,11 +80,6 @@ namespace SimpleShoppingApp.Web.Controllers
             if (removedProductInfo.Result == AddUpdateDeleteResult.Forbidden)
             {
                 return Forbid();
-            }
-
-            if (removedProductInfo.Result == AddUpdateDeleteResult.AlreadyDeleted)
-            {
-                return BadRequest();
             }
             
             return Ok(removedProductInfo.Model);

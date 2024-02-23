@@ -35,26 +35,13 @@ namespace SimpleShoppingApp.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index(int id)
         {
-            var product = await productsService.GetAsync(id);
+            string? loggedInUserId = User.Identity != null && User.Identity.IsAuthenticated ? usersService.GetId(User) : null;
+            var product = await productsService.GetAsync(id, loggedInUserId);
 
             if (product == null)
             {
                 return NotFound();
-            }
-
-            if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                string loggedInUserId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-
-                product.BelongsToCurrentUser = await productsService.BelognsToUserAsync(id, loggedInUserId);
-            }
-
-            else
-            {
-                product.BelongsToCurrentUser = false;
-            }
-
-            
+            }       
 
             return View(product);
         }
@@ -62,9 +49,12 @@ namespace SimpleShoppingApp.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Category(int id, string name, int page = 1)
         {
-            // Get category products - Get count, Implement Paging, filters (like in Emag)
-
             var productsPerPage = await productsService.GetByCategoryAsync(id, 1, page);
+
+            if (productsPerPage == null)
+            {
+                return NotFound();
+            }
 
             var model = new CategoryProductsViewModel
             {
@@ -81,6 +71,12 @@ namespace SimpleShoppingApp.Web.Controllers
         public async Task<IActionResult> Add()
         {
             var categories = await categoriesService.GetAllAsync();
+
+            if (categories.Count() == 0)
+            {
+                return NotFound();
+            }
+
             var model = new AddProductInputModel
             {
                 Categories = categories,
@@ -93,7 +89,12 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.Categories = await categoriesService.GetAllAsync();
+                var categories = await categoriesService.GetAllAsync();
+                if (categories.Count() == 0)
+                {
+                    return NotFound();
+                }
+                model.Categories = categories;
                 return View(model);
             }
 
@@ -139,7 +140,7 @@ namespace SimpleShoppingApp.Web.Controllers
                 return Forbid();
             }
 
-            return RedirectToAction(nameof(Index), "Home");
+            return RedirectToAction("Index", "Home");
         }
 
         public async Task<IActionResult> Update(int id)
@@ -158,6 +159,16 @@ namespace SimpleShoppingApp.Web.Controllers
                 return Forbid();
             }
 
+            if (productToEdit.Model == null)
+            {
+                return NotFound();
+            }
+
+            if (productToEdit.Model.Categories.Count() == 0)
+            {
+                return NotFound();
+            }
+
             return View(productToEdit.Model);
         }
 
@@ -166,7 +177,12 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.Categories = await categoriesService.GetAllAsync();
+                var categories = await categoriesService.GetAllAsync();
+                if (categories.Count() == 0)
+                {
+                    return NotFound();
+                }
+                model.Categories = categories;
                 return View(model);
             }
 
@@ -190,7 +206,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Search(string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) // If JS turned off
+            if (string.IsNullOrWhiteSpace(name))
             {
                 return BadRequest();
             }
