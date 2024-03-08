@@ -41,7 +41,35 @@ $(".bi-star-fill").on("mouseenter", function () {
 });
 
 $(".bi-star-fill").on("mouseleave", function () {
+    let indexOfSelected = $(".bi-star-fill").index($(".star-selected"));
+    for (i = indexOfSelected + 1; i < $(".bi-star-fill").length; i++) {
+        $(".bi-star-fill").eq(i).removeClass("stars-yellow");
+    }
+});
+
+
+$(".bi-star-fill").on("click", function () {
+    let rating = $(".bi-star-fill").index($(this)) + 1;
     $(".bi-star-fill").removeClass("stars-yellow");
+    let productId = $(".productId").val();
+    $.ajax({
+        type: "POST",
+        url: "/Products/AddUpdateRating",
+        data: {
+            productId: productId,
+            rating: rating,
+        },
+        success: function (data) {
+            let selectedRating = $(".bi-star-fill").eq(rating - 1);
+            $(".bi-star-fill").not(selectedRating).removeClass("star-selected");
+            selectedRating.addClass("star-selected");
+           for (let i = 0; i < rating; i++) {
+               $(".bi-star-fill").eq(i).addClass("stars-yellow");
+            }
+            $(".rating-number").text(data);
+        },
+        dataType: "json",
+    });
 });
 $(".remove-btn").on("click", function () {
     let removeBtn = $(this);
@@ -163,9 +191,6 @@ $(".modal-address-footer .submit").on("click", function () {
             dataType: "json",
         });
     }
-
-   
-
 });
 
 

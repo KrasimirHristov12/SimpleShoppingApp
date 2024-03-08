@@ -10,6 +10,7 @@ namespace SimpleShoppingApp.Data.Models
             Products = new HashSet<Product>();
             Orders = new HashSet<Order>();
             Addresses = new HashSet<ShippingAddress>();
+            UsersRating = new HashSet<UsersRating>();
         }
 
         [MaxLength(50)]
@@ -27,6 +28,8 @@ namespace SimpleShoppingApp.Data.Models
         public ICollection<Order> Orders { get; set; }
 
         public ICollection<ShippingAddress> Addresses { get; set; }
+
+        public ICollection<UsersRating> UsersRating { get; set; }
 
 
     }

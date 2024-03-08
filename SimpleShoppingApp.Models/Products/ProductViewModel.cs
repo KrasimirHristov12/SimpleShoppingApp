@@ -18,7 +18,9 @@ namespace SimpleShoppingApp.Models.Products
 
         public int Quantity { get; set; }
 
-        public double Rating { get; set; }
+        public int? Rating { get; set; }
+
+        public double AvgRating { get; set; }
 
         public int CategoryId { get; set; }
 

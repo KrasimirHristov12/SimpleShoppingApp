@@ -18,7 +18,7 @@
     @if (Model.BelongsToCurrentUser)
     {
         <div class="col-md-3">
-            <a class="btn btn-warning" asp-action="Update" asp-route-id="@Model.Id">Edit</a>
+            <a class="btn btn-warning update-btn" asp-action="Update" asp-route-id="@Model.Id">Edit</a>
             <form asp-action="Delete" method="post" class="delete-product-form d-inline">
                 <input type="hidden" name="id" value="@Model.Id" />
                 <button type="submit" class="btn btn-danger delete-btn">Delete</button>
@@ -57,10 +57,10 @@
         @if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             <div class="rating-container text-center">
-                <span class="rating-number">@Model.Rating</span>
+                <span class="rating-number">@Model.AvgRating</span>
                 @for (int i = 0; i < 5; i++)
                 {
-                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill @(i == Model.Rating - 1 ? "star-selected" : "") @(i < Model.Rating ? "stars-yellow" : "")"></i>
                 }
             </div>
         }
@@ -81,7 +81,7 @@
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
                     <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                        <input type="hidden" name="id" value="@Model.Id"/>
+                        <input type="hidden" name="id" class="productId" value="@Model.Id"/>
                         <button class="btn btn-success">Add to cart</button>
                     </form>
                     

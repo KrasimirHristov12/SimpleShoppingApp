@@ -66,5 +66,7 @@ namespace SimpleShoppingApp.Data
         public DbSet<OrdersProducts> OrdersProducts { get; set; } = null!;
 
         public DbSet<ShippingAddress> Addresses { get; set; } = null!;
+
+        public DbSet<UsersRating> UsersRatings { get; set; }
     }
 }

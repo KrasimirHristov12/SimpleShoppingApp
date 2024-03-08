@@ -12,17 +12,20 @@ namespace SimpleShoppingApp.Services.Products
     public class ProductsService : IProductsService
     {
         private readonly IRepository<Product> productsRepo;
+        private readonly IRepository<UsersRating> usersRatingRepo;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
 
         public ProductsService(
             IRepository<Product> _productsRepo,
+            IRepository<UsersRating> _usersRatingRepo,
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
             IUsersService _usersService)
         {
             productsRepo = _productsRepo;
+            usersRatingRepo = _usersRatingRepo;
             imagesService = _imagesService;
             categoriesService = _categoriesService;
             usersService = _usersService;
@@ -85,7 +88,6 @@ namespace SimpleShoppingApp.Services.Products
                     Description = p.Description,
                     Price = p.Price,
                     Quantity = p.Quantity,
-                    Rating = p.Rating,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category.Name,
                     UserName = p.User.UserName
@@ -108,6 +110,9 @@ namespace SimpleShoppingApp.Services.Products
             else
             {
                 product.BelongsToCurrentUser = await BelognsToUserAsync(id, userId);
+                var rating = await GetRatingAsync(id, userId);
+                product.Rating = rating;
+                product.AvgRating = await GetAverageRatingAsync(id);
             }
 
             return product;
@@ -400,6 +405,93 @@ namespace SimpleShoppingApp.Services.Products
             return await productsRepo
                 .AllAsNoTracking()
                 .AnyAsync(p => p.Id == productId && !p.IsDeleted);
+        }
+
+        public async Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating)
+        {
+            if (productId <= 0)
+            {
+                return new ProductRatingViewModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    AvgRating = null,
+                };
+            }
+
+            if (!await DoesProductExistAsync(productId))
+            {
+                return new ProductRatingViewModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    AvgRating = null,
+                };
+            }
+
+            if (rating < 1 || rating > 5)
+            {
+                return new ProductRatingViewModel
+                {
+                    Result = AddUpdateDeleteResult.NotFound,
+                    AvgRating = null,
+                };
+            }
+
+            var userProductRating = await usersRatingRepo
+                .AllAsTracking()
+                .FirstOrDefaultAsync(ur => ur.UserId == loggedInUserId && ur.ProductId == productId);
+
+            if (userProductRating == null)
+            {
+                userProductRating = new UsersRating
+                {
+                    UserId = loggedInUserId,
+                    ProductId = productId,
+                    Rating = rating,
+                };
+
+                await usersRatingRepo.AddAsync(userProductRating);
+                await usersRatingRepo.SaveChangesAsync();
+                var averageRating = await GetAverageRatingAsync(productId);
+                return new ProductRatingViewModel
+                {
+                    AvgRating = averageRating,
+                    Result = AddUpdateDeleteResult.Success,
+                };
+            }
+
+            userProductRating.Rating = rating;
+            await usersRatingRepo.SaveChangesAsync();
+            var avgRating = await GetAverageRatingAsync(productId);
+            return new ProductRatingViewModel
+            {
+                AvgRating = avgRating,
+                Result = AddUpdateDeleteResult.Success,
+            };
+        }
+
+        private async Task<int?> GetRatingAsync(int productId, string userId)
+        {
+            var rating = await usersRatingRepo
+                .AllAsNoTracking()
+                .Where(ur => ur.ProductId == productId && ur.UserId == userId)
+                .Select(ur => ur.Rating)
+                .FirstOrDefaultAsync();
+            if (rating == 0)
+            {
+                return null;
+            }
+            return rating;
+        }
+
+        private async Task<double> GetAverageRatingAsync(int productId)
+        {
+            var avgRating = await usersRatingRepo
+                .AllAsNoTracking()
+                .Where(ur => ur.ProductId == productId)
+                .Select(ur => ur.Rating)
+                .AverageAsync();
+
+            return avgRating;
         }
     }
 }

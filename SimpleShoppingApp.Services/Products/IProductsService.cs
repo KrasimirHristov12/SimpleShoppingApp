@@ -28,5 +28,7 @@ namespace SimpleShoppingApp.Services.Products
         Task<int?> GetQuantityAsync(int id);
 
         Task<bool> DoesProductExistAsync(int productId);
+
+        Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating);
     }
 }
