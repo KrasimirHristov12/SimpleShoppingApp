@@ -7,6 +7,7 @@ using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Users;
+using SimpleShoppingApp.Web.Extensions;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -29,7 +30,7 @@ namespace SimpleShoppingApp.Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            string userId = usersService.GetId(User);
+            string userId = User.GetId();
             var deliveredOrders = await ordersService.GetByStatusAsync(OrderStatus.Delivered, userId);
             return View(deliveredOrders);
         }
@@ -41,7 +42,7 @@ namespace SimpleShoppingApp.Web.Controllers
                 return NotFound();
                 
             }
-            string userId = usersService.GetId(User);
+            string userId = User.GetId();
 
             var orderStatus = (OrderStatus)status;
 
@@ -54,7 +55,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Make(MakeOrderInputModel model)
         {
-            string userId = usersService.GetId(User);
+            string userId = User.GetId();
             if (!ModelState.IsValid)
             {
                 var viewModel = await cartsService.GetAsync(userId);
@@ -111,7 +112,7 @@ namespace SimpleShoppingApp.Web.Controllers
             {
                 return BadRequest();
             }
-            string userId = usersService.GetId(User);
+            string userId = User.GetId();
             var addedAddress = await addressesService.AddAsync(model.Name, userId);
             return Json(addedAddress);
         }

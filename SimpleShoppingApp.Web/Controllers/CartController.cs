@@ -5,6 +5,7 @@ using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
+using SimpleShoppingApp.Web.Extensions;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -27,7 +28,7 @@ namespace SimpleShoppingApp.Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var userId = usersService.GetId(User);
+            var userId = User.GetId();
             var cart = await cartService.GetAsync(userId);
 
             if (cart == null)
@@ -47,7 +48,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int id)
         {
-            var userId = usersService.GetId(User);
+            var userId = User.GetId();
             var cartId = await cartService.GetIdAsync(userId);
             var addResult = await cartService.AddProductAsync(cartId, id, userId);
             if (addResult == AddUpdateProductToCartResult.NotFound)
@@ -72,7 +73,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteProduct(int productId)
         {
-            string userId = usersService.GetId(User);
+            string userId = User.GetId();
 
             int cartId = await cartService.GetIdAsync(userId);
 
@@ -94,7 +95,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int productId, int updatedQuantity)
         {
-            var userId = usersService.GetId(User);
+            var userId = User.GetId();
             var cartId = await cartService.GetIdAsync(userId);
 
             var updatedInfo = await cartService.UpdateQuantityInCartAsync(cartId, productId, updatedQuantity, userId);

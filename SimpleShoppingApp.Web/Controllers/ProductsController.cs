@@ -7,6 +7,7 @@ using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
+using SimpleShoppingApp.Web.Extensions;
 using System.Security.Claims;
 
 namespace SimpleShoppingApp.Web.Controllers
@@ -35,7 +36,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index(int id)
         {
-            string? loggedInUserId = User.Identity != null && User.Identity.IsAuthenticated ? usersService.GetId(User) : null;
+            string? loggedInUserId = User.Identity != null && User.Identity.IsAuthenticated ? User.GetId() : null;
             var product = await productsService.GetAsync(id, loggedInUserId);
 
             if (product == null)
@@ -98,7 +99,7 @@ namespace SimpleShoppingApp.Web.Controllers
                 return View(model);
             }
 
-            var userId = usersService.GetId(User);
+            var userId = User.GetId();
 
             var addProductResult = await productsService.AddAsync(model, userId);
 
@@ -126,7 +127,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            string loggedInUserId = usersService.GetId(User);
+            string loggedInUserId = User.GetId();
 
             var deleteResult = await productsService.DeleteAsync(id, loggedInUserId);
 
@@ -145,7 +146,7 @@ namespace SimpleShoppingApp.Web.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
-            string loggedInUserId = usersService.GetId(User);
+            string loggedInUserId = User.GetId();
 
             var productToEdit = await productsService.GetToEditAsync(id, loggedInUserId);
 
@@ -186,7 +187,7 @@ namespace SimpleShoppingApp.Web.Controllers
                 return View(model);
             }
 
-            string loggedInUserId = usersService.GetId(User);
+            string loggedInUserId = User.GetId();
 
             var result =  await productsService.UpdateAsync(model, loggedInUserId);
 
