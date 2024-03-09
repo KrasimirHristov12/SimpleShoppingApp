@@ -42,8 +42,9 @@ $(".bi-star-fill").on("mouseenter", function () {
 
 $(".bi-star-fill").on("mouseleave", function () {
     let indexOfSelected = $(".bi-star-fill").index($(".star-selected"));
-    for (i = indexOfSelected + 1; i < $(".bi-star-fill").length; i++) {
-        $(".bi-star-fill").eq(i).removeClass("stars-yellow");
+    let indexOfThis = $(".bi-star-fill").index($(this));
+    if (indexOfThis > indexOfSelected) {
+        $(this).removeClass("stars-yellow");
     }
 });
 
@@ -60,13 +61,14 @@ $(".bi-star-fill").on("click", function () {
             rating: rating,
         },
         success: function (data) {
+            $(".rating-number").text(rating);
             let selectedRating = $(".bi-star-fill").eq(rating - 1);
             $(".bi-star-fill").not(selectedRating).removeClass("star-selected");
             selectedRating.addClass("star-selected");
            for (let i = 0; i < rating; i++) {
                $(".bi-star-fill").eq(i).addClass("stars-yellow");
             }
-            $(".rating-number").text(data);
+            $(".rating-number-avg").text(data);
         },
         dataType: "json",
     });

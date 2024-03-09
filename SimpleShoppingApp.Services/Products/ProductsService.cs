@@ -485,11 +485,13 @@ namespace SimpleShoppingApp.Services.Products
 
         private async Task<double> GetAverageRatingAsync(int productId)
         {
-            var avgRating = await usersRatingRepo
+            var allRatings = await usersRatingRepo
                 .AllAsNoTracking()
                 .Where(ur => ur.ProductId == productId)
                 .Select(ur => ur.Rating)
-                .AverageAsync();
+                .ToListAsync();
+
+            var avgRating = allRatings.Count > 0 ? allRatings.Average() : 0;
 
             return avgRating;
         }
