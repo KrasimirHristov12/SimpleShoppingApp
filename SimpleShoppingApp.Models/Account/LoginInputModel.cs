@@ -6,6 +6,7 @@ namespace SimpleShoppingApp.Models.Account
     {
         [Required]
         [EmailAddress]
+        [StringLength(100, MinimumLength = 6)]
         public string Email { get; set; } = null!;
 
         [Required]
