@@ -57,7 +57,7 @@
         @if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             <div class="rating-container text-center">
-                <i>Your Rating/Average Rating: </i><span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@Model.AvgRating</span>
+                <i>Your Rating/Average Rating: </i><span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span>
                 @for (int i = 0; i < 5; i++)
                 {
                     <i class="bi bi-star-fill @(i == Model.Rating - 1 ? "star-selected" : "") @(i < Model.Rating ? "stars-yellow" : "")"></i>
@@ -88,7 +88,7 @@
                 }
                 else
                 {
-                    <span><a href="/Identity/Account/Login?returnUrl=@Context.Request.Path">Log-in</a> to be able to buy this product.</span>
+                    <span><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Log-in</a> to be able to buy this product.</span>
                 }
             </li>
         </ul>

@@ -7,6 +7,7 @@ using SimpleShoppingApp.Data.Seeders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Categories;
+using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
@@ -33,6 +34,10 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 }).AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+});
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductsService, ProductsService>();
@@ -44,6 +49,7 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ICartsService, CartsService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IAddressesService, AddressesService>();
+builder.Services.AddScoped<IEmailsService, EmailsService>();
 
 var app = builder.Build();
 

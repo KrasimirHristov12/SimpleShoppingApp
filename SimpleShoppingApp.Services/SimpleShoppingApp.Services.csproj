@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SendGrid" Version="9.29.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SimpleShoppingApp.Data\SimpleShoppingApp.Data.csproj" />
     <ProjectReference Include="..\SimpleShoppingApp.Models\SimpleShoppingApp.Models.csproj" />
   </ItemGroup>

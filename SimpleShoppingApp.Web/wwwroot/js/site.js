@@ -68,7 +68,7 @@ $(".bi-star-fill").on("click", function () {
            for (let i = 0; i < rating; i++) {
                $(".bi-star-fill").eq(i).addClass("stars-yellow");
             }
-            $(".rating-number-avg").text(data);
+            $(".rating-number-avg").text(data.toFixed(2));
         },
         dataType: "json",
     });

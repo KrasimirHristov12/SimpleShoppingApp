@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SimpleShoppingApp.Data.Seeders;
+﻿using SimpleShoppingApp.Data.Seeders;
 
 namespace SimpleShoppingApp.Web.Middlewares
 {
