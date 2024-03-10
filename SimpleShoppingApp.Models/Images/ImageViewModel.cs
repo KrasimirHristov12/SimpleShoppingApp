@@ -2,7 +2,7 @@
 {
     public class ImageViewModel
     {
-        public string Name { get; set; }
-        public string Extension { get; set; }
+        public string Name { get; set; } = null!;
+        public string Extension { get; set; } = null!;
     }
 }

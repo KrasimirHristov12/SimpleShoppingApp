@@ -110,7 +110,13 @@ namespace SimpleShoppingApp.Services.Orders
 
             await orderRepo.AddAsync(order);
             await orderRepo.SaveChangesAsync();
-            
+
+            var email = await usersService.GetEmailAsync(userId);
+            var fullName = await usersService.GetFullNameAsync(userId);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName))
+            {
+                return MakeOrderResult.NotFound;
+            }
 
             var productsInfo = await ordersProductsRepo
                 .AllAsNoTracking()
@@ -121,21 +127,16 @@ namespace SimpleShoppingApp.Services.Orders
                     Quantity = op.Quantity,
                     Price = op.Product.Price,
                 })
-                .ToListAsync();
+            .ToListAsync();
+
+            decimal orderTotalPrice = productsInfo.Sum(p => p.TotalPrice);
             string emailHtml = "<table><tr><th>Name</th><th>Quantity</th><th>Price</th></tr>";
             foreach (var prod in productsInfo)
             {
-                emailHtml += $"<tr><td>{prod.Name}</td><td>{prod.Quantity}</td><td>{prod.TotalPrice}</td></tr>";
+                emailHtml += $"<tr><td>{prod.Name}</td><td>{prod.Quantity}</td><td>${prod.TotalPrice}</td></tr>";
             }
             emailHtml += "</table>";
-            decimal orderTotalPrice = productsInfo.Sum(p => p.TotalPrice);
             emailHtml += $"<div>Total Price: ${orderTotalPrice:F2}</div>";
-            var email = await usersService.GetEmailAsync(userId);
-            var fullName = await usersService.GetFullNameAsync(userId);
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName))
-            {
-                return MakeOrderResult.NotFound;
-            }
             string emailSubject = $"Order #{order.Id}";
             string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/>{emailHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
             var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
@@ -145,14 +146,14 @@ namespace SimpleShoppingApp.Services.Orders
 
         public async Task<IEnumerable<OrderViewModel>> GetByStatusAsync(OrderStatus status, string userId)
         {
-           return await orderRepo.AllAsNoTracking()
-                .Where(o => o.OrderStatus == status && o.UserId == userId && !o.IsDeleted)
-                .Select(o => new OrderViewModel
-                {
-                    Id = o.Id,
-                    TotalPrice = o.OrdersProducts.Where(op => !op.IsDeleted).Select(op => op.Product.Price * op.Quantity).Sum(),
+            return await orderRepo.AllAsNoTracking()
+                 .Where(o => o.OrderStatus == status && o.UserId == userId && !o.IsDeleted)
+                 .Select(o => new OrderViewModel
+                 {
+                     Id = o.Id,
+                     TotalPrice = o.OrdersProducts.Where(op => !op.IsDeleted).Select(op => op.Product.Price * op.Quantity).Sum(),
 
-                }).ToListAsync();
+                 }).ToListAsync();
         }
     }
 }

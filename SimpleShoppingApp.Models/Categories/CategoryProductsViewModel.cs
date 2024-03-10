@@ -4,13 +4,16 @@ namespace SimpleShoppingApp.Models.Categories
 {
     public class CategoryProductsViewModel
     {
-
+        public CategoryProductsViewModel()
+        {
+            ProductsPerPage = new List<ListProductsViewModel>();
+        }
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
 
         public int TotalProductsCount { get; set; }
 
-        public IEnumerable<ListProductsViewModel>? ProductsPerPage { get; set; }
+        public IEnumerable<ListProductsViewModel> ProductsPerPage { get; set; }
 
         public int ProductsPerPageCount => ProductsPerPage.Count();
 

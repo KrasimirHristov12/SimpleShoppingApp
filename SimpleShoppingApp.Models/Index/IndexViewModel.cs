@@ -4,6 +4,10 @@ namespace SimpleShoppingApp.Models.Index
 {
     public class IndexViewModel
     {
-        public IEnumerable<ListProductsViewModel>? RandomProducts { get; set; }
+        public IndexViewModel()
+        {
+            RandomProducts = new List<ListProductsViewModel>();
+        }
+        public IEnumerable<ListProductsViewModel> RandomProducts { get; set; }
     }
 }
