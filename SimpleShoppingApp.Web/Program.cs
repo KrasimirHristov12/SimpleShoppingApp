@@ -24,7 +24,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
@@ -32,7 +32,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.Password.RequireUppercase = false;
 
 }).AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+   .AddEntityFrameworkStores<ApplicationDbContext>()
+   .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
 builder.Services.ConfigureApplicationCookie(options =>
 {

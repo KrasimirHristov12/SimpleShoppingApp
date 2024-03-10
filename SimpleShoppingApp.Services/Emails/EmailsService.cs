@@ -22,7 +22,7 @@ namespace SimpleShoppingApp.Services.Emails
             {
                 From = new EmailAddress(fromEmail, fromName),
                 Subject = subject,
-                PlainTextContent = content,
+                HtmlContent = content,
             };
             msg.AddTo(new EmailAddress(toEmail, toName));
             var response = await client.SendEmailAsync(msg); 

@@ -2,6 +2,13 @@
 @{
     ViewData["Title"] = "Login page";
 }
+@if (TempData.ContainsKey("ConfirmationSent"))
+{
+    <div class="alert alert-primary" role="alert">
+        @TempData["ConfirmationSent"]
+    </div>
+}
+
 
 <form method="post" class="offset-md-4 col-md-4">
     <div asp-validation-summary="All" class="text-danger"></div>

@@ -100,11 +100,10 @@ namespace SimpleShoppingApp.Web.Controllers
 
                 return View(model);
             }
-
-            var cartId = await cartsService.AddAsync(user.Id);
-            user.CartId = cartId;
-            await cartsRepo.SaveChangesAsync();
-            var sendEmailResult = await emailsService.SendAsync(user.Email, $"{user.FirstName} {user.LastName}", "Registration successful", "Thank you!");
+            var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, token = confirmationToken }, Request.Scheme);
+            var sendEmailResult = await emailsService.SendAsync(user.Email, $"{user.FirstName} {user.LastName}", "Confirm your account", $"Please click <a href=\"{confirmationLink}\" target=\"blank\">here</a> to confirm your account!");
+            TempData["ConfirmationSent"] = "A confirmation mail was sent to you. Please review your inbox";
             return RedirectToAction(nameof(Login));
         }
 
@@ -113,6 +112,39 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             await signInManager.SignOutAsync();
             return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [AllowAnonymous]
+        [NotAllowLoggedUsers]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+            {
+                return Redirect("/");
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return Redirect("/");
+            }
+
+            if (user.EmailConfirmed)
+            {
+                return Redirect("/");
+            }
+
+            var confirmResult = await userManager.ConfirmEmailAsync(user, token);
+
+            if (!confirmResult.Succeeded)
+            {
+                return Redirect("/");
+            }
+            var cartId = await cartsService.AddAsync(user.Id);
+            user.CartId = cartId;
+            await cartsRepo.SaveChangesAsync();
+            return View();
         }
     }
 }
