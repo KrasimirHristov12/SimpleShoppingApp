@@ -4,7 +4,9 @@ using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
+using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Products;
+using SimpleShoppingApp.Services.Users;
 
 namespace SimpleShoppingApp.Services.Orders
 {
@@ -12,18 +14,27 @@ namespace SimpleShoppingApp.Services.Orders
     {
         private readonly IRepository<Order> orderRepo;
         private readonly IRepository<Product> productRepo;
+        private readonly IRepository<OrdersProducts> ordersProductsRepo;
         private readonly IProductsService productsService;
         private readonly IAddressesService addressesService;
+        private readonly IEmailsService emailsService;
+        private readonly IUsersService usersService;
 
         public OrdersService(IRepository<Order> _orderRepo,
             IRepository<Product> _productRepo,
+            IRepository<OrdersProducts> _ordersProductsRepo,
             IProductsService _productsService,
-            IAddressesService _addressesService)
+            IAddressesService _addressesService,
+            IEmailsService _emailsService,
+            IUsersService _usersService)
         {
             orderRepo = _orderRepo;
             productRepo = _productRepo;
+            ordersProductsRepo = _ordersProductsRepo;
             productsService = _productsService;
             addressesService = _addressesService;
+            emailsService = _emailsService;
+            usersService = _usersService;
         }
         public async Task<MakeOrderResult> AddAsync(MakeOrderInputModel model, string userId)
         {
@@ -99,6 +110,35 @@ namespace SimpleShoppingApp.Services.Orders
 
             await orderRepo.AddAsync(order);
             await orderRepo.SaveChangesAsync();
+            
+
+            var productsInfo = await ordersProductsRepo
+                .AllAsNoTracking()
+                .Where(op => op.OrderId == order.Id)
+                .Select(op => new OrderProductViewModel
+                {
+                    Name = op.Product.Name,
+                    Quantity = op.Quantity,
+                    Price = op.Product.Price,
+                })
+                .ToListAsync();
+            string emailHtml = "<table><tr><th>Name</th><th>Quantity</th><th>Price</th></tr>";
+            foreach (var prod in productsInfo)
+            {
+                emailHtml += $"<tr><td>{prod.Name}</td><td>{prod.Quantity}</td><td>{prod.TotalPrice}</td></tr>";
+            }
+            emailHtml += "</table>";
+            decimal orderTotalPrice = productsInfo.Sum(p => p.TotalPrice);
+            emailHtml += $"<div>Total Price: ${orderTotalPrice:F2}</div>";
+            var email = await usersService.GetEmailAsync(userId);
+            var fullName = await usersService.GetFullNameAsync(userId);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName))
+            {
+                return MakeOrderResult.NotFound;
+            }
+            string emailSubject = $"Order #{order.Id}";
+            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/>{emailHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
+            var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
             return MakeOrderResult.Success;
 
         }

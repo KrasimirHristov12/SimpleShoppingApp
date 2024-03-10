@@ -38,7 +38,7 @@ namespace SimpleShoppingApp.Web.Controllers
 
             cart.Input = new MakeOrderInputModel();
 
-            cart.Input.PhoneNumber = await usersService.GetPhoneNumberAsync(userId);
+            cart.Input.PhoneNumber = await usersService.GetPhoneNumberAsync(userId) ?? string.Empty;
 
             cart.Input.Addresses = await addressesService.GetAllForUserAsync(userId);
 
