@@ -12,7 +12,7 @@ namespace SimpleShoppingApp.Services.Emails
         {
             config = _config;
         }
-        public async Task<bool> SendAsync( string toEmail, string toName, string subject, string content)
+        public async Task<bool> SendAsync(string toEmail, string toName, string subject, string content)
         {
             var apiKey = config["SendGrid:ApiKey"];
             var fromEmail = config["SendGrid:FromEmail"];
