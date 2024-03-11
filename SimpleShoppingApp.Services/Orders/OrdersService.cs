@@ -124,21 +124,23 @@ namespace SimpleShoppingApp.Services.Orders
                 .Select(op => new OrderProductViewModel
                 {
                     Name = op.Product.Name,
+                    Address = op.Order.Address.Name,
                     Quantity = op.Quantity,
                     Price = op.Product.Price,
                 })
             .ToListAsync();
 
             decimal orderTotalPrice = productsInfo.Sum(p => p.TotalPrice);
-            string emailHtml = "<table><tr><th>Name</th><th>Quantity</th><th>Price</th></tr>";
+            string tableHtml = "<table><tr><th style=\"border: 1px solid #ddd;\">Name</th><th style=\"border: 1px solid #ddd;\">Quantity</th><th style=\"border: 1px solid #ddd;\">Price</th></tr>";
             foreach (var prod in productsInfo)
             {
-                emailHtml += $"<tr><td>{prod.Name}</td><td>{prod.Quantity}</td><td>${prod.TotalPrice}</td></tr>";
+                tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
             }
-            emailHtml += "</table>";
-            emailHtml += $"<div>Total Price: ${orderTotalPrice:F2}</div>";
+            tableHtml += "</table>";
+            string priceHtml = $"<br/><hr/><div><b>Total Price</b>: ${orderTotalPrice:F2}</div>";
+            string addressHtml = $"<div><b>Address</b>: {productsInfo.First().Address}</div><br/><br/>";
             string emailSubject = $"Order #{order.Id}";
-            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/>{emailHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
+            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{addressHtml}{tableHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
             var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
             return MakeOrderResult.Success;
 
