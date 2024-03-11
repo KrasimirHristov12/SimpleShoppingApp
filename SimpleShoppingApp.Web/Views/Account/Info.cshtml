@@ -1,0 +1,30 @@
+﻿@model UserInfoViewModel
+@{
+    ViewData["Title"] = "User Information";
+}
+
+<h5>@ViewData["Title"]</h5>
+
+<ul>
+    <li>
+        Full Name: <span class="full-name">@Model.FullName</span>
+        <button class="btn btn-primary edit-btn">Edit</button>
+        <span class="d-none edit-block full-name-edit-block">
+            <input type="text" value="@Model.FullName" />
+            <button class="btn btn-primary save-btn">Save</button>
+        </span>
+    </li>
+    <li>Email: <span class="email">@Model.Email</span></li>
+    <li>
+        Phone Number: <span class="phone-number">@Model.PhoneNumber</span>
+        <button class="btn btn-primary edit-btn">Edit</button>
+        <span class="d-none edit-block phone-number-edit-block">
+            <input type="text" value="@Model.PhoneNumber" />
+            <button class="btn btn-primary save-btn">Save</button>
+        </span>
+    </li>
+</ul>
+
+@section Scripts {
+    <script src="~/js/user-info.js"></script>
+}

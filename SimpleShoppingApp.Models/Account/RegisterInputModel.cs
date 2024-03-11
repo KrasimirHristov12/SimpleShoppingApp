@@ -11,11 +11,13 @@ namespace SimpleShoppingApp.Models.Account
 
         [Required]
         [StringLength(50, MinimumLength = 2)]
+        [RegularExpression("^([A-Za-z][A-Za-z]+){2,50}$")]
         [Display(Name = "First Name")]
         public string FirstName { get; set; } = null!;
 
         [Required]
         [StringLength(50, MinimumLength = 2)]
+        [RegularExpression("^([A-Za-z][A-Za-z]+){2,50}$")]
         [Display(Name = "Last Name")]
         public string LastName { get; set; } = null!;
 

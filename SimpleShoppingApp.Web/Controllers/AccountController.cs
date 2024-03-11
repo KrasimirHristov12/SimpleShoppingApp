@@ -6,8 +6,9 @@ using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Account;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Emails;
+using SimpleShoppingApp.Services.Users;
+using SimpleShoppingApp.Web.Extensions;
 using SimpleShoppingApp.Web.Filters;
-using System.Threading.Channels;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -17,18 +18,21 @@ namespace SimpleShoppingApp.Web.Controllers
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly ICartsService cartsService;
         private readonly IEmailsService emailsService;
+        private readonly IUsersService usersService;
         private readonly IRepository<ShoppingCart> cartsRepo;
 
         public AccountController(UserManager<ApplicationUser> _userManager,
             SignInManager<ApplicationUser> _signInManager,
             IRepository<ShoppingCart> _cartsRepo,
-            ICartsService cartsService,
-            IEmailsService _emailsService)
+            ICartsService _cartsService,
+            IEmailsService _emailsService,
+            IUsersService _usersService)
         {
             userManager = _userManager;
             signInManager = _signInManager;
-            this.cartsService = cartsService;
+            cartsService = _cartsService;
             emailsService = _emailsService;
+            usersService = _usersService;
             cartsRepo = _cartsRepo;
         }
 
@@ -234,7 +238,18 @@ namespace SimpleShoppingApp.Web.Controllers
             string content = "You have successfully changed your password!";
             var emalResult = await emailsService.SendAsync(model.Email, string.Empty, "Password changed", content);
             return RedirectToAction(nameof(Login));
+        }
 
+        [Authorize]
+        public async Task<IActionResult> Info()
+        {
+            var userId = User.GetId();
+            var userInfo = await usersService.GetUserInfoAsync(userId);
+            if (userInfo == null)
+            {
+                return NotFound();
+            }
+            return View(userInfo);
         }
     }
 }

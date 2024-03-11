@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SimpleShoppingApp.Data.Models;
+using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Models.Users;
 using System.Security.Claims;
 
 namespace SimpleShoppingApp.Services.Users
@@ -9,11 +12,15 @@ namespace SimpleShoppingApp.Services.Users
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration configuration;
+        private readonly IRepository<ApplicationUser> userRepo;
 
-        public UsersService(UserManager<ApplicationUser> _userManager, IConfiguration _configuration)
+        public UsersService(UserManager<ApplicationUser> _userManager, 
+            IConfiguration _configuration,
+            IRepository<ApplicationUser> _userRepo)
         {
             userManager = _userManager;
             configuration = _configuration;
+            userRepo = _userRepo;
         }
         public async Task<string?> GetAdminIdAsync()
         {
@@ -55,6 +62,53 @@ namespace SimpleShoppingApp.Services.Users
             }
             var fullName = user.FirstName + " " + user.LastName;
             return fullName;
+        }
+
+        public async Task<UserInfoViewModel?> GetUserInfoAsync(string userId)
+        {
+            var user = await userManager.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new UserInfoViewModel
+                {
+                    Email = u.Email,
+                    FullName = u.FirstName + " " + u.LastName,
+                    PhoneNumber = u.PhoneNumber
+                })
+                .FirstOrDefaultAsync();
+
+            return user;
+        }
+
+        public async Task<bool> UpdateFullNameAsync(EditFullNameInputModel model, string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var nameSplitted = model.FullName.Split(" ", 2, StringSplitOptions.RemoveEmptyEntries);
+            string firstName = nameSplitted[0];
+            string lastName = nameSplitted[1];
+            user.FirstName = firstName;
+            user.LastName = lastName;
+            await userRepo.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdatePhoneNumberAsync(EditPhoneNumberInputModel model, string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.PhoneNumber = model.PhoneNumber;
+            await userRepo.SaveChangesAsync();
+            return true;
         }
     }
 }
