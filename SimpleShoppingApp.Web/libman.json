@@ -5,6 +5,18 @@
     {
       "library": "sweetalert@2.1.2",
       "destination": "wwwroot/lib/sweetalert/"
+    },
+    {
+      "library": "bootstrap@5.3.3",
+      "destination": "wwwroot/lib/bootstrap/dist/",
+      "files": [
+        "js/bootstrap.min.js",
+        "js/bootstrap.bundle.min.js",
+        "css/bootstrap.min.css",
+        "css/bootstrap-utilities.min.css",
+        "css/bootstrap-reboot.min.css",
+        "css/bootstrap-grid.min.css"
+      ]
     }
-  ]
+]
 }

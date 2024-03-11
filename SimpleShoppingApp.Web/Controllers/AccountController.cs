@@ -7,6 +7,7 @@ using SimpleShoppingApp.Models.Account;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Web.Filters;
+using System.Threading.Channels;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -145,6 +146,95 @@ namespace SimpleShoppingApp.Web.Controllers
             user.CartId = cartId;
             await cartsRepo.SaveChangesAsync();
             return View();
+        }
+
+        [AllowAnonymous]
+        [NotAllowLoggedUsers]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [NotAllowLoggedUsers]
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordInputModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User with such email address does not exist.");
+                return View(model);
+            }
+
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            var resetPasswordLink = Url.Action(nameof(NewPassword), "Account", new { email = model.Email, token = token }, Request.Scheme);
+
+            string mailContent = $"Hello,<br/>Please click the link below to reset your password.<br/><br/><a href=\"{resetPasswordLink}\">{resetPasswordLink}</a>";
+
+            var mailResult = await emailsService.SendAsync(model.Email, string.Empty, "Reset your password", mailContent);
+
+            TempData["ResetLinkSent"] = "A mail with instructions on how to change your password was sent. Please review your inbox.";
+            return RedirectToAction(nameof(Login));
+
+        }
+
+        [AllowAnonymous]
+        [NotAllowLoggedUsers]
+        public IActionResult NewPassword(string email, string token)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            {
+                return Redirect("/");
+            }
+
+            var model = new NewPasswordInputModel
+            {
+                Email = email,
+                Token = token,
+            };
+
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        [NotAllowLoggedUsers]
+        [HttpPost]
+        public async Task<IActionResult> NewPassword(NewPasswordInputModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty ,"Something went wrong");
+                return View(model);
+            }
+
+            var resetResult = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
+            if (!resetResult.Succeeded) 
+            {
+                foreach (var err in resetResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, err.Description);
+                }
+                return View(model);
+            }
+
+            TempData["ChangePasswordSuccessful"] = "You have successfully changed your password!";
+            string content = "You have successfully changed your password!";
+            var emalResult = await emailsService.SendAsync(model.Email, string.Empty, "Password changed", content);
+            return RedirectToAction(nameof(Login));
+
         }
     }
 }

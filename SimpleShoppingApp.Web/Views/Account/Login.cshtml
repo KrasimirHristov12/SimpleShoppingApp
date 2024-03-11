@@ -9,6 +9,20 @@
     </div>
 }
 
+@if (TempData.ContainsKey("ResetLinkSent"))
+{
+    <div class="alert alert-primary" role="alert">
+        @TempData["ResetLinkSent"]
+    </div>
+}
+
+@if (TempData.ContainsKey("ChangePasswordSuccessful"))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["ChangePasswordSuccessful"]
+    </div>
+}
+
 
 <form method="post" class="offset-md-4 col-md-4">
     <div asp-validation-summary="All" class="text-danger"></div>
@@ -29,6 +43,10 @@
         <input class="form-check-input" asp-for="RememberMe" />
         <label class="form-check-label" asp-for="RememberMe"></label>
         <span asp-validation-for="RememberMe" class="text-danger"></span>
+    </div>
+
+    <div class="mt-2">
+        <a asp-action="ForgotPassword" class="link-underline-light">I forgot my password</a>
     </div>
 
     <div class="mt-2">
