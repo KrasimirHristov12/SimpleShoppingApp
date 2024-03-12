@@ -9,6 +9,9 @@ namespace SimpleShoppingApp.Data.Models
         {
             OrdersProducts = new HashSet<OrdersProducts>();
             CreatedOn = DateTime.UtcNow;
+            Random rand = new Random();
+            int deliveryDays = rand.Next(2, 4);
+            DeliveryDate = DateTime.UtcNow.AddDays(deliveryDays);
         }
         public int Id { get; set; }
 
@@ -22,9 +25,7 @@ namespace SimpleShoppingApp.Data.Models
 
         public DateTime CreatedOn { get; set; }
 
-        public OrderStatus OrderStatus { get; set; }
-
-        public PaymentMethod PaymentMethod { get; set; }
+        public DateTime DeliveryDate { get; set; }
 
         [Required]
         [MaxLength(10)]

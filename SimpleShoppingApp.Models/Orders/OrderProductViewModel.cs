@@ -11,5 +11,7 @@
         public decimal Price { get; set; }
 
         public decimal TotalPrice => Quantity * Price;
+
+        public int DeliveryDays { get; set; }
     }
 }

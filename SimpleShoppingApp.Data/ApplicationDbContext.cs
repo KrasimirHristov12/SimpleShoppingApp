@@ -51,6 +51,10 @@ namespace SimpleShoppingApp.Data
                 .Property(o => o.AddressId)
                 .HasDefaultValue(1);
 
+            builder.Entity<Order>()
+                .Property(o => o.DeliveryDate)
+                .HasDefaultValue(default(DateTime));
+
             base.OnModelCreating(builder);
         }
         public DbSet<Product> Products { get; set; } = null!;

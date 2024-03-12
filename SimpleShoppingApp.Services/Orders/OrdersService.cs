@@ -61,7 +61,6 @@ namespace SimpleShoppingApp.Services.Orders
             var order = new Order
             {
                 UserId = userId,
-                PaymentMethod = model.PaymentMethod,
                 PhoneNumber = model.PhoneNumber,
                 AddressId = model.AddressId,
             };
@@ -127,6 +126,8 @@ namespace SimpleShoppingApp.Services.Orders
                     Address = op.Order.Address.Name,
                     Quantity = op.Quantity,
                     Price = op.Product.Price,
+                    DeliveryDays = (op.Order.DeliveryDate - op.Order.CreatedOn).Days,
+                    
                 })
             .ToListAsync();
 
@@ -137,10 +138,11 @@ namespace SimpleShoppingApp.Services.Orders
                 tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
             }
             tableHtml += "</table>";
-            string priceHtml = $"<br/><hr/><div><b>Total Price</b>: ${orderTotalPrice:F2}</div>";
+            string priceHtml = $"<div><b>Total Price</b>: ${orderTotalPrice:F2}</div>";
             string addressHtml = $"<div><b>Address</b>: {productsInfo.First().Address}</div><br/><br/>";
+            string deliveryHtml = $"<hr/><br/><div><b>Delivery Days</b>: {productsInfo.First().DeliveryDays} days from now.</div>";
             string emailSubject = $"Order #{order.Id}";
-            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{addressHtml}{tableHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
+            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{addressHtml}{tableHtml}{deliveryHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
             var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
             return MakeOrderResult.Success;
 
@@ -148,8 +150,19 @@ namespace SimpleShoppingApp.Services.Orders
 
         public async Task<IEnumerable<OrderViewModel>> GetByStatusAsync(OrderStatus status, string userId)
         {
-            return await orderRepo.AllAsNoTracking()
-                 .Where(o => o.OrderStatus == status && o.UserId == userId && !o.IsDeleted)
+            var query = orderRepo.AllAsNoTracking();
+
+            if (status == OrderStatus.Delivered)
+            {
+               query = query.Where(o => o.DeliveryDate <= DateTime.UtcNow);
+            }
+            else
+            {
+                query = query.Where(o => o.DeliveryDate > DateTime.UtcNow);
+
+            }
+
+            return await query.Where(o => o.UserId == userId && !o.IsDeleted)
                  .Select(o => new OrderViewModel
                  {
                      Id = o.Id,
