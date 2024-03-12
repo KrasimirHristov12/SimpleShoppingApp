@@ -235,12 +235,55 @@ namespace SimpleShoppingApp.Web.Controllers
             }
 
             TempData["ChangePasswordSuccessful"] = "You have successfully changed your password!";
+            string subject = "Password changed";
             string content = "You have successfully changed your password!";
-            var emalResult = await emailsService.SendAsync(model.Email, string.Empty, "Password changed", content);
+            var emailResult = await emailsService.SendAsync(model.Email, string.Empty, subject, content);
             return RedirectToAction(nameof(Login));
         }
 
-        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordInputModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string userId = User.GetId();
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var err in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, err.Description);
+                }
+                return View(model);
+            }
+
+            await signInManager.SignOutAsync();
+            string email = user.Email;
+            string subject = "Password changed";
+            string content = "You have successfully changed your password!";
+
+            var mailResult = await emailsService.SendAsync(email, string.Empty, subject, content);
+
+            TempData["PasswordChangedSuccessfully"] = "You have successfully changed your password.";
+            return RedirectToAction(nameof(Login));
+        }
         public async Task<IActionResult> Info()
         {
             var userId = User.GetId();

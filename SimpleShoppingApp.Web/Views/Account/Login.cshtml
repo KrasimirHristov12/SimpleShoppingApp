@@ -23,6 +23,13 @@
     </div>
 }
 
+@if (TempData.ContainsKey("PasswordChangedSuccessfully"))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["PasswordChangedSuccessfully"]
+    </div>
+}
+
 
 <form method="post" class="offset-md-4 col-md-4">
     <div asp-validation-summary="All" class="text-danger"></div>
