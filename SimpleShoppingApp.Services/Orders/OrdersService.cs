@@ -158,7 +158,7 @@ namespace SimpleShoppingApp.Services.Orders
             }
             else
             {
-                query = query.Where(o => o.DeliveryDate > DateTime.UtcNow);
+               query = query.Where(o => o.DeliveryDate > DateTime.UtcNow);
 
             }
 

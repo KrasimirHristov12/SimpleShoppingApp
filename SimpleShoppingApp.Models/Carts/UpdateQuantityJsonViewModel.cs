@@ -7,6 +7,8 @@
 
         public decimal NewProductPrice { get; set; }
 
+        public bool IsThereLessThanRequested { get; set; }
+
         public decimal NewTotalPrice { get; set; }
     }
 }

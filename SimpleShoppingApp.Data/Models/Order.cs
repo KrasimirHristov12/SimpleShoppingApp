@@ -1,5 +1,4 @@
-﻿using SimpleShoppingApp.Data.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SimpleShoppingApp.Data.Models
 {

@@ -325,6 +325,8 @@ namespace SimpleShoppingApp.Services.Carts
                 };
             }
 
+            bool isThereLessThanRequested = false;
+
             if (productQuantity == 0)
             {
                 updatedQuantity = 0;
@@ -332,6 +334,7 @@ namespace SimpleShoppingApp.Services.Carts
             else if (updatedQuantity > productQuantity)
             {
                 updatedQuantity = (int)productQuantity;
+                isThereLessThanRequested = true;
             }
             else if (updatedQuantity <= 0)
             {
@@ -356,6 +359,7 @@ namespace SimpleShoppingApp.Services.Carts
                     UpdatedQuantity = updatedQuantity,
                     NewProductPrice = productCart.Quantity * productCart.Product.Price,
                     NewTotalPrice = cartUpdatedInfo.Sum(),
+                    IsThereLessThanRequested = isThereLessThanRequested
                 },
             };
 

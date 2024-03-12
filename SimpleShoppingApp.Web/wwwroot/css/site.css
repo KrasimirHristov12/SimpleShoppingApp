@@ -54,3 +54,7 @@ body {
 .card img {
     max-height: 220px;
 }
+
+label.error {
+    color: #dc3545;
+}

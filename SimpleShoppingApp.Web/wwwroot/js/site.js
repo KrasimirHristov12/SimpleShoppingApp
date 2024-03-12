@@ -93,38 +93,7 @@ $(".remove-btn").on("click", function () {
     });
 });
 
-$(".quantity-input").on("keyup change", function () {
-    let quantityInput = $(this)
-    let updatedQuantity = quantityInput.val();
-    if (!isNaN(updatedQuantity)) {
-        let updatedQuantityNum = parseInt(updatedQuantity);
-        if (updatedQuantityNum <= 0) {
-            alert("Product quantity must be a positive number.");
-            $(this).val("1");
-        }
-        else {
-            let idOfProduct = quantityInput.closest(".product").find("input:hidden").val();
-            $.ajax({
-                type: "POST",
-                url: "/Cart/UpdateQuantity",
-                data: {
-                    productId: idOfProduct,
-                    updatedQuantity: updatedQuantityNum.toString(),
-                },
-                success: function (data) {
-                    quantityInput.val(data.updatedQuantity);
-                    quantityInput.closest("div.mb-4").next().find(".product-price").text('$' + parseFloat(data.newProductPrice).toFixed(2));
-                    $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
-                },
-                dataType: "json",
-            });
-        }
-    }
-    else {
-        alert("Product quantity must be a number");
-        $(this).val("1");
-    }
-});
+
 
 $(".btn-check").on("click", function () {
     let statusNum = $(this).hasClass("btn-delivered") ? 1 : 0;
