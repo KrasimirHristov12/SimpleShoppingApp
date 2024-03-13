@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SimpleShoppingApp.Extensions\SimpleShoppingApp.Extensions.csproj" />
     <ProjectReference Include="..\SimpleShoppingApp.Models\SimpleShoppingApp.Models.csproj" />
     <ProjectReference Include="..\SimpleShoppingApp.Services\SimpleShoppingApp.Services.csproj" />
   </ItemGroup>

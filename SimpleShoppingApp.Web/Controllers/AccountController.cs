@@ -7,7 +7,7 @@ using SimpleShoppingApp.Models.Account;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Web.Extensions;
+using SimpleShoppingApp.Extensions;
 using SimpleShoppingApp.Web.Filters;
 
 namespace SimpleShoppingApp.Web.Controllers

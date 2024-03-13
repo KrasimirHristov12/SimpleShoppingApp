@@ -7,7 +7,7 @@ using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Web.Extensions;
+using SimpleShoppingApp.Extensions;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -119,7 +119,12 @@ namespace SimpleShoppingApp.Web.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            return View();
+            var orderDetails = await ordersService.GetOrderDetailsAsync(id);
+            if (orderDetails == null)
+            {
+                return NotFound();
+            }
+            return View(orderDetails);
         }
     }
 }

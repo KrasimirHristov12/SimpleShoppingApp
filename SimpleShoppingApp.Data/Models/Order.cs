@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SimpleShoppingApp.Data.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace SimpleShoppingApp.Data.Models
 {
@@ -21,6 +22,8 @@ namespace SimpleShoppingApp.Data.Models
         public string UserId { get; set; } = null!;
 
         public ICollection<OrdersProducts> OrdersProducts { get; set; }
+
+        public PaymentMethod PaymentMethod { get; set; }
 
         public DateTime CreatedOn { get; set; }
 

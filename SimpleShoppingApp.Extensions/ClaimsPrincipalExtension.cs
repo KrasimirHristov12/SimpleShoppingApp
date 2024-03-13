@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace SimpleShoppingApp.Web.Extensions
+namespace SimpleShoppingApp.Extensions
 {
     public static class ClaimsPrincipalExtension
     {

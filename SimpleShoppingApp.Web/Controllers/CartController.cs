@@ -5,7 +5,7 @@ using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Web.Extensions;
+using SimpleShoppingApp.Extensions;
 
 namespace SimpleShoppingApp.Web.Controllers
 {

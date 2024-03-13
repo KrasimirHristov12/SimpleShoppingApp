@@ -2,9 +2,11 @@
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Extensions;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Emails;
+using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
 
@@ -19,6 +21,7 @@ namespace SimpleShoppingApp.Services.Orders
         private readonly IAddressesService addressesService;
         private readonly IEmailsService emailsService;
         private readonly IUsersService usersService;
+        private readonly IImagesService imagesService;
 
         public OrdersService(IRepository<Order> _orderRepo,
             IRepository<Product> _productRepo,
@@ -26,7 +29,8 @@ namespace SimpleShoppingApp.Services.Orders
             IProductsService _productsService,
             IAddressesService _addressesService,
             IEmailsService _emailsService,
-            IUsersService _usersService)
+            IUsersService _usersService,
+            IImagesService _imagesService)
         {
             orderRepo = _orderRepo;
             productRepo = _productRepo;
@@ -35,6 +39,7 @@ namespace SimpleShoppingApp.Services.Orders
             addressesService = _addressesService;
             emailsService = _emailsService;
             usersService = _usersService;
+            imagesService = _imagesService;
         }
         public async Task<MakeOrderResult> AddAsync(MakeOrderInputModel model, string userId)
         {
@@ -63,6 +68,7 @@ namespace SimpleShoppingApp.Services.Orders
                 UserId = userId,
                 PhoneNumber = model.PhoneNumber,
                 AddressId = model.AddressId,
+                PaymentMethod = model.PaymentMethod,
             };
 
             for (int i = 0; i < model.ProductIds.Count; i++)
@@ -117,32 +123,28 @@ namespace SimpleShoppingApp.Services.Orders
                 return MakeOrderResult.NotFound;
             }
 
-            var productsInfo = await ordersProductsRepo
-                .AllAsNoTracking()
-                .Where(op => op.OrderId == order.Id)
-                .Select(op => new OrderProductViewModel
-                {
-                    Name = op.Product.Name,
-                    Address = op.Order.Address.Name,
-                    Quantity = op.Quantity,
-                    Price = op.Product.Price,
-                    DeliveryDays = (op.Order.DeliveryDate - op.Order.CreatedOn).Days,
-                    
-                })
-            .ToListAsync();
-
-            decimal orderTotalPrice = productsInfo.Sum(p => p.TotalPrice);
-            string tableHtml = "<table><tr><th style=\"border: 1px solid #ddd;\">Name</th><th style=\"border: 1px solid #ddd;\">Quantity</th><th style=\"border: 1px solid #ddd;\">Price</th></tr>";
-            foreach (var prod in productsInfo)
+            var orderInfo = await GetOrderDetailsAsync(order.Id);
+            if (orderInfo == null)
             {
-                tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
+                return MakeOrderResult.NotFound;
             }
-            tableHtml += "</table>";
+
+            string address = orderInfo.Order.Address;
+            int deliveryDays = orderInfo.Order.DeliveryDays;
+            var paymentMethod = orderInfo.Order.PaymentMethod;
+            decimal orderTotalPrice = orderInfo.Order.TotalPrice;
+            string tableHtml = "<table><tr><th style=\"border: 1px solid #ddd;\"></th><th style=\"border: 1px solid #ddd;\">Name</th><th style=\"border: 1px solid #ddd;\">Quantity</th><th style=\"border: 1px solid #ddd;\">Price</th></tr>";
+            foreach (var prod in orderInfo.Products)
+            {
+                tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\"><img width=\"100px\" src=\"https://localhost:7287/images/products/{prod.Image.Name}{prod.Image.Extension}\"/></td><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
+            }
+            tableHtml += "</table><hr/><br/>";
             string priceHtml = $"<div><b>Total Price</b>: ${orderTotalPrice:F2}</div>";
-            string addressHtml = $"<div><b>Address</b>: {productsInfo.First().Address}</div><br/><br/>";
-            string deliveryHtml = $"<hr/><br/><div><b>Delivery Days</b>: {productsInfo.First().DeliveryDays} days from now.</div>";
+            string addressHtml = $"<div><b>Address</b>: {address}</div>";
+            string paymentHtml = $"<div><b>Payment Method</b>: {paymentMethod}</div>";
+            string deliveryHtml = $"<div><b>Delivery Days</b>: {deliveryDays} days from now.</div>";
             string emailSubject = $"Order #{order.Id}";
-            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{addressHtml}{tableHtml}{deliveryHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
+            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{tableHtml}{addressHtml}{deliveryHtml}{paymentHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
             var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
             return MakeOrderResult.Success;
 
@@ -169,6 +171,82 @@ namespace SimpleShoppingApp.Services.Orders
                      TotalPrice = o.OrdersProducts.Where(op => !op.IsDeleted).Select(op => op.Product.Price * op.Quantity).Sum(),
 
                  }).ToListAsync();
+        }
+
+        public async Task<OrderStatus?> GetOrderStatusAsync(int orderId)
+        {
+            var order = await orderRepo
+                .AllAsNoTracking()
+                .Where(o => o.Id == orderId && !o.IsDeleted)
+                .Select(o => new
+                {
+                    DeliveryDate = o.DeliveryDate,
+                })
+               .FirstOrDefaultAsync();
+            if (order == null)
+            {
+                return null;
+            }
+            if (DateTime.UtcNow >= order.DeliveryDate)
+            {
+                return OrderStatus.Delivered;
+            }
+            return OrderStatus.NotDelivered;
+        }
+
+        public async Task<OrderDetailsViewModel?> GetOrderDetailsAsync(int orderId)
+        {
+            var orderProduct = await orderRepo.AllAsNoTracking()
+                .Where(o => o.Id == orderId && !o.IsDeleted)
+                .Select(o => new OrderDetailsViewModel
+                {
+                    Order = new OrderOrderDetailsViewModel { 
+                        Id = o.Id,
+                        Address = o.Address.Name,
+                        CreatedOn = o.CreatedOn,
+                        DeliveryDate = o.DeliveryDate,
+                        DeliveryDays = (o.DeliveryDate - o.CreatedOn).Days,
+                        PaymentMethodEnum = o.PaymentMethod,
+                        
+                    },
+                    Products = o.OrdersProducts.Select(op => new OrderProductDetailsViewModel
+                    {
+                        Id = op.ProductId,
+                        Name = op.Product.Name,
+                        Price = op.Product.Price,
+                        Quantity = op.Quantity,
+                    }).ToList(),
+                })
+                .FirstOrDefaultAsync();
+
+            if (orderProduct == null)
+            {
+                return null;
+            }
+
+            OrderStatus? orderStatusEnum = await GetOrderStatusAsync(orderProduct.Order.Id);
+            if (orderStatusEnum == null)
+            {
+                return null;
+            }
+            orderProduct.Order.PaymentMethod = orderProduct.Order.PaymentMethodEnum.GetDisplayName();
+
+            orderProduct.Order.OrderStatus = orderStatusEnum.GetDisplayName();
+
+            orderProduct.Order.TotalPrice = orderProduct.Products.Sum(p => p.Price * p.Quantity);
+
+            foreach (var prod in orderProduct.Products)
+            {
+                var productImage = await imagesService.GetFirstAsync(prod.Id, ImageType.Product);
+                if (productImage == null)
+                {
+                    return null;
+                }
+                prod.Image = productImage;   
+            }
+
+            return orderProduct;
+
         }
     }
 }

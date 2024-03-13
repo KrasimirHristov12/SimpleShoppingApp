@@ -7,7 +7,7 @@ using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Web.Extensions;
+using SimpleShoppingApp.Extensions;
 using System.Security.Claims;
 
 namespace SimpleShoppingApp.Web.Controllers

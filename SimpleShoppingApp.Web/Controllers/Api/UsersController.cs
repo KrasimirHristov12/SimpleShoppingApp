@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Models.Users;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Web.Extensions;
+using SimpleShoppingApp.Extensions;
 
 namespace SimpleShoppingApp.Web.Controllers.Api
 {

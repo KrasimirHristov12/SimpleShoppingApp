@@ -8,5 +8,10 @@ namespace SimpleShoppingApp.Services.Orders
         Task<MakeOrderResult> AddAsync(MakeOrderInputModel model, string userId);
 
         Task<IEnumerable<OrderViewModel>> GetByStatusAsync(OrderStatus status, string userId);
+
+        Task<OrderDetailsViewModel?> GetOrderDetailsAsync(int orderId);
+
+        Task<OrderStatus?> GetOrderStatusAsync(int orderId);
+
     }
 }
