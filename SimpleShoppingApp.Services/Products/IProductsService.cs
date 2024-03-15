@@ -11,7 +11,7 @@ namespace SimpleShoppingApp.Services.Products
 
         Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n);
 
-        Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage);
+        Task<ProductsPerPageModel?> GetByCategoryAsync(ProductsFilterModel model);
 
         Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId);
 
@@ -30,7 +30,5 @@ namespace SimpleShoppingApp.Services.Products
         Task<bool> DoesProductExistAsync(int productId);
 
         Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating);
-
-        Task<IEnumerable<ListProductsViewModel>> GetFilteredProductsAsync(ProductsFilterModel model);
     }
 }

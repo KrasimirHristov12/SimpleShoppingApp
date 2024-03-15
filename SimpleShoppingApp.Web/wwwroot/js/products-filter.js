@@ -1,17 +1,28 @@
 ﻿let categoryId = $(".products-filter-container").attr("data-categoryId");
-let url = `/Products/GetFilteredProducts?category=${categoryId}&`;
-
+let url = "/Products/GetProductsPerPage?";
 const urlObj = {
     prices: [],
     ratings: [],
+    page: 1,
+    productsPerPage: 1,
+    categoryId: categoryId,
+
 };
 
 const filters = ["prices", "ratings"];
 
 function constructUrl(url, urlObj) {
     for (const [key, value] of Object.entries(urlObj)) {
-        for (const index of value) {
-            url += `${key}[${value.indexOf(index)}]=${index}&`;
+
+        if (key == "prices" || key == "ratings") {
+
+            for (const index of value) {
+                url += `${key}[${value.indexOf(index)}]=${index}&`;
+            }
+        }
+
+        else {
+            url += `${key}=${value}&`;
         }
     }
     return url[url.length - 1] != '&' ? url : url.substring(0, url.length - 1);
@@ -40,20 +51,28 @@ for (const filter of filters) {
             type: "GET",
             url: updatedUrl,
             success: function (data) {
-                console.log(updatedUrl);
-                const allProducts = $(".product");
-                allProducts.remove();
                 console.log(data);
-                $(".products-count").text(data.length);
+                $(".product").remove();
+                $(".no-products-found").remove();
+                $(".products-count").text(data.products.length);
 
-                if (data.length == 0) {
-                    $(".products-filter-container").append(`<p class="fw-bold col-md-9 no-products-found">No products found</p>`)
+                if (data.totalPages == 0) {
+                    $(".products-filter-container").append(`<p class="fw-bold col-md-9 no-products-found">No products found</p>`);
+                    $(".pagination").hide();
                 }
 
                 else {
+                    $(".pagination").show();
 
-                    $(".no-products-found").remove();
-                    data.forEach(function (product) {
+                    for (let i = 0; i < data.totalPages; i++) {
+                        $(".page-number").eq(i).closest(".page-item").show();
+                    }
+
+                    for (let i = data.totalPages; i < $(".page-number").length; i++) {
+
+                        $(".page-number").eq(i).closest(".page-item").hide();
+                    }
+                    data.products.forEach(function (product) {
                         $(".products-filter-container").append(`
                         <div class="col-md-3 mb-3 product">
                              <a href="/Products/Index/${product.id}" class="link-dark text-decoration-none">
@@ -104,21 +123,23 @@ $(".page-link").on("click", function (e) {
 
     if (currentPage != null) {
 
-        let currentPageText = currentPage.closest(".page-item").attr("class").split(" ")[1].split("-")[1];
+        let currentPageText = currentPage.closest(".page-item").attr("class").split(" ")[2].split("-")[1];
         let currentPageNum = parseInt(currentPageText);
 
-        let elementsPerPage = 1
+        urlObj.page = currentPageNum;
+
+        let updatedUrl = constructUrl(url, urlObj);
 
         $.ajax({
             type: "GET",
-            url: `/Products/GetProductsPerPage?currentPage=${currentPageNum}&elementsPerPage=${elementsPerPage}&categoryId=${categoryId}`,
+            url: updatedUrl,
             success: function (data) {
 
+                $(".product").remove();
+                $(".no-products-found").remove();
                 console.log(data);
 
                 window.history.pushState(null, "" ,currentPage.attr("href"));
-
-                //window.location.href = currentPage.attr("href");
 
                 $(".page-item").not(currentPage.closest(".page-item")).removeClass("active");
                 currentPage.closest(".page-item").addClass("active");
@@ -145,10 +166,7 @@ $(".page-link").on("click", function (e) {
                 }
 
                 else {
-
-                    $(".no-products-found").remove();
-                    $(".product").remove();
-                    data.products.forEach(function (product) {
+                  data.products.forEach(function (product) {
                         $(".products-filter-container").append(`
                         <div class="col-md-3 mb-3 product">
                              <a href="/Products/Index/${product.id}" class="link-dark text-decoration-none">
@@ -163,8 +181,6 @@ $(".page-link").on("click", function (e) {
                         </div>`);
                     });
                 }
-
-                $(".products-count").text(data.products.length);
 
 
             },

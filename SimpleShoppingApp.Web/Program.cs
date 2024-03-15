@@ -38,6 +38,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
 });
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

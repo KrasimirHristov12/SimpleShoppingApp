@@ -147,28 +147,34 @@ namespace SimpleShoppingApp.Services.Products
                 {
                     product.Image = image;
                 }
-                
+
             }
 
             return products;
         }
 
-        public async Task<IEnumerable<ListProductsViewModel>> GetByCategoryAsync(int categoryId, int elementsPerPage, int currentPage)
+        public async Task<ProductsPerPageModel?> GetByCategoryAsync(ProductsFilterModel model)
         {
-            if (categoryId <= 0 || elementsPerPage <= 0 || currentPage <= 0)
+            if (model.CategoryId <= 0 || model.ProductsPerPage <= 0 || model.Page <= 0)
             {
-                return new List<ListProductsViewModel>();
+                return null;
             }
 
-            if (!await categoriesService.DoesCategoryExist(categoryId))
+            if (!await categoriesService.DoesCategoryExist(model.CategoryId))
             {
-                return new List<ListProductsViewModel>();
+                return null;
             }
 
-            var products = await productsRepo.AllAsNoTracking()
-                .Where(p => p.CategoryId == categoryId && !p.IsDeleted)
-                .Skip((currentPage - 1) * elementsPerPage)
-                .Take(elementsPerPage)
+            List<ListProductsViewModel> products = new List<ListProductsViewModel>();
+
+            var productsQuery = productsRepo.AllAsNoTracking()
+            .Where(p => p.CategoryId == model.CategoryId && !p.IsDeleted);
+
+            if (model.Prices.Count() == 0 && model.Ratings.Count() == 0)
+            {
+                products =  await productsQuery
+                .Skip((model.Page - 1) * model.ProductsPerPage)
+                .Take(model.ProductsPerPage)
                 .Select(p => new ListProductsViewModel
                 {
                     Id = p.Id,
@@ -177,6 +183,66 @@ namespace SimpleShoppingApp.Services.Products
                     Rating = p.Rating,
 
                 }).ToListAsync();
+            }
+
+            else
+            {
+                var predicatePrice = PredicateBuilder.New<Product>();
+                var predicateRating = PredicateBuilder.New<Product>();
+
+                foreach (var priceFilter in model.Prices)
+                {
+                    predicatePrice = priceFilter switch
+                    {
+                        PriceFilter.OneToFifty => predicatePrice.Or(p => p.Price >= 1 && p.Price <= 50),
+                        PriceFilter.FiftyOneToTwoHundred => predicatePrice.Or(p => p.Price >= 51 && p.Price <= 200),
+                        PriceFilter.TwoHundredOneToFiveHundred => predicatePrice.Or(p => p.Price >= 201 && p.Price <= 500),
+                        PriceFilter.FiveHundredOneToOneThousand => predicatePrice.Or(p => p.Price >= 501 && p.Price <= 1000),
+                        PriceFilter.OneThousandToOneThousandFourHundredNinetyNine => predicatePrice.Or(p => p.Price >= 1000 && p.Price <= 1499),
+                        PriceFilter.OneThousandFiveHundredOrMore => predicatePrice.Or(p => p.Price >= 1500),
+                        _ => predicatePrice,
+                    };
+                }
+                if (predicatePrice.IsStarted)
+                {
+                    productsQuery = productsQuery.Where(predicatePrice);
+                }
+
+                var ratings = model.Ratings.ToList();
+
+                foreach (var ratingFilter in model.Ratings)
+                {
+                    predicateRating = ratingFilter switch
+                    {
+                        RatingFilter.Zero => predicateRating.Or(p => p.Rating >= 0 && p.Rating < 1),
+                        RatingFilter.One => predicateRating.Or(p => p.Rating >= 1 && p.Rating < 2),
+                        RatingFilter.Two => predicateRating.Or(p => p.Rating >= 2 && p.Rating < 3),
+                        RatingFilter.Three => predicateRating.Or(p => p.Rating >= 3 && p.Rating < 4),
+                        RatingFilter.Four => predicateRating.Or(p => p.Rating >= 4 && p.Rating < 5),
+                        RatingFilter.Five => predicateRating.Or(p => p.Rating >= 5),
+                        _ => predicateRating,
+                    };
+                }
+                if (predicateRating.IsStarted)
+                {
+                    productsQuery = productsQuery.Where(predicateRating);
+                }
+
+
+                products = await productsQuery
+                    .Skip((model.Page - 1) * model.ProductsPerPage)
+                    .Take(model.ProductsPerPage)
+                    .Select(p => new ListProductsViewModel
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Price = p.Price,
+                        Rating = p.Rating,
+                    })
+                    .ToListAsync();
+
+            }
+
 
             foreach (var product in products)
             {
@@ -187,7 +253,15 @@ namespace SimpleShoppingApp.Services.Products
                 }
             }
 
-            return products;
+            int totalElements = await productsQuery.CountAsync();
+
+            var modelToReturn = new ProductsPerPageModel
+            {
+                Products = products,
+                TotalPages = (int)Math.Ceiling((decimal)totalElements / model.ProductsPerPage),
+            };
+
+            return modelToReturn;
         }
 
         public async Task<AddUpdateDeleteResult> DeleteAsync(int id, string currentUserId)
@@ -357,7 +431,7 @@ namespace SimpleShoppingApp.Services.Products
                 .Select(p => p.UserId)
                 .FirstOrDefaultAsync();
 
-            if (creatorUserId == null) 
+            if (creatorUserId == null)
             {
                 return false;
             }
@@ -503,73 +577,5 @@ namespace SimpleShoppingApp.Services.Products
             return avgRating;
         }
 
-        public async Task<IEnumerable<ListProductsViewModel>> GetFilteredProductsAsync(ProductsFilterModel model)
-        {
-            var productQuery = productsRepo.AllAsNoTracking()
-               .Where(p => p.CategoryId == model.Category && !p.IsDeleted);
-
-            var predicatePrice = PredicateBuilder.New<Product>();
-            var predicateRating = PredicateBuilder.New<Product>();
-
-            foreach (var priceFilter in model.Prices)
-            {
-                predicatePrice = priceFilter switch
-                {
-                    PriceFilter.OneToFifty => predicatePrice.Or(p => p.Price >= 1 && p.Price <= 50),
-                    PriceFilter.FiftyOneToTwoHundred => predicatePrice.Or(p => p.Price >= 51 && p.Price <= 200),
-                    PriceFilter.TwoHundredOneToFiveHundred => predicatePrice.Or(p => p.Price >= 201 && p.Price <= 500),
-                    PriceFilter.FiveHundredOneToOneThousand => predicatePrice.Or(p => p.Price >= 501 && p.Price <= 1000),
-                    PriceFilter.OneThousandToOneThousandFourHundredNinetyNine => predicatePrice.Or(p => p.Price >= 1000 && p.Price <= 1499),
-                    PriceFilter.OneThousandFiveHundredOrMore => predicatePrice.Or(p => p.Price >= 1500),
-                    _ => predicatePrice,
-                };
-            }
-            if (predicatePrice.IsStarted)
-            {
-                productQuery = productQuery.Where(predicatePrice);
-            }
-
-            var ratings = model.Ratings.ToList();
-
-            foreach (var ratingFilter in model.Ratings)
-            {
-                predicateRating = ratingFilter switch
-                {
-                    RatingFilter.Zero => predicateRating.Or(p => p.Rating >= 0 && p.Rating < 1),
-                    RatingFilter.One => predicateRating.Or(p => p.Rating >= 1 && p.Rating < 2),
-                    RatingFilter.Two => predicateRating.Or(p => p.Rating >= 2 && p.Rating < 3),
-                    RatingFilter.Three => predicateRating.Or(p => p.Rating >= 3 && p.Rating < 4),
-                    RatingFilter.Four => predicateRating.Or(p => p.Rating >= 4 && p.Rating < 5),
-                    RatingFilter.Five => predicateRating.Or(p => p.Rating >= 5),
-                    _ => predicateRating,
-                };
-            }
-            if (predicateRating.IsStarted)
-            {
-                productQuery = productQuery.Where(predicateRating);
-            }
-
-
-            var filteredProducts = await productQuery
-                .Select(p => new ListProductsViewModel
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Price = p.Price,
-                    Rating = p.Rating,
-                })
-                .ToListAsync();
-
-            foreach (var prod in filteredProducts)
-            {
-                var image = await imagesService.GetFirstAsync(prod.Id, ImageType.Product);
-                if (image != null)
-                {
-                    prod.Image = image;
-                }
-            }
-
-            return filteredProducts;
-        }
     }
 }

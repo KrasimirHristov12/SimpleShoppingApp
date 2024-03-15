@@ -14,7 +14,7 @@
         @foreach (var priceRange in PriceRanges)
         {
             <div class="form-check">
-                <input class="form-check-input prices-filter-checkbox" type="checkbox" value="" id="price-filter-@(PriceRanges.IndexOf(priceRange) + 1)">
+                <input class="form-check-input prices-filter-checkbox filter-checkbox" type="checkbox" value="" id="price-filter-@(PriceRanges.IndexOf(priceRange) + 1)">
                 <label class="form-check-label" for="price-filter-@(PriceRanges.IndexOf(priceRange) + 1)">
                     @priceRange
                 </label>
@@ -27,7 +27,7 @@
         @foreach (var rating in Ratings)
         {
             <div class="form-check">
-                <input class="form-check-input ratings-filter-checkbox" type="checkbox" value="" id="rating-filter-@(Ratings.IndexOf(rating) + 1)">
+                <input class="form-check-input ratings-filter-checkbox filter-checkbox" type="checkbox" value="" id="rating-filter-@(Ratings.IndexOf(rating) + 1)">
                 <label class="form-check-label" for="rating-filter-@(Ratings.IndexOf(rating) + 1)">
                     @rating
                 </label>

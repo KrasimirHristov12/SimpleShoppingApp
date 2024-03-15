@@ -50,9 +50,16 @@ namespace SimpleShoppingApp.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Category(int id, string name, int page = 1)
         {
-            var productsPerPage = await productsService.GetByCategoryAsync(id, 1, page);
+            var filterModel = new ProductsFilterModel
+            {
+                CategoryId = id,
+                Page = page,
+                ProductsPerPage = 1,
+            };
+            var productsPerPage = await productsService.GetByCategoryAsync(filterModel);
 
-            if (productsPerPage.Count() == 0)
+
+            if (productsPerPage == null || productsPerPage.Products.Count() == 0)
             {
                 return NotFound();
             }
@@ -61,7 +68,7 @@ namespace SimpleShoppingApp.Web.Controllers
             {
                 CategoryName = name,
                 CategoryId = id,
-                ProductsPerPage = productsPerPage,
+                ProductsPerPage = productsPerPage.Products,
                 CurrentPage = page,
                 TotalProductsCount = await productsService.GetCountForCategoryAsync(id),
             };
