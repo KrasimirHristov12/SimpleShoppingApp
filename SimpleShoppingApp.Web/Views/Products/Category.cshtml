@@ -2,8 +2,9 @@
 @{
     ViewData["Title"] = Model.CategoryName;
 }
-
-<h1>@ViewData["Title"] - @Model.TotalProductsCount products</h1>
+<div class="offset-md-3 col-md-4">
+    <h1>@ViewData["Title"] - <span class="products-count">@Model.ProductsPerPage.Count()</span> products</h1>
+</div>
 
 @if (Model.ProductsPerPageCount == 0)
 {
@@ -11,20 +12,28 @@
 }
 else
 {
-    <partial name="_ListProducts" model="@Model.ProductsPerPage" />
+    <div class="row products-filter-container" data-categoryId="@Model.CategoryId">
+        <partial name="_FilterProducts" />
+        <partial name="_ListProducts" model="@Model.ProductsPerPage" />
+    </div>
 }
 
 
 
+<div class="offset-md-3 col-md-4">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item prev @(Model.CurrentPage == 1 ? "disabled" : "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@(Model.CurrentPage - 1)">Previous</a></li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item page-@i @(i == Model.CurrentPage ? "active": "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@i">@i</a></li>
+            }
 
-<nav aria-label="Page navigation example">
-    <ul class="pagination">
-        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@(Model.CurrentPage - 1)">Previous</a></li>
-        @for (int i = 1; i <= Model.TotalPages; i++)
-        {
-            <li class="page-item @(i == Model.CurrentPage ? "active": "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@i">@i</a></li>
-        }
-        
-        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@(Model.CurrentPage + 1)">Next</a></li>
-    </ul>
-</nav>
+            <li class="page-item next @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@(Model.CurrentPage + 1)">Next</a></li>
+        </ul>
+    </nav>
+</div>
+
+@section Scripts {
+    <script src="\js\products-filter.js"></script>
+}

@@ -52,7 +52,7 @@ namespace SimpleShoppingApp.Web.Controllers
         {
             var productsPerPage = await productsService.GetByCategoryAsync(id, 1, page);
 
-            if (productsPerPage == null)
+            if (productsPerPage.Count() == 0)
             {
                 return NotFound();
             }

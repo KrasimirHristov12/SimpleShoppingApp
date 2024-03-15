@@ -1,0 +1,39 @@
+﻿@{
+    IList<string> PriceRanges = new List<string>
+    {
+        "1 - 50", "51 - 200", "201 - 500", "501 - 1000", "1000 - 1499", "1500+"
+    };
+
+    IList<int> Ratings = Enumerable.Range(0, 6).ToList();
+
+}
+
+<div class="col-md-3">
+    <div class="price-filter border p-2">
+        <p class="fw-bold">Price</p>
+        @foreach (var priceRange in PriceRanges)
+        {
+            <div class="form-check">
+                <input class="form-check-input prices-filter-checkbox" type="checkbox" value="" id="price-filter-@(PriceRanges.IndexOf(priceRange) + 1)">
+                <label class="form-check-label" for="price-filter-@(PriceRanges.IndexOf(priceRange) + 1)">
+                    @priceRange
+                </label>
+            </div>
+        }
+    </div>
+
+    <div class="rating-filter border mt-2 p-2">
+        <p class="fw-bold">Rating</p>
+        @foreach (var rating in Ratings)
+        {
+            <div class="form-check">
+                <input class="form-check-input ratings-filter-checkbox" type="checkbox" value="" id="rating-filter-@(Ratings.IndexOf(rating) + 1)">
+                <label class="form-check-label" for="rating-filter-@(Ratings.IndexOf(rating) + 1)">
+                    @rating
+                </label>
+            </div>
+        }
+    </div>
+
+</div>
+

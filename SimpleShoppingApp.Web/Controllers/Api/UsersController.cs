@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Models.Users;
 using SimpleShoppingApp.Services.Users;
 using SimpleShoppingApp.Extensions;
 
 namespace SimpleShoppingApp.Web.Controllers.Api
 {
-    [ApiController]
-    [Route("[controller]")]
-    [Authorize]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseApiController
     {
         private readonly IUsersService usersService;
 

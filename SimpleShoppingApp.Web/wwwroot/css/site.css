@@ -51,10 +51,11 @@ body {
     color: rgb(254, 189, 105);
 }
 
-.card img {
-    max-height: 220px;
-}
 
 label.error {
     color: #dc3545;
+}
+
+.product-img {
+    max-height: 160px;
 }
