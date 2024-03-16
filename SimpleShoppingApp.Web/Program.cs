@@ -12,7 +12,6 @@ using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +46,7 @@ builder.Services.AddScoped<IImagesService, ImagesService>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 builder.Services.AddScoped<UserSeeder>();
 builder.Services.AddScoped<AdminRoleSeeder>();
+builder.Services.AddScoped<ProductsSeeder>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ICartsService, CartsService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
@@ -54,6 +54,16 @@ builder.Services.AddScoped<IAddressesService, AddressesService>();
 builder.Services.AddScoped<IEmailsService, EmailsService>();
 
 var app = builder.Build();
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    var adminRoleSeeder = serviceScope.ServiceProvider.GetRequiredService<AdminRoleSeeder>();
+    var userSeeder = serviceScope.ServiceProvider.GetRequiredService<UserSeeder>();
+    var productsSeeder = serviceScope.ServiceProvider.GetRequiredService<ProductsSeeder>();
+    await adminRoleSeeder.SeedAsync();
+    await userSeeder.SeedAsync();
+    await productsSeeder.SeedAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -80,8 +90,4 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
-app.UseAdminRoleSeeder();
-app.UseUsersSeeder();
-
 app.Run();

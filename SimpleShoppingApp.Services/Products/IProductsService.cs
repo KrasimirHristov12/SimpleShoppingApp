@@ -5,7 +5,7 @@ namespace SimpleShoppingApp.Services.Products
 {
     public interface IProductsService
     {
-        Task<AddProductModel> AddAsync(AddProductInputModel model, string userId);
+        Task<AddProductModel> AddAsync(AddProductInputModel model, string userId, string imagesDirectory);
 
         Task<ProductViewModel?> GetAsync(int id, string? userId);
 

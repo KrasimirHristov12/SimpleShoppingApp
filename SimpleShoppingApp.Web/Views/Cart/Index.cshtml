@@ -24,7 +24,7 @@
                                     <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
                                         <!-- Image -->
                                         <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
-                                            <img src="~/images/products/@(product.Image.Name + product.Image.Extension)"
+                                            <img src="@(!string.IsNullOrWhiteSpace(product.Image.Name) && !string.IsNullOrWhiteSpace(product.Image.Extension) ? $"/images/products/{product.Image.Name}{product.Image.Extension}" : product.Image.ImageUrl)"
                                                  class="w-100" alt="@product.ProductName Image" />
                                             <a href="#!">
                                                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>

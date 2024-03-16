@@ -32,7 +32,7 @@ namespace SimpleShoppingApp.Services.Products
             usersService = _usersService;
         }
 
-        public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId)
+        public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId, string imagesDirectory)
         {
             if (model.CategoryId <= 0)
             {
@@ -64,6 +64,18 @@ namespace SimpleShoppingApp.Services.Products
             };
 
             await productsRepo.AddAsync(product);
+
+            foreach (var imageFromModel in model.Images)
+            {
+                string imageUID = Guid.NewGuid().ToString();
+
+                string imageName = $"prod{product.Id}_{imageUID}";
+
+                string wwwrootDir = imagesDirectory;
+
+                await imagesService.AddAsync(imageFromModel, imageName, wwwrootDir, product.Id);
+
+            }
             await productsRepo.SaveChangesAsync();
 
             return new AddProductModel
@@ -100,7 +112,7 @@ namespace SimpleShoppingApp.Services.Products
                 return null;
             }
 
-            var images = await imagesService.GetAsync(id, ImageType.Product);
+            var images = await imagesService.GetAsync(id);
 
             product.Images = images;
 
@@ -142,7 +154,7 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in products)
             {
-                var image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {
                     product.Image = image;
@@ -246,7 +258,7 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in products)
             {
-                var image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {
                     product.Image = image;
@@ -411,7 +423,7 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in filteredProducts)
             {
-                var image = await imagesService.GetFirstAsync(product.Id, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {
                     product.Image = image;

@@ -108,23 +108,11 @@ namespace SimpleShoppingApp.Web.Controllers
 
             var userId = User.GetId();
 
-            var addProductResult = await productsService.AddAsync(model, userId);
+            var addProductResult = await productsService.AddAsync(model, userId, env.WebRootPath);
 
             if (addProductResult.Result == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
-            }
-
-            foreach (var imageFromModel in model.Images)
-            {
-                string imageUID = Guid.NewGuid().ToString();
-
-                string imageName = $"prod{addProductResult.ProductId}_{imageUID}";
-
-                string wwwrootDir = env.WebRootPath;
-
-                await imagesService.AddAsync(imageFromModel, imageName, ImageType.Product, wwwrootDir);
-
             }
 
             return RedirectToAction(nameof(Index), new { id = addProductResult.ProductId });

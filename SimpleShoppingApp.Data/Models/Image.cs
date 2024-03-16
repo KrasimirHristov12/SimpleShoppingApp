@@ -6,14 +6,18 @@ namespace SimpleShoppingApp.Data.Models
     {
         public int Id { get; set; }
 
-        [Required]
-        public string Name { get; set; } = null!;
+        public string? Name { get; set; }
 
-        [Required]
         [MaxLength(6)]
-        public string Extension { get; set; } = null!;
+        public string? Extension { get; set; }
+
+        public string? ImageUrl { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        public int ProductId { get; set; }
+
+        public Product Product { get; set; } = null!;
 
     }
 }

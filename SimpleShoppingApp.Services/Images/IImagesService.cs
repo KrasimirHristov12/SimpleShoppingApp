@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Models.Images;
 
 namespace SimpleShoppingApp.Services.Images
 {
     public interface IImagesService
     {
-        Task AddAsync(IFormFile image, string imageName, ImageType imageType, string wwwrootDirectory);
-        Task<IEnumerable<ImageViewModel>> GetAsync(int entityId, ImageType imageType);
-        Task<ImageViewModel?> GetFirstAsync(int entityId, ImageType imageType);
+        Task AddAsync(string imageUrl, int productId);
+        Task AddAsync(IFormFile image, string imageName, string directory, int productId);
+        Task<IEnumerable<ImageViewModel>> GetAsync(int productId);
+        Task<ImageViewModel?> GetFirstAsync(int productId);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using SimpleShoppingApp.Data.Models;
 
 namespace SimpleShoppingApp.Data.Seeders
@@ -9,47 +8,33 @@ namespace SimpleShoppingApp.Data.Seeders
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration config;
-        private readonly ILogger<UserSeeder> logger;
-        private readonly RoleManager<IdentityRole> roleManager;
 
         public UserSeeder(UserManager<ApplicationUser> _userManager,
-            IConfiguration _config, 
-            ILogger<UserSeeder> _logger,
-            RoleManager<IdentityRole> _roleManager)
+            IConfiguration _config)
         {
             userManager = _userManager;
             config = _config;
-            logger = _logger;
-            roleManager = _roleManager;
         }
         public async Task SeedAsync()
         {
             string adminEmail = config["AdminAccount:Email"];
             string password = config["AdminAccount:Password"];
-            var user = new ApplicationUser
+            var adminUser = userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
             {
-                Email = adminEmail,
-                UserName = adminEmail,
-            };
+                var user = new ApplicationUser
+                {
+                    Email = adminEmail,
+                    UserName = adminEmail,
+                };
 
-            var userCreationResult = await userManager.CreateAsync(user, password);
-            if (userCreationResult.Succeeded)
-            {
-                logger.LogInformation("Admin User Created.");
-                var addToRoleResult = await userManager.AddToRoleAsync(user, "Administrator");
-                if (addToRoleResult.Succeeded)
+                var userCreationResult = await userManager.CreateAsync(user, password);
+                if (userCreationResult.Succeeded)
                 {
-                    logger.LogInformation("Successfully added to role Administator.");
-                }
-                else
-                {
-                    logger.LogInformation("Already in role administrator.");
+                    await userManager.AddToRoleAsync(user, "Administrator");
                 }
             }
-            else
-            {
-                logger.LogInformation("Admin User Already Exists.");
-            }
+
             
         }
     }

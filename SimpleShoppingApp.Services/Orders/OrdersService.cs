@@ -237,7 +237,7 @@ namespace SimpleShoppingApp.Services.Orders
 
             foreach (var prod in orderProduct.Products)
             {
-                var productImage = await imagesService.GetFirstAsync(prod.Id, ImageType.Product);
+                var productImage = await imagesService.GetFirstAsync(prod.Id);
                 if (productImage == null)
                 {
                     return null;

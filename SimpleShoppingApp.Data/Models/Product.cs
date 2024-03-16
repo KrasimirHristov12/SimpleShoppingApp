@@ -9,6 +9,7 @@ namespace SimpleShoppingApp.Data.Models
             CartsProducts = new HashSet<CartsProducts>();
             OrdersProducts = new HashSet<OrdersProducts>();
             UsersRating = new HashSet<UsersRating>();
+            Images = new HashSet<Image>();
         }
         public int Id { get; set; }
 
@@ -43,5 +44,7 @@ namespace SimpleShoppingApp.Data.Models
         public ICollection<OrdersProducts> OrdersProducts { get; set; }
 
         public ICollection<UsersRating> UsersRating { get; set; }
+
+        public ICollection<Image> Images { get; set; }
     }
 }

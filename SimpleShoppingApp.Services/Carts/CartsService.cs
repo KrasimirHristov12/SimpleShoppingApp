@@ -151,7 +151,7 @@ namespace SimpleShoppingApp.Services.Carts
 
             foreach (var product in cart.CartProducts)
             {
-                var image = await imagesService.GetFirstAsync(product.ProductId, ImageType.Product);
+                var image = await imagesService.GetFirstAsync(product.ProductId);
                 if (image != null)
                 {
                     product.Image = image;

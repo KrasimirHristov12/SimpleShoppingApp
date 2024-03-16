@@ -1,35 +1,26 @@
-﻿
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace SimpleShoppingApp.Data.Seeders
 {
     public class AdminRoleSeeder : ISeeder
     {
         private readonly RoleManager<IdentityRole> roleManager;
-        private readonly ILogger<AdminRoleSeeder> logger;
 
-        public AdminRoleSeeder(RoleManager<IdentityRole> _roleManager, ILogger<AdminRoleSeeder> _logger)
+        public AdminRoleSeeder(RoleManager<IdentityRole> _roleManager)
         {
             roleManager = _roleManager;
-            logger = _logger;
         }
         public async Task SeedAsync()
         {
-            var adminRole = new IdentityRole
+            if (!await roleManager.RoleExistsAsync("Administrator"))
             {
-                Name = "Administrator",
-            };
-            var roleCreationResult = await roleManager.CreateAsync(adminRole);
+                var adminRole = new IdentityRole
+                {
+                    Name = "Administrator",
+                };
+                await roleManager.CreateAsync(adminRole);
+            }
 
-            if (roleCreationResult.Succeeded)
-            {
-                logger.LogInformation("Role Administrator created successfully.");
-            }
-            else
-            {
-                logger.LogInformation("Role Administrator already exists");
-            }
         }
     }
 }
