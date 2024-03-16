@@ -259,6 +259,7 @@ namespace SimpleShoppingApp.Services.Products
             {
                 Products = products,
                 TotalPages = (int)Math.Ceiling((decimal)totalElements / model.ProductsPerPage),
+                TotalProducts = totalElements,
             };
 
             return modelToReturn;

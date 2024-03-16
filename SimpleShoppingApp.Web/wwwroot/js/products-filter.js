@@ -1,4 +1,5 @@
 ﻿let categoryId = $(".products-filter-container").attr("data-categoryId");
+let initialUrl = "/Products/GetProductsPerPage?";
 let url = "/Products/GetProductsPerPage?";
 const urlObj = {
     prices: [],
@@ -45,53 +46,11 @@ for (const filter of filters) {
                 urlObj[filter].splice(indexOfPrice, 1);
             }
         }
-        let updatedUrl = constructUrl(url, urlObj);
+        url = constructUrl(initialUrl, urlObj);
 
-        $.ajax({
-            type: "GET",
-            url: updatedUrl,
-            success: function (data) {
-                console.log(data);
-                $(".product").remove();
-                $(".no-products-found").remove();
-                $(".products-count").text(data.products.length);
+        let currentPage = 1;
 
-                if (data.totalPages == 0) {
-                    $(".products-filter-container").append(`<p class="fw-bold col-md-9 no-products-found">No products found</p>`);
-                    $(".pagination").hide();
-                }
-
-                else {
-                    $(".pagination").show();
-
-                    for (let i = 0; i < data.totalPages; i++) {
-                        $(".page-number").eq(i).closest(".page-item").show();
-                    }
-
-                    for (let i = data.totalPages; i < $(".page-number").length; i++) {
-
-                        $(".page-number").eq(i).closest(".page-item").hide();
-                    }
-                    data.products.forEach(function (product) {
-                        $(".products-filter-container").append(`
-                        <div class="col-md-3 mb-3 product">
-                             <a href="/Products/Index/${product.id}" class="link-dark text-decoration-none">
-                                <div class="card">
-                                   <img src="/images/products/${product.image.name}${product.image.extension}" class="card-img-top product-img" alt="${product.name} Image" />
-                                   <div class="card-body">
-                                       <h5 class="card-title">${product.name}</h5>
-                                       <p class="card-text">Rating: ${product.rating.toFixed(2)}<br /><br /><span class="text-danger fw-bold fs-6">$${product.price.toFixed(2)}</span></p>
-                                   </div>
-                                </div>
-                            </a>
-                        </div>`);
-                    });
-                }
-
-
-            },
-            dataType: "json",
-        });
+        $(`.page-${currentPage} .page-link`).trigger("click");
 
     });
 }
@@ -107,7 +66,7 @@ $(".page-link").on("click", function (e) {
         else {
             currentPage = $(".page-item.active").prev().find(".page-link");
         }
-        
+
     }
 
     else if (currentPage.closest(".page-item").hasClass("next")) {
@@ -118,7 +77,7 @@ $(".page-link").on("click", function (e) {
 
             currentPage = $(".page-item.active").next().find(".page-link");
         }
-        
+
     }
 
     if (currentPage != null) {
@@ -128,18 +87,18 @@ $(".page-link").on("click", function (e) {
 
         urlObj.page = currentPageNum;
 
-        let updatedUrl = constructUrl(url, urlObj);
+        url = constructUrl(initialUrl, urlObj);
 
         $.ajax({
             type: "GET",
-            url: updatedUrl,
+            url: url,
             success: function (data) {
-
+                $(".products-count").text(data.totalProducts);
                 $(".product").remove();
                 $(".no-products-found").remove();
                 console.log(data);
 
-                window.history.pushState(null, "" ,currentPage.attr("href"));
+                window.history.pushState(null, "", currentPage.attr("href"));
 
                 $(".page-item").not(currentPage.closest(".page-item")).removeClass("active");
                 currentPage.closest(".page-item").addClass("active");
@@ -162,11 +121,23 @@ $(".page-link").on("click", function (e) {
 
 
                 if (data.products.length == 0) {
-                    $(".products-filter-container").append(`<p class="fw-bold col-md-9 no-products-found">No products found</p>`)
+                    $(".products-filter-container").append(`<p class="fw-bold col-md-9 no-products-found">No products found</p>`);
+                    $(".pagination").hide();
                 }
 
                 else {
-                  data.products.forEach(function (product) {
+
+                    $(".pagination").show();
+
+                    for (let i = 0; i < data.totalPages; i++) {
+                        $(".page-number").eq(i).closest(".page-item").show();
+                    }
+
+                    for (let i = data.totalPages; i < $(".page-number").length; i++) {
+
+                        $(".page-number").eq(i).closest(".page-item").hide();
+                    }
+                    data.products.forEach(function (product) {
                         $(".products-filter-container").append(`
                         <div class="col-md-3 mb-3 product">
                              <a href="/Products/Index/${product.id}" class="link-dark text-decoration-none">
