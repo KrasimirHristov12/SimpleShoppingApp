@@ -5,7 +5,7 @@
 
     @for (int i = 0; i < Products.Count; i++)
     {
-        <div class="col-md-3 mb-3 product">
+        <div class="col-md-3 mb-2 product">
             <a asp-controller="Products" asp-action="Index" asp-route-id="@Products[i].Id" class="link-dark text-decoration-none">
                 <div class="card">
                 <img src="@(!string.IsNullOrWhiteSpace(Products[i].Image.Name) && !string.IsNullOrWhiteSpace(Products[i].Image.Extension) ? $"/images/products/{Products[i].Image.Name}{Products[i].Image.Extension}" : Products[i].Image.ImageUrl)" class="card-img-top product-img" alt="@Products[i].Name Image" />

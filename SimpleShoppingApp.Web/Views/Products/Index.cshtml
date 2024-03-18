@@ -36,7 +36,7 @@
             {
 
                 <div class="carousel-item @(i == 0 ? "active" : "")">
-                    <img src="~/images/products/@(Images[i].Name + Images[i].Extension)" class="d-block w-100" alt="@Model.Name Image" />
+                    <img src="@(!string.IsNullOrWhiteSpace(Images[i].Name) && !string.IsNullOrWhiteSpace(Images[i].Extension) ? $"/images/products/{Images[i].Name}{Images[i].Extension}" : Images[i].ImageUrl)" class="d-block w-100" alt="@Model.Name Image" />
                 </div>
 
             }

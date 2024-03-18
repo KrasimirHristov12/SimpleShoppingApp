@@ -1,11 +1,16 @@
-﻿let categoryId = $(".products-filter-container").attr("data-categoryId");
+﻿$(".product").each(function (i) {
+    if (i > 0 && i % 3 == 0) {
+        $(this).addClass("offset-3");
+    }
+})
+let categoryId = $(".products-filter-container").attr("data-categoryId");
 let initialUrl = "/Products/GetProductsPerPage?";
 let url = "/Products/GetProductsPerPage?";
 const urlObj = {
     prices: [],
     ratings: [],
     page: 1,
-    productsPerPage: 1,
+    productsPerPage: 5,
     categoryId: categoryId,
 
 };
@@ -138,11 +143,19 @@ $(".page-link").on("click", function (e) {
                         $(".page-number").eq(i).closest(".page-item").hide();
                     }
                     data.products.forEach(function (product) {
+
+                        let currentProductIndex = data.products.indexOf(product);
+                        console.log(currentProductIndex);
+                        console.log(product)
+                        let imagePath = product.image.imageUrl ? product.image.imageUrl : `/images/products/${product.image.name}${product.image.extension}`;
+
+                        let offsetClass = currentProductIndex > 0 && currentProductIndex % 3 == 0 ? "offset-3" : "";
+
                         $(".products-filter-container").append(`
-                        <div class="col-md-3 mb-3 product">
+                        <div class="col-md-3 ${offsetClass} product">
                              <a href="/Products/Index/${product.id}" class="link-dark text-decoration-none">
                                 <div class="card">
-                                   <img src="/images/products/${product.image.name}${product.image.extension}" class="card-img-top product-img" alt="${product.name} Image" />
+                                   <img src="${imagePath}" class="card-img-top product-img" alt="${product.name} Image" />
                                    <div class="card-body">
                                        <h5 class="card-title">${product.name}</h5>
                                        <p class="card-text">Rating: ${product.rating.toFixed(2)}<br /><br /><span class="text-danger fw-bold fs-6">$${product.price.toFixed(2)}</span></p>

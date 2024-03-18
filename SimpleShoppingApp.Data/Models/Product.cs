@@ -14,7 +14,7 @@ namespace SimpleShoppingApp.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Name { get; set; } = null!;
 
         [Required]

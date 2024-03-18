@@ -12,7 +12,7 @@
 }
 else
 {
-    <div class="row products-filter-container" data-categoryId="@Model.CategoryId" data-productsPerPage="@Model.ProductsPerPage.Count()">
+    <div class="row products-filter-container" data-categoryId="@Model.CategoryId">
         <partial name="_FilterProducts" />
         <partial name="_ListProducts" model="@Model.ProductsPerPage" />
     </div>

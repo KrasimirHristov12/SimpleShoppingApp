@@ -47,6 +47,7 @@ builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 builder.Services.AddScoped<UserSeeder>();
 builder.Services.AddScoped<AdminRoleSeeder>();
 builder.Services.AddScoped<ProductsSeeder>();
+builder.Services.AddScoped<CategoriesSeeder>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ICartsService, CartsService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
@@ -60,8 +61,10 @@ using (var serviceScope = app.Services.CreateScope())
     var adminRoleSeeder = serviceScope.ServiceProvider.GetRequiredService<AdminRoleSeeder>();
     var userSeeder = serviceScope.ServiceProvider.GetRequiredService<UserSeeder>();
     var productsSeeder = serviceScope.ServiceProvider.GetRequiredService<ProductsSeeder>();
-    await adminRoleSeeder.SeedAsync();
-    await userSeeder.SeedAsync();
+    var categoriesSeeder = serviceScope.ServiceProvider.GetRequiredService<CategoriesSeeder>();
+    //adminRoleSeeder.SeedAsync().GetAwaiter().GetResult();
+    //userSeeder.SeedAsync().GetAwaiter().GetResult();
+    await categoriesSeeder.SeedAsync();
     await productsSeeder.SeedAsync();
 }
 

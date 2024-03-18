@@ -54,7 +54,7 @@ namespace SimpleShoppingApp.Web.Controllers
             {
                 CategoryId = id,
                 Page = page,
-                ProductsPerPage = 1,
+                ProductsPerPage = 5,
             };
             var productsPerPage = await productsService.GetByCategoryAsync(filterModel);
 
