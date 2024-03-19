@@ -120,7 +120,9 @@ namespace SimpleShoppingApp.Services.Products
                     Quantity = p.Quantity,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category.Name,
-                    UserName = p.User.UserName
+                    UserName = p.User.UserName,
+                    HasDiscount = p.HasDiscount,
+                    NewPrice = p.NewPrice,
                 })
                .FirstOrDefaultAsync();
 
@@ -354,6 +356,8 @@ namespace SimpleShoppingApp.Services.Products
                     CategoryId = p.CategoryId,
                     Description = p.Description,
                     Quantity = p.Quantity,
+                    HasDiscount = p.HasDiscount,
+                    NewPrice = p.NewPrice,
 
                 }).FirstOrDefaultAsync();
 
@@ -415,6 +419,8 @@ namespace SimpleShoppingApp.Services.Products
             productToEdit.Quantity = model.Quantity ?? 0;
             productToEdit.CategoryId = model.CategoryId;
             productToEdit.Description = model.Description;
+            productToEdit.HasDiscount = model.HasDiscount;
+            productToEdit.NewPrice = model.NewPrice;
 
             await productsRepo.SaveChangesAsync();
 

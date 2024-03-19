@@ -37,6 +37,10 @@ namespace SimpleShoppingApp.Data.Models
 
         public int CategoryId { get; set; }
 
+        public bool HasDiscount { get; set; }
+
+        public decimal? NewPrice { get; set; }
+
         public bool IsDeleted { get; set; }
 
         public ICollection<CartsProducts> CartsProducts { get; set; }

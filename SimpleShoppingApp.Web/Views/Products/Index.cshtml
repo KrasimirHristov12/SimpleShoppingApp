@@ -84,7 +84,19 @@
                 <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
             }
             
-            <li class="list-group-item text-center">Price: <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span></li>
+            <li class="list-group-item text-center">Price:
+                @if (!Model.HasDiscount)
+                {
+                    <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span>
+                }
+
+                else
+                {
+                    <span class="text-primary text-decoration-line-through fs-1">$@Model.Price</span>
+                    <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.NewPrice</span>
+                }
+                
+                </li>
             <li class="list-group-item text-center">
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {

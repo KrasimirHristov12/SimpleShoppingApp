@@ -10,8 +10,9 @@
             },
             success: function (data) {
                 $(".address-select").append(`<option value="${data.id}">${data.name}</option>`);
+                $(".address-select").trigger("change");
                 address.val('');
-                $(".modal-address-footer .close").click();
+                $(".modal-address-footer .close").trigger("click");
             },
             dataType: "json",
         });

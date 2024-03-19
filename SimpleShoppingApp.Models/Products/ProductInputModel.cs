@@ -14,7 +14,7 @@ namespace SimpleShoppingApp.Models.Products
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100, MinimumLength = 5)]
+        [StringLength(500, MinimumLength = 5)]
         public string Name { get; set; } = null!;
 
         [Required]

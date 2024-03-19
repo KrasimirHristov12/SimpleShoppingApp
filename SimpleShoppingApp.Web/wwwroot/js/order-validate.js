@@ -48,7 +48,7 @@ $(".quantity-input").on("keyup change", function () {
                     success: function (data) {
                         if (data.updatedQuantity == 0) {
                             alert(`Unfortunately, ${productName} is out of stock. It will be deleted from your cart.`);
-                            quantityInput.closest(".row").find(".remove-btn").click();
+                            quantityInput.closest(".row").find(".remove-btn").trigger("click");
                         }
                         else {
                             let quantityLeft = data.updatedQuantity;

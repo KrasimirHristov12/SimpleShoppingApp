@@ -30,6 +30,10 @@ namespace SimpleShoppingApp.Models.Products
 
         public bool BelongsToCurrentUser { get; set; }
 
+        public bool HasDiscount { get; set; }
+
+        public decimal? NewPrice { get; set; }
+
         public IEnumerable<ImageViewModel> Images { get; set; }
     }
 }

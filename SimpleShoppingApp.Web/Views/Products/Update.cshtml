@@ -40,6 +40,18 @@
         </div>
 
         <div>
+            <label asp-for="HasDiscount"></label>
+            <input asp-for="HasDiscount" class="form-check-input has-discount" />
+            <span asp-validation-for="HasDiscount" class="text-danger" />
+        </div>
+
+        <div class="new-price d-none">
+            <label asp-for="NewPrice"></label>
+            <input asp-for="NewPrice" class="form-control" />
+            <span asp-validation-for="NewPrice" class="text-danger"></span>
+        </div>
+
+        <div>
             <label asp-for="Quantity"></label>
             <input asp-for="Quantity" class="form-control" />
             <span asp-validation-for="Quantity" class="text-danger"></span>
@@ -50,3 +62,7 @@
         </div>
 
     </form>
+</div>
+@section Scripts {
+    <script src="~/js/update-product.js"></script>
+}
