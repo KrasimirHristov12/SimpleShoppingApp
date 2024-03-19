@@ -65,17 +65,34 @@ namespace SimpleShoppingApp.Services.Products
 
             await productsRepo.AddAsync(product);
 
-            foreach (var imageFromModel in model.Images)
+            if (model.Images != null)
             {
-                string imageUID = Guid.NewGuid().ToString();
+                await productsRepo.SaveChangesAsync();
 
-                string imageName = $"prod{product.Id}_{imageUID}";
+                foreach (var imageFromModel in model.Images.Where(i => i != null))
+                {
+                    string imageUID = Guid.NewGuid().ToString();
 
-                string wwwrootDir = imagesDirectory;
+                    string imageName = $"prod{product.Id}_{imageUID}";
 
-                await imagesService.AddAsync(imageFromModel, imageName, wwwrootDir, product.Id);
+                    string wwwrootDir = imagesDirectory;
 
+                    await imagesService.AddAsync(imageFromModel, imageName, wwwrootDir, product.Id);
+
+                }
             }
+
+            if (model.ImagesUrls != null)
+            {
+                foreach (var imageUrl in model.ImagesUrls.Where(i => !string.IsNullOrWhiteSpace(i)))
+                {
+                    product.Images.Add(new Image
+                    {
+                        ImageUrl = imageUrl
+                    });
+                }
+            }
+
             await productsRepo.SaveChangesAsync();
 
             return new AddProductModel
@@ -590,5 +607,11 @@ namespace SimpleShoppingApp.Services.Products
             return avgRating;
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await productsRepo.AllAsNoTracking()
+                .Where(p => !p.IsDeleted)
+                .CountAsync();
+        }
     }
 }

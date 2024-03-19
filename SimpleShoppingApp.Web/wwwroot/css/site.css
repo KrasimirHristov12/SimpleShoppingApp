@@ -60,3 +60,6 @@ label.error {
     max-height: 160px;
 }
 
+.add-url-btn {
+    float: right;
+}

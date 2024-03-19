@@ -30,5 +30,7 @@ namespace SimpleShoppingApp.Services.Products
         Task<bool> DoesProductExistAsync(int productId);
 
         Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating);
+
+        Task<int> GetCountAsync();
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Models;
 using SimpleShoppingApp.Models.Index;
+using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Products;
 using System.Diagnostics;
 
@@ -11,17 +12,25 @@ namespace SimpleShoppingApp.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductsService productsService;
+        private readonly ICategoriesService categoriesService;
 
-        public HomeController(ILogger<HomeController> logger, IProductsService _productsService)
+        public HomeController(ILogger<HomeController> logger, 
+            IProductsService _productsService,
+            ICategoriesService _categoriesService)
         {
             _logger = logger;
             productsService = _productsService;
+            categoriesService = _categoriesService;
         }
 
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var model = new IndexViewModel();
+
+            model.TotalProductsCount = await productsService.GetCountAsync();
+
+            model.TotalCategoriesCount = await categoriesService.GetCountAsync();
 
             model.RandomProducts = await productsService.GetRandomProductsAsync(9);
 

@@ -38,5 +38,11 @@ namespace SimpleShoppingApp.Services.Categories
             return categories;
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await categoryRepo.AllAsNoTracking()
+                .Where(c => !c.IsDeleted)
+                .CountAsync();
+        }
     }
 }

@@ -6,5 +6,7 @@ namespace SimpleShoppingApp.Services.Categories
     {
         Task<bool> DoesCategoryExist(int id);
         Task<IEnumerable<CategoryViewModel>> GetAllAsync();
+
+        Task<int> GetCountAsync();
     }
 }

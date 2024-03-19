@@ -39,7 +39,7 @@ namespace SimpleShoppingApp.Services.Images
             await imagesRepo.AddAsync(imageDb);
             await imagesRepo.SaveChangesAsync();
 
-            string path = Path.Combine(directory, "images", "products", imageName, imageName + extension);
+            string path = Path.Combine(directory, "images", "products", imageName + extension);
 
             using FileStream fs = new FileStream(path, FileMode.Create);
             await image.CopyToAsync(fs);
