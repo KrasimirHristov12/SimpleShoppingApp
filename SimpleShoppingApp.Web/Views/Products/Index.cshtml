@@ -1,4 +1,5 @@
-﻿@model ProductViewModel
+﻿@using Ganss.Xss
+@model ProductViewModel
 @{
     ViewData["Title"] = Model.Name;
     var Images = Model.Images.ToList();
@@ -64,7 +65,7 @@
         @if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             <div class="rating-container text-center">
-                <i>Your Rating/Average Rating: </i><span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span>
+                <span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span>
                 @for (int i = 0; i < 5; i++)
                 {
                     <i class="bi bi-star-fill @(i == Model.Rating - 1 ? "star-selected" : "") @(i < Model.Rating ? "stars-yellow" : "")"></i>
@@ -105,8 +106,17 @@
 <hr />
 <div class="text-center">
     <h5>Description:</h5>
-    <p>@Model.Description</p>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        @(Html.Raw(new HtmlSanitizer().Sanitize(Model.Description)))
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/product-index.js"></script>
+}
 
 
 

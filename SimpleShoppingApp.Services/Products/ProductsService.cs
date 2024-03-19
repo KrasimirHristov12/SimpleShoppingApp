@@ -580,17 +580,14 @@ namespace SimpleShoppingApp.Services.Products
             };
         }
 
-        private async Task<int?> GetRatingAsync(int productId, string userId)
+        private async Task<int> GetRatingAsync(int productId, string userId)
         {
             var rating = await usersRatingRepo
                 .AllAsNoTracking()
                 .Where(ur => ur.ProductId == productId && ur.UserId == userId)
                 .Select(ur => ur.Rating)
                 .FirstOrDefaultAsync();
-            if (rating == 0)
-            {
-                return null;
-            }
+
             return rating;
         }
 
