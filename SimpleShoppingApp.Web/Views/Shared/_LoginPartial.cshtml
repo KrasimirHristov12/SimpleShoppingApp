@@ -6,10 +6,21 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+        @if (User.IsInRole("Administrator"))
+        {
+            <li class="nav-item">
+                <div class="dropdown">
+                    <a class="user-info nav-link text-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Administration</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" asp-area="Administration" asp-controller="Users" asp-action="List" asp-route-page="1">User Information</a></li>
+                    </ul>
+                </div>
+            </li>
+        }
+
     <li class="nav-item">
             <div class="dropdown">
                 <a class="user-info nav-link text-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Hello @User.Identity?.Name!</a>
-
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" asp-controller="Account" asp-action="Info">User Information</a></li>
                     <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">Change Password</a></li>

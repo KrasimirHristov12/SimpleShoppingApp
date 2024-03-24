@@ -12,5 +12,9 @@ namespace SimpleShoppingApp.Services.Users
         Task<bool> UpdateFullNameAsync(EditFullNameInputModel model, string userId);
 
         Task<bool> UpdatePhoneNumberAsync(EditPhoneNumberInputModel model, string userId);
+
+        Task<IEnumerable<AdministrationUserViewModel>> GetUsersPerPageAsync(int page, int usersPerPage);
+
+        Task<int> GetUsersCountAsync();
     }
 }

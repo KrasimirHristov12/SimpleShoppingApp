@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Users;
-using System.Security.Claims;
 
 namespace SimpleShoppingApp.Services.Users
 {
@@ -109,6 +108,28 @@ namespace SimpleShoppingApp.Services.Users
             user.PhoneNumber = model.PhoneNumber;
             await userRepo.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<AdministrationUserViewModel>> GetUsersPerPageAsync(int page, int usersPerPage)
+        {
+            return await userManager.Users
+                .Skip((page - 1) * usersPerPage)
+                .Take(usersPerPage)
+                .Select(u => new AdministrationUserViewModel
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    PhoneNumber = u.PhoneNumber,
+                    UserName = u.UserName,
+                })
+                .ToListAsync();
+        }
+
+        public async Task<int> GetUsersCountAsync()
+        {
+            return await userManager.Users.CountAsync();
         }
     }
 }

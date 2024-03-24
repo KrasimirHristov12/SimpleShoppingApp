@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SimpleShoppingApp.Models;
-using System.Diagnostics;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -18,7 +16,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [ActionName("500")]
         public IActionResult ServerError()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
 
         [AllowAnonymous]
