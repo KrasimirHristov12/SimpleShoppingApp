@@ -131,5 +131,41 @@ namespace SimpleShoppingApp.Services.Users
         {
             return await userManager.Users.CountAsync();
         }
+
+        public async Task<AdministrationUserViewModel?> GetEditUserAsync(string userId)
+        {
+            var user = await userManager.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new AdministrationUserViewModel
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    PhoneNumber = u.PhoneNumber,
+                })
+                .FirstOrDefaultAsync();
+
+            return user;
+
+        }
+
+        public async Task<bool> EditUserAsync(AdministrationUserViewModel model)
+        {
+            var userEntityModel = await userManager.FindByIdAsync(model.Id);
+            if (userEntityModel == null) 
+            {
+                return false;
+            }
+
+            userEntityModel.UserName = model.UserName;
+            userEntityModel.FirstName = model.FirstName;
+            userEntityModel.LastName = model.LastName;
+            userEntityModel.PhoneNumber = model.PhoneNumber;
+
+            await userRepo.SaveChangesAsync();
+            return true;
+        }
     }
 }

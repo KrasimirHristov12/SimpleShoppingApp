@@ -16,5 +16,9 @@ namespace SimpleShoppingApp.Services.Users
         Task<IEnumerable<AdministrationUserViewModel>> GetUsersPerPageAsync(int page, int usersPerPage);
 
         Task<int> GetUsersCountAsync();
+
+        Task<AdministrationUserViewModel?> GetEditUserAsync(string userId);
+
+        Task<bool> EditUserAsync(AdministrationUserViewModel model);
     }
 }
