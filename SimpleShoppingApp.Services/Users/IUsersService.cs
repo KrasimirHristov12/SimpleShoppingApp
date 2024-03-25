@@ -20,5 +20,9 @@ namespace SimpleShoppingApp.Services.Users
         Task<AdministrationUserViewModel?> GetEditUserAsync(string userId);
 
         Task<bool> EditUserAsync(AdministrationUserViewModel model);
+
+        Task<bool> IsInRoleAsync(string userId, string roleName);
+
+        Task<bool> DoesUserExistAsync(string userId);
     }
 }

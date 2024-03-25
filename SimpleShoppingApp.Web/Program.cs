@@ -9,6 +9,7 @@ using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
@@ -53,6 +54,8 @@ builder.Services.AddScoped<ICartsService, CartsService>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IAddressesService, AddressesService>();
 builder.Services.AddScoped<IEmailsService, EmailsService>();
+builder.Services.AddScoped<INotificationsService, NotificationsService>();
+
 
 var app = builder.Build();
 

@@ -41,6 +41,8 @@ namespace SimpleShoppingApp.Data.Models
 
         public decimal? NewPrice { get; set; }
 
+        public bool IsApproved { get; set; }
+
         public bool IsDeleted { get; set; }
 
         public ICollection<CartsProducts> CartsProducts { get; set; }

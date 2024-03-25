@@ -31,6 +31,5 @@ namespace SimpleShoppingApp.Data.Models
 
         public ICollection<UsersRating> UsersRating { get; set; }
 
-
     }
 }

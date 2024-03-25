@@ -167,5 +167,22 @@ namespace SimpleShoppingApp.Services.Users
             await userRepo.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> IsInRoleAsync(string userId, string roleName)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            return await userManager.IsInRoleAsync(user, roleName);
+        }
+
+        public async Task<bool> DoesUserExistAsync(string userId)
+        {
+            return await userManager.Users
+                .AnyAsync(u => u.Id == userId);
+        }
     }
 }

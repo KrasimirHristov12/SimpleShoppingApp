@@ -6,6 +6,7 @@ using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Users;
 
 namespace SimpleShoppingApp.Services.Products
@@ -17,19 +18,22 @@ namespace SimpleShoppingApp.Services.Products
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
+        private readonly INotificationsService notificationsService;
 
         public ProductsService(
             IRepository<Product> _productsRepo,
             IRepository<UsersRating> _usersRatingRepo,
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
-            IUsersService _usersService)
+            IUsersService _usersService,
+            INotificationsService _notificationsService)
         {
             productsRepo = _productsRepo;
             usersRatingRepo = _usersRatingRepo;
             imagesService = _imagesService;
             categoriesService = _categoriesService;
             usersService = _usersService;
+            notificationsService = _notificationsService;
         }
 
         public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId, string imagesDirectory)
@@ -52,10 +56,13 @@ namespace SimpleShoppingApp.Services.Products
                 };
             }
 
+            bool isApproved = await usersService.IsInRoleAsync(userId, "Administrator");
+
             var product = new Product()
             {
                 Name = model.Name,
                 Description = model.Description,
+                IsApproved = isApproved,
                 Price = model.Price ?? 0,
                 Quantity = model.Quantity ?? 0,
                 Rating = 0,
@@ -94,6 +101,16 @@ namespace SimpleShoppingApp.Services.Products
             }
 
             await productsRepo.SaveChangesAsync();
+
+            if (!product.IsApproved)
+            {
+                string? adminUserId = await usersService.GetAdminIdAsync();
+                if (!string.IsNullOrWhiteSpace(adminUserId))
+                {
+                    bool notificationsResult = await notificationsService.AddAsync(userId, adminUserId, "A new product was added for approval.", $"/Administration/Products/Approve/{product.Id}");
+                }
+                
+            }
 
             return new AddProductModel
             {
