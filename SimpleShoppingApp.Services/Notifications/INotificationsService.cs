@@ -12,5 +12,7 @@ namespace SimpleShoppingApp.Services.Notifications
         Task<NotificationsViewModel> GetNotificationsAsync(int page, int numberOfElements, string userId);
 
         Task<int> GetNewNotificationsCountAsync(string userId);
+
+        Task<bool> ReadAsync(string userId, int notificationId);
     }
 }

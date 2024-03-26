@@ -6,8 +6,17 @@
     <ol class="list-group list-group-numbered d-none">
         @foreach (var notification in Model.Notifications)
         {
-            <li class="list-group-item"><a href="@(string.IsNullOrWhiteSpace(notification.Url) ? "#" : notification.Url)">@notification.Text</a></li>
+            <li id="n-@notification.Id" class="list-group-item">
+                @if (!notification.IsRead)
+                {
+                    <span style="font-size: 10px;">NEW</span> <br />
+
+                }
+                <a href="@(string.IsNullOrWhiteSpace(notification.Url) ? "#" : notification.Url)">
+                    @notification.Text
+                </a>
+            </li>
         }
-        
+
     </ol>
 </div>

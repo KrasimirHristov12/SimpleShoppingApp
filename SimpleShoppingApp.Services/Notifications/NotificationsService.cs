@@ -55,14 +55,17 @@ namespace SimpleShoppingApp.Services.Notifications
         {
             var newNotificationsCount = await GetNewNotificationsCountAsync(userId);
             var notifications = await notificationsRepo.AllAsNoTracking()
-                .Where(n => n.ReceiverUserId == userId && !n.IsRead && !n.IsDeleted)
+                .Where(n => n.ReceiverUserId == userId && !n.IsDeleted)
                 .Select(n => new NotificationViewModel
                 {
+                    Id = n.Id,
                     Text = n.Text,
                     Url = n.Url,
+                    IsRead = n.IsRead,
                 })
                 .Skip((page - 1) * numberOfElements)
                 .Take(numberOfElements)
+                .OrderByDescending(n => n.Id)
                 .ToListAsync();
 
             return new NotificationsViewModel
@@ -77,6 +80,25 @@ namespace SimpleShoppingApp.Services.Notifications
             return await notificationsRepo.AllAsNoTracking()
                 .Where(n => !n.IsRead && !n.IsDeleted && n.ReceiverUserId == userId)
                 .CountAsync();
+        }
+
+        public async Task<bool> ReadAsync(string userId, int notificationId)
+        {
+            var notification = await notificationsRepo
+                .AllAsTracking()
+                .Where(n => n.ReceiverUserId == userId && n.Id == notificationId && !n.IsRead && !n.IsDeleted)
+                .FirstOrDefaultAsync();
+
+            if (notification == null)
+            {
+                return false;
+            }
+
+            notification.IsRead = true;
+
+
+            await notificationsRepo.SaveChangesAsync();
+            return true;
         }
     }
 }
