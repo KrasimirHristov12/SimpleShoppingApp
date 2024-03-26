@@ -1,0 +1,13 @@
+﻿@using SimpleShoppingApp.Models.Notifications
+@model NotificationsViewModel
+
+<div role="button" class="notifications-container">
+    <span>Notifications <span class="numberCircle">@Model.NewNotificationsCount</span></span>
+    <ol class="list-group list-group-numbered d-none">
+        @foreach (var notification in Model.Notifications)
+        {
+            <li class="list-group-item"><a href="@(string.IsNullOrWhiteSpace(notification.Url) ? "#" : notification.Url)">@notification.Text</a></li>
+        }
+        
+    </ol>
+</div>

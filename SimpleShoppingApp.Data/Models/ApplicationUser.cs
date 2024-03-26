@@ -11,6 +11,8 @@ namespace SimpleShoppingApp.Data.Models
             Orders = new HashSet<Order>();
             Addresses = new HashSet<ShippingAddress>();
             UsersRating = new HashSet<UsersRating>();
+            SendedNotifications = new HashSet<Notification>();
+            ReceivedNotifications = new HashSet<Notification>();
         }
 
         [MaxLength(50)]
@@ -30,6 +32,10 @@ namespace SimpleShoppingApp.Data.Models
         public ICollection<ShippingAddress> Addresses { get; set; }
 
         public ICollection<UsersRating> UsersRating { get; set; }
+
+        public ICollection<Notification> SendedNotifications { get; set; }
+
+        public ICollection<Notification> ReceivedNotifications { get; set; }
 
     }
 }

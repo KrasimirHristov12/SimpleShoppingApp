@@ -13,19 +13,6 @@ namespace SimpleShoppingApp.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            var categoriesNames = new List<string>
-            {
-                "Electronics", "Clothing and Accessories", "Sports and Outdoors"
-            };
-
-            var categories = categoriesNames.Select(c => new Category
-            {
-                Id = categoriesNames.IndexOf(c) + 1,
-                Name = c,
-            }).ToList();
-
-
-            builder.Entity<Category>().HasData(categories);
 
             builder.Entity<Product>()
                 .Property(p => p.CategoryId)
@@ -55,6 +42,16 @@ namespace SimpleShoppingApp.Data
                 .Property(o => o.DeliveryDate)
                 .HasDefaultValue(default(DateTime));
 
+            builder.Entity<Notification>()
+                .HasOne(n => n.SenderUser)
+                .WithMany(u => u.SendedNotifications)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.ReceiverUser)
+                .WithMany(u => u.ReceivedNotifications)
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(builder);
         }
         public DbSet<Product> Products { get; set; } = null!;
@@ -72,5 +69,7 @@ namespace SimpleShoppingApp.Data
         public DbSet<ShippingAddress> Addresses { get; set; } = null!;
 
         public DbSet<UsersRating> UsersRatings { get; set; } = null!;
+
+        public DbSet<Notification> Notifications { get; set; } = null!;
     }
 }

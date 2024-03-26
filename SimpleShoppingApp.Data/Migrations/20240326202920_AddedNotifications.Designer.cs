@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleShoppingApp.Data;
 
@@ -11,9 +12,10 @@ using SimpleShoppingApp.Data;
 namespace SimpleShoppingApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240326202920_AddedNotifications")]
+    partial class AddedNotifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,7 +263,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartsProducts", (string)null);
+                    b.ToTable("CartsProducts");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.Category", b =>
@@ -282,7 +284,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.Image", b =>
@@ -313,7 +315,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.Notification", b =>
@@ -352,7 +354,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("SenderUserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.Order", b =>
@@ -397,7 +399,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.OrdersProducts", b =>
@@ -426,7 +428,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrdersProducts", (string)null);
+                    b.ToTable("OrdersProducts");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.Product", b =>
@@ -482,7 +484,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.ShippingAddress", b =>
@@ -509,7 +511,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.ShoppingCart", b =>
@@ -532,7 +534,7 @@ namespace SimpleShoppingApp.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("ShoppingCart", (string)null);
+                    b.ToTable("ShoppingCart");
                 });
 
             modelBuilder.Entity("SimpleShoppingApp.Data.Models.UsersRating", b =>
@@ -559,7 +561,7 @@ namespace SimpleShoppingApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UsersRatings", (string)null);
+                    b.ToTable("UsersRatings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

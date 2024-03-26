@@ -1,4 +1,6 @@
-﻿namespace SimpleShoppingApp.Services.Notifications
+﻿using SimpleShoppingApp.Models.Notifications;
+
+namespace SimpleShoppingApp.Services.Notifications
 {
     public interface INotificationsService
     {
@@ -6,5 +8,9 @@
             string receiverUserId,
             string notificationText,
             string? url = null);
+
+        Task<NotificationsViewModel> GetNotificationsAsync(int page, int numberOfElements, string userId);
+
+        Task<int> GetNewNotificationsCountAsync(string userId);
     }
 }

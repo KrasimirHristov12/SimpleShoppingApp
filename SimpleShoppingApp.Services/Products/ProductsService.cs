@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
+using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
@@ -403,6 +404,31 @@ namespace SimpleShoppingApp.Services.Products
                 Result = AddUpdateDeleteResult.Success,
                 Model = productToEdit,
             };
+        }
+
+        public async Task<ApproveProductViewModel?> GetProductToApproveAsync(int productId)
+        {
+            var product = await productsRepo.AllAsNoTracking()
+                .Where(p => p.Id == productId && !p.IsDeleted)
+                .Select(p => new ApproveProductViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    CategoryName = p.Category.Name,
+                    Description = p.Description,
+                    Images = p.Images.Select(i => new ImageViewModel
+                    {
+                        Extension = i.Extension,
+                        ImageUrl = i.ImageUrl,
+                        Name = i.Name,
+
+                    }).ToList(),
+                })
+                .FirstOrDefaultAsync();
+
+            return product;
+
         }
 
         public async Task<AddUpdateDeleteResult> UpdateAsync(EditProductInputModel model, string currentUserId)
