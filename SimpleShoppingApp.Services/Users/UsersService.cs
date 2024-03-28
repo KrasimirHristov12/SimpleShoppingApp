@@ -63,6 +63,7 @@ namespace SimpleShoppingApp.Services.Users
             return fullName;
         }
 
+
         public async Task<UserInfoViewModel?> GetUserInfoAsync(string userId)
         {
             var user = await userManager.Users

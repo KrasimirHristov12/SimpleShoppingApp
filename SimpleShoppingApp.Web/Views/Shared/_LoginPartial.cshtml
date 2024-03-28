@@ -4,8 +4,11 @@
 @inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <vc:notifications></vc:notifications>
+        </li>
         @if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
@@ -18,7 +21,7 @@
             </li>
         }
 
-    <li class="nav-item">
+        <li class="nav-item">
             <div class="dropdown">
                 <a class="user-info nav-link text-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Hello @User.Identity?.Name!</a>
                 <ul class="dropdown-menu">
@@ -28,26 +31,23 @@
                     <li><a class="dropdown-item" asp-controller="Products" asp-action="Add">Add product</a></li>
                 </ul>
             </div>
-    </li>
+        </li>
 
-    <li class="nav-item">
-        <vc:notifications></vc:notifications>
-    </li>
 
-    <li class="nav-item">
-        <form  class="form-inline" method="post" asp-controller="Account" asp-action="Logout">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-    </li>
-}
+        <li class="nav-item">
+            <form class="form-inline" method="post" asp-controller="Account" asp-action="Logout">
+                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+        </li>
+    }
 </ul>
 

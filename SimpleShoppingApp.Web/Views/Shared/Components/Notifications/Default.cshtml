@@ -1,22 +1,30 @@
 ﻿@using SimpleShoppingApp.Models.Notifications
 @model NotificationsViewModel
 
-<div role="button" class="notifications-container">
-    <span>Notifications <span class="numberCircle">@Model.NewNotificationsCount</span></span>
-    <ol class="list-group list-group-numbered d-none">
-        @foreach (var notification in Model.Notifications)
+<div class="dropdown">
+    <a class="nav-link text-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Notifications <span class="new-notifications-count">(@Model.NewNotificationsCount)</span></a>
+    <ul class="dropdown-menu">
+        @if (Model.Notifications.Count() > 0)
         {
-            <li id="n-@notification.Id" class="list-group-item">
-                @if (!notification.IsRead)
-                {
-                    <span style="font-size: 10px;">NEW</span> <br />
+            @foreach (var notification in Model.Notifications)
+            {
+                <li id="n-@notification.Id" class="list-group-item">
+                    @if (!notification.IsRead)
+                    {
+                        <span style="font-size: 10px;">NEW</span> <br />
 
-                }
-                <a href="@(string.IsNullOrWhiteSpace(notification.Url) ? "#" : notification.Url)">
-                    @notification.Text
-                </a>
-            </li>
+                    }
+                    <a class="dropdown-item" href="@(string.IsNullOrWhiteSpace(notification.Url) ? "#" : notification.Url)">@notification.Text</a>
+                </li>
+            }
+
         }
 
-    </ol>
+        else
+        {
+            <li class="list-group-item">No notifications</li>
+            
+        }
+    </ul>
+
 </div>

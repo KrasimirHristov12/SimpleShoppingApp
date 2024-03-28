@@ -1,30 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Models.Addresses;
-using SimpleShoppingApp.Models.Carts;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Orders;
-using SimpleShoppingApp.Services.Users;
 using SimpleShoppingApp.Extensions;
+using SimpleShoppingApp.Services.Notifications;
+using SimpleShoppingApp.Services.Products;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
     public class OrdersController : BaseController
     {
         private readonly IOrdersService ordersService;
-        private readonly IUsersService usersService;
         private readonly ICartsService cartsService;
         private readonly IAddressesService addressesService;
 
-        public OrdersController(IOrdersService _ordersService, 
-            IUsersService _usersService,
+        public OrdersController(IOrdersService _ordersService,
             ICartsService _cartsService,
-            IAddressesService _addressesService)
+            IAddressesService _addressesService,
+            INotificationsService _notificationsService,
+            IProductsService _productsService)
         {
             ordersService = _ordersService;
-            usersService = _usersService;
             cartsService = _cartsService;
             addressesService = _addressesService;
         }
@@ -101,6 +100,7 @@ namespace SimpleShoppingApp.Web.Controllers
             {
                 return Forbid();
             }
+
 
             return Redirect("/");
         }

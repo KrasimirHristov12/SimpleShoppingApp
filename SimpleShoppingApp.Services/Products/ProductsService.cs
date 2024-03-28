@@ -168,6 +168,16 @@ namespace SimpleShoppingApp.Services.Products
             return product;
         }
 
+        public async Task<string?> GetNameAsync(int productId)
+        {
+            var productName = await productsRepo.AllAsNoTracking()
+                .Where(p => p.Id == productId)
+                .Select(p => p.Name)
+                .FirstOrDefaultAsync();
+
+            return productName;
+        }
+
         public async Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n)
         {
             if (n <= 0)
@@ -658,6 +668,21 @@ namespace SimpleShoppingApp.Services.Products
             return await productsRepo.AllAsNoTracking()
                 .Where(p => !p.IsDeleted)
                 .CountAsync();
+        }
+
+        public async Task<string?> GetOwnerIdAsync(int productId)
+        {
+            var ownerId = await productsRepo.AllAsNoTracking()
+                .Where(p => p.Id == productId)
+                .Select(p => p.UserId)
+                .FirstOrDefaultAsync();
+
+            if (ownerId == null)
+            {
+                return null;
+            }
+
+            return ownerId;
         }
     }
 }

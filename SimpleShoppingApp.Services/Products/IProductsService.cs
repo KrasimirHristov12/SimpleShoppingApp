@@ -9,6 +9,8 @@ namespace SimpleShoppingApp.Services.Products
 
         Task<ProductViewModel?> GetAsync(int id, string? userId);
 
+        Task<string?> GetNameAsync(int productId);
+
         Task<IEnumerable<ListProductsViewModel>> GetRandomProductsAsync(int n);
 
         Task<ProductsPerPageModel?> GetByCategoryAsync(ProductsFilterModel model);
@@ -34,5 +36,7 @@ namespace SimpleShoppingApp.Services.Products
         Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating);
 
         Task<int> GetCountAsync();
+
+        Task<string?> GetOwnerIdAsync(int productId);
     }
 }

@@ -7,6 +7,7 @@ using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
 
@@ -16,30 +17,30 @@ namespace SimpleShoppingApp.Services.Orders
     {
         private readonly IRepository<Order> orderRepo;
         private readonly IRepository<Product> productRepo;
-        private readonly IRepository<OrdersProducts> ordersProductsRepo;
         private readonly IProductsService productsService;
         private readonly IAddressesService addressesService;
         private readonly IEmailsService emailsService;
         private readonly IUsersService usersService;
         private readonly IImagesService imagesService;
+        private readonly INotificationsService notificationsService;
 
         public OrdersService(IRepository<Order> _orderRepo,
             IRepository<Product> _productRepo,
-            IRepository<OrdersProducts> _ordersProductsRepo,
             IProductsService _productsService,
             IAddressesService _addressesService,
             IEmailsService _emailsService,
             IUsersService _usersService,
-            IImagesService _imagesService)
+            IImagesService _imagesService,
+            INotificationsService _notificationsService)
         {
             orderRepo = _orderRepo;
             productRepo = _productRepo;
-            ordersProductsRepo = _ordersProductsRepo;
             productsService = _productsService;
             addressesService = _addressesService;
             emailsService = _emailsService;
             usersService = _usersService;
             imagesService = _imagesService;
+            notificationsService = _notificationsService;
         }
         public async Task<MakeOrderResult> AddAsync(MakeOrderInputModel model, string userId)
         {
@@ -110,7 +111,6 @@ namespace SimpleShoppingApp.Services.Orders
                 });
 
                 actualProduct.Quantity = actualProductQuantity - productQuantity;
-
             }
 
             await orderRepo.AddAsync(order);
@@ -146,6 +146,27 @@ namespace SimpleShoppingApp.Services.Orders
             string emailSubject = $"Order #{order.Id}";
             string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{tableHtml}{addressHtml}{deliveryHtml}{paymentHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
             var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
+
+            for (int i = 0; i < model.ProductIds.Count; i++)
+            {
+                var ownerId = await productsService.GetOwnerIdAsync(model.ProductIds[i]);
+                if (ownerId == null)
+                {
+                    return MakeOrderResult.NotFound;
+                }
+
+                var buyerEmail = await usersService.GetEmailAsync(userId);
+
+                if (buyerEmail == null)
+                {
+                    return MakeOrderResult.NotFound;
+                }
+
+                var notificationResult = await notificationsService.AddAsync(userId, ownerId, $"{buyerEmail} has just bought {model.Quantities[i]} pieces of one of your products", $"/Products/Index/{model.ProductIds[i]}");
+
+            }
+
+
             return MakeOrderResult.Success;
 
         }

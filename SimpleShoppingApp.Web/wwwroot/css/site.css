@@ -64,12 +64,6 @@ label.error {
     float: right;
 }
 
-.numberCircle {
-    border-radius: 50%;
-    padding: 8px;
-    background: #fff;
-    border: 2px solid #666;
-    color: #666;
-    text-align: center;
-    font: 14px Arial, sans-serif;
+.notifications-container .list-group {
+    position: absolute;
 }

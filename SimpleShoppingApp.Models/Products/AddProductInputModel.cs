@@ -8,6 +8,12 @@ namespace SimpleShoppingApp.Models.Products
 {
     public class AddProductInputModel : ProductInputModel, IValidatableObject
     {
+        public AddProductInputModel()
+        {
+            Images = new List<FormFile>();
+            ImagesUrls = new List<string>();
+        }
+
         [ValidateImage]
         [FileMaxSize(5)]
         public IEnumerable<IFormFile>? Images { get; set; }
@@ -18,7 +24,7 @@ namespace SimpleShoppingApp.Models.Products
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (( Images != null && Images.Count(i => i == null) == Images.Count() ) || ( ImagesUrls != null && ImagesUrls.Count(i => i == null) == ImagesUrls.Count() ))
+            if (Images.Where(i => i != null).Count() == 0 && ImagesUrls.Where(i => !string.IsNullOrEmpty(i)).Count() == 0)
             {
                 yield return new ValidationResult("Please provide at least one url or at least one image");
             }

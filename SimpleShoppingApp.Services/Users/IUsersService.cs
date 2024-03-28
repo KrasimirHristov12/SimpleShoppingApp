@@ -9,6 +9,7 @@ namespace SimpleShoppingApp.Services.Users
         Task<string?> GetEmailAsync(string userId);
         Task<string?> GetFullNameAsync(string userId);
         Task<UserInfoViewModel?> GetUserInfoAsync(string userId);
+
         Task<bool> UpdateFullNameAsync(EditFullNameInputModel model, string userId);
 
         Task<bool> UpdatePhoneNumberAsync(EditPhoneNumberInputModel model, string userId);
