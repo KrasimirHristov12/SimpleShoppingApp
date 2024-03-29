@@ -4,6 +4,9 @@
     {
         NotFound,
         InvalidQuantity,
+        NotSpecifiedAddress,
+        InvalidAddress,
+        SomethingWentWrong,
         Success
     }
 }

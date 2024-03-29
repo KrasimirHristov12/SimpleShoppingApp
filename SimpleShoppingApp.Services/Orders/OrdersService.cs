@@ -43,26 +43,42 @@ namespace SimpleShoppingApp.Services.Orders
             imagesService = _imagesService;
             notificationsService = _notificationsService;
         }
-        public async Task<MakeOrderResult> AddAsync(MakeOrderInputModel model, string userId)
+        public async Task<MakeOrderResultModel> AddAsync(MakeOrderInputModel model, string userId)
         {
             if (model.AddressId <= 0)
             {
-                return MakeOrderResult.NotFound;
+                return new MakeOrderResultModel
+                {
+                    Result = MakeOrderResult.NotSpecifiedAddress,
+                    ErrorMessage = "You currently do not have a registered address. Please add a new address and use it for your order",
+                };
             }
 
             if (!await addressesService.DoesAddressExistAsync(model.AddressId))
             {
-                return MakeOrderResult.NotFound;
+                return new MakeOrderResultModel
+                {
+                    Result = MakeOrderResult.InvalidAddress,
+                    ErrorMessage = "Invalid address",
+                };
             }
 
             if (model.ProductIds.Count == 0 || model.Quantities.Count == 0)
             {
-                return MakeOrderResult.NotFound;
+                return new MakeOrderResultModel
+                {
+                    Result = MakeOrderResult.SomethingWentWrong,
+                    ErrorMessage = "Something went wrong. Please try again later.",
+                };
             }
 
             if (model.ProductIds.Count != model.Quantities.Count)
             {
-                return MakeOrderResult.NotFound;
+                return new MakeOrderResultModel
+                {
+                    Result = MakeOrderResult.SomethingWentWrong,
+                    ErrorMessage = "Something went wrong. Please try again later.",
+                };
             }
 
             var order = new Order
@@ -80,12 +96,20 @@ namespace SimpleShoppingApp.Services.Orders
 
                 if (productQuantity <= 0)
                 {
-                    return MakeOrderResult.InvalidQuantity;
+                    return new MakeOrderResultModel
+                    {
+                        Result = MakeOrderResult.InvalidQuantity,
+                        ErrorMessage = "Please enter a value greater than or equal to 1.",
+                    };
                 }
 
                 if (productId <= 0)
                 {
-                    return MakeOrderResult.NotFound;
+                    return new MakeOrderResultModel
+                    {
+                        Result = MakeOrderResult.SomethingWentWrong,
+                        ErrorMessage = "Something went wrong. Please try again later.",
+                    };
                 }
 
                 var actualProduct = await productRepo.AllAsTracking()
@@ -93,7 +117,11 @@ namespace SimpleShoppingApp.Services.Orders
 
                 if (actualProduct == null)
                 {
-                    return MakeOrderResult.NotFound;
+                    return new MakeOrderResultModel
+                    {
+                        Result = MakeOrderResult.NotFound,
+                        ErrorMessage = null,
+                    };
                 }
 
                 var actualProductQuantity = actualProduct.Quantity;
@@ -102,7 +130,12 @@ namespace SimpleShoppingApp.Services.Orders
 
                 if (productQuantity > actualProductQuantity)
                 {
-                    return MakeOrderResult.InvalidQuantity;
+                    var productName = await productsService.GetNameAsync(productId);
+                    return new MakeOrderResultModel
+                    {
+                        Result = MakeOrderResult.InvalidQuantity,
+                        ErrorMessage = $"There are {actualProductQuantity} {productName} left.",
+                    };
                 }
 
                 order.OrdersProducts.Add(new OrdersProducts
@@ -121,13 +154,21 @@ namespace SimpleShoppingApp.Services.Orders
             var fullName = await usersService.GetFullNameAsync(userId);
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName))
             {
-                return MakeOrderResult.NotFound;
+                return new MakeOrderResultModel
+                {
+                    Result = MakeOrderResult.NotFound,
+                    ErrorMessage = null,
+                };
             }
 
             var orderInfo = await GetOrderDetailsAsync(order.Id);
             if (orderInfo == null)
             {
-                return MakeOrderResult.NotFound;
+                return new MakeOrderResultModel
+                {
+                    Result = MakeOrderResult.NotFound,
+                    ErrorMessage = null,
+                };
             }
 
             string address = orderInfo.Order.Address;
@@ -153,14 +194,22 @@ namespace SimpleShoppingApp.Services.Orders
                 var ownerId = await productsService.GetOwnerIdAsync(model.ProductIds[i]);
                 if (ownerId == null)
                 {
-                    return MakeOrderResult.NotFound;
+                    return new MakeOrderResultModel
+                    {
+                        Result = MakeOrderResult.NotFound,
+                        ErrorMessage = null,
+                    };
                 }
 
                 var buyerEmail = await usersService.GetEmailAsync(userId);
 
                 if (buyerEmail == null)
                 {
-                    return MakeOrderResult.NotFound;
+                    return new MakeOrderResultModel
+                    {
+                        Result = MakeOrderResult.NotFound,
+                        ErrorMessage = null,
+                    };
                 }
 
                 var notificationResult = await notificationsService.AddAsync(userId, ownerId, $"{buyerEmail} has just bought {model.Quantities[i]} pieces of one of your products", $"/Products/Index/{model.ProductIds[i]}");
@@ -168,7 +217,11 @@ namespace SimpleShoppingApp.Services.Orders
             }
 
 
-            return MakeOrderResult.Success;
+            return new MakeOrderResultModel
+            {
+                Result = MakeOrderResult.Success,
+                ErrorMessage = null,
+            };
 
         }
 

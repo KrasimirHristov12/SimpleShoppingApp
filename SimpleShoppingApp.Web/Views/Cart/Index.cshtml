@@ -24,8 +24,9 @@
                                     <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
                                         <!-- Image -->
                                         <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
-                                            <img src="@(!string.IsNullOrWhiteSpace(product.Image.Name) && !string.IsNullOrWhiteSpace(product.Image.Extension) ? $"/images/products/{product.Image.Name}{product.Image.Extension}" : product.Image.ImageUrl)"
-                                                 class="w-100" alt="@product.ProductName Image" />
+                                            <a asp-controller="Products" asp-action="Index" asp-route-id="@product.ProductId"><img src="@(!string.IsNullOrWhiteSpace(product.Image.Name) && !string.IsNullOrWhiteSpace(product.Image.Extension) ? $"/images/products/{product.Image.Name}{product.Image.Extension}" : product.Image.ImageUrl)"
+                                            class="w-100" alt="@product.ProductName Image" />
+                                            </a>
                                             <a href="#!">
                                                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
                                             </a>
@@ -35,7 +36,7 @@
 
                                     <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
                                         <!-- Data -->
-                                        <p><strong>@product.ProductName</strong></p>
+                                        <a class="link-dark link-underline-opacity-0" asp-controller="Products" asp-action="Index" asp-route-id="@product.ProductId"><p><strong>@product.ProductName</strong></p></a>
                                         <button type="button" class="btn btn-danger btn-sm me-1 mb-2 remove-btn" data-mdb-toggle="tooltip"
                                                 title="Remove item">
                                             <i class="bi bi-trash"></i>

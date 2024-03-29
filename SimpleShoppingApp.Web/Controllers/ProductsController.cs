@@ -216,16 +216,5 @@ namespace SimpleShoppingApp.Web.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddUpdateRating(int productId, int rating)
-        {
-            string loggedInUserId = User.GetId();
-            var ratingModel = await productsService.AddRatingFromUserAsync(productId, loggedInUserId, rating);
-            if (ratingModel.Result == AddUpdateDeleteResult.NotFound)
-            {
-                return NotFound();
-            }
-            return Json(ratingModel.AvgRating);
-        }
     }
 }

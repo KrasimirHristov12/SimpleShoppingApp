@@ -54,6 +54,7 @@ namespace SimpleShoppingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Make(MakeOrderInputModel model)
         {
+            string cartViewLocation = "~/Views/Cart/Index.cshtml";
             string userId = User.GetId();
             if (!ModelState.IsValid)
             {
@@ -64,17 +65,12 @@ namespace SimpleShoppingApp.Web.Controllers
                 }
                 model.Addresses = await addressesService.GetAllForUserAsync(userId);
                 viewModel.Input = model;
-                return View("~/Views/Cart/Index.cshtml", viewModel);
+                return View(cartViewLocation, viewModel);
             }
 
             var addResult = await ordersService.AddAsync(model, userId);
 
-            if (addResult == MakeOrderResult.NotFound)
-            {
-                return NotFound();
-            }
-
-            if (addResult == MakeOrderResult.InvalidQuantity)
+            if (addResult.Result == MakeOrderResult.NotSpecifiedAddress)
             {
                 var viewModel = await cartsService.GetAsync(userId);
                 if (viewModel == null)
@@ -83,8 +79,52 @@ namespace SimpleShoppingApp.Web.Controllers
                 }
                 model.Addresses = await addressesService.GetAllForUserAsync(userId);
                 viewModel.Input = model;
-                ModelState.AddModelError("", "Invalid quantity to one or more products.");
-                return View("~/Views/Cart/Index.cshtml", viewModel);
+                ModelState.AddModelError(string.Empty, addResult.ErrorMessage ?? string.Empty);
+                return View(cartViewLocation, viewModel);
+            }
+
+            if (addResult.Result == MakeOrderResult.InvalidAddress)
+            {
+                var viewModel = await cartsService.GetAsync(userId);
+                if (viewModel == null)
+                {
+                    return NotFound();
+                }
+                model.Addresses = await addressesService.GetAllForUserAsync(userId);
+                viewModel.Input = model;
+                ModelState.AddModelError(string.Empty, addResult.ErrorMessage ?? string.Empty);
+                return View(cartViewLocation, viewModel);
+            }
+
+            if (addResult.Result == MakeOrderResult.SomethingWentWrong)
+            {
+                var viewModel = await cartsService.GetAsync(userId);
+                if (viewModel == null)
+                {
+                    return NotFound();
+                }
+                model.Addresses = await addressesService.GetAllForUserAsync(userId);
+                viewModel.Input = model;
+                ModelState.AddModelError(string.Empty, addResult.ErrorMessage ?? string.Empty);
+                return View(cartViewLocation, viewModel);
+            }
+
+            if (addResult.Result == MakeOrderResult.InvalidQuantity)
+            {
+                var viewModel = await cartsService.GetAsync(userId);
+                if (viewModel == null)
+                {
+                    return NotFound();
+                }
+                model.Addresses = await addressesService.GetAllForUserAsync(userId);
+                viewModel.Input = model;
+                ModelState.AddModelError(string.Empty, addResult.ErrorMessage ?? string.Empty);
+                return View(cartViewLocation, viewModel);
+            }
+
+            if (addResult.Result == MakeOrderResult.NotFound)
+            {
+                return NotFound();
             }
 
             int cartId = await cartsService.GetIdAsync(userId);
@@ -105,17 +145,6 @@ namespace SimpleShoppingApp.Web.Controllers
             return Redirect("/");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddAddress(AddAddressInputModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-            string userId = User.GetId();
-            var addedAddress = await addressesService.AddAsync(model.Name, userId);
-            return Json(addedAddress);
-        }
 
         public async Task<IActionResult> Details(int id)
         {

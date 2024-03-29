@@ -53,7 +53,7 @@ $(".quantity-input").on("keyup change", function () {
                         else {
                             let quantityLeft = data.updatedQuantity;
                             if (data.isThereLessThanRequested) {
-                                alert(`There are ${quantityLeft} ${productName}s left.`);
+                                alert(`There are ${quantityLeft} ${productName} left.`);
                             }
 
                             quantityInput.val(quantityLeft);
