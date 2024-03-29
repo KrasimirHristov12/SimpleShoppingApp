@@ -9,6 +9,7 @@ using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.NameShortener;
 using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
@@ -55,6 +56,8 @@ builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IAddressesService, AddressesService>();
 builder.Services.AddScoped<IEmailsService, EmailsService>();
 builder.Services.AddScoped<INotificationsService, NotificationsService>();
+builder.Services.AddSingleton<INameShortener, NameShortener>();
+
 
 
 var app = builder.Build();

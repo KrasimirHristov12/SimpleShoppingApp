@@ -10,15 +10,12 @@ namespace SimpleShoppingApp.Web.Controllers
 {
     public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IProductsService productsService;
         private readonly ICategoriesService categoriesService;
 
-        public HomeController(ILogger<HomeController> logger, 
-            IProductsService _productsService,
+        public HomeController(IProductsService _productsService,
             ICategoriesService _categoriesService)
         {
-            _logger = logger;
             productsService = _productsService;
             categoriesService = _categoriesService;
         }
@@ -32,7 +29,7 @@ namespace SimpleShoppingApp.Web.Controllers
 
             model.TotalCategoriesCount = await categoriesService.GetCountAsync();
 
-            model.RandomProducts = await productsService.GetRandomProductsAsync(9);
+            model.RandomProducts = await productsService.GetRandomProductsAsync(12);
 
             return View(model);
         }
