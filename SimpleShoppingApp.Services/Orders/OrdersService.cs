@@ -4,6 +4,7 @@ using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Extensions;
 using SimpleShoppingApp.Models.Orders;
+using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
@@ -236,6 +237,13 @@ namespace SimpleShoppingApp.Services.Orders
                         Name = op.Product.Name,
                         Price = op.Product.Price,
                         Quantity = op.Quantity,
+                        Image = op.Product.Images.Select(i => new ImageViewModel
+                        {
+                            Extension = i.Extension,
+                            Name = i.Name,
+                            ImageUrl = i.ImageUrl,
+
+                        }).First()
                     }).ToList(),
                 })
                 .FirstOrDefaultAsync();

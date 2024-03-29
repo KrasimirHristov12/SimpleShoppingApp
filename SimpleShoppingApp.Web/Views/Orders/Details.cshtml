@@ -24,18 +24,20 @@
                     </div>
                     @foreach (var prod in Model.Products)
                     {
-                        <div class="card-body p-4 border-bottom">
-                            <div class="d-flex flex-row mb-4 pb-2">
-                                <div class="me-2">
-                                    <img width="100px" src="/images/products/@(prod.Image.Name + prod.Image.Extension)" />
-                               </div>
-                                <div class="flex-fill">
-                                    <h5 class="bold">@(prod.Name)</h5>
-                                    <p class="text-muted"> Qt: @prod.Quantity @(prod.Quantity == 1 ? "item" : "items")</p>
-                                    <h4 class="mb-3"> $@(prod.Price)</h4>
+                        <a class="link-dark link-underline-opacity-0" asp-controller="Products" asp-action="Index" asp-route-id="@prod.Id">
+                            <div class="card-body p-4 border-bottom">
+                                <div class="d-flex flex-row mb-4 pb-2">
+                                    <div class="me-2">
+                                        <img width="100px" src="@(!string.IsNullOrWhiteSpace(prod.Image.Name) && !string.IsNullOrWhiteSpace(prod.Image.Extension) ? "/images/products/" + prod.Image.Name + prod.Image.Extension : prod.Image.ImageUrl)" />
+                                    </div>
+                                    <div class="flex-fill">
+                                        <h5 class="bold">@(prod.Name)</h5>
+                                        <p class="text-muted"> Qt: @prod.Quantity @(prod.Quantity == 1 ? "item" : "items")</p>
+                                        <h4 class="mb-3"> $@(prod.Price)</h4>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     }
                 </div>
                 <div class="card card-footer p-4">

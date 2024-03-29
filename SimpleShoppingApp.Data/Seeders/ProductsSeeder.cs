@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
 
@@ -10,13 +11,19 @@ namespace SimpleShoppingApp.Data.Seeders
     {
         private readonly IRepository<Product> productsRepo;
         private readonly IRepository<Category> categoriesRepo;
+        private readonly IRepository<ApplicationUser> usersRepo;
+        private readonly IConfiguration configuration;
         private readonly IDictionary<string, int> categoryDict;
 
         public ProductsSeeder(IRepository<Product> _productsRepo,
-            IRepository<Category> _categoriesRepo)
+            IRepository<Category> _categoriesRepo,
+            IRepository<ApplicationUser> _usersRepo,
+            IConfiguration _configuration)
         {
             productsRepo = _productsRepo;
             categoriesRepo = _categoriesRepo;
+            usersRepo = _usersRepo;
+            configuration = _configuration;
             categoryDict = new Dictionary<string, int>();
         }
         public async Task SeedAsync()
@@ -224,6 +231,7 @@ namespace SimpleShoppingApp.Data.Seeders
 
                     if (categoryDict.ContainsKey(categoryName))
                     {
+                        string adminUserId = await GetAdminIdAsync();
                         var product = new Product
                         {
                             Name = productName,
@@ -231,7 +239,7 @@ namespace SimpleShoppingApp.Data.Seeders
                             Price = productPriceDecimal,
                             CategoryId = categoryDict[categoryName],
                             Quantity = 1000,
-                            UserId = "e6cc76b9-19a0-4753-bcac-cea4a41df3b3",
+                            UserId = adminUserId,
                         };
 
                         if (imagesLinks != null)
@@ -267,6 +275,15 @@ namespace SimpleShoppingApp.Data.Seeders
                 return null;
             }
 
+        }
+
+        private async Task<string> GetAdminIdAsync()
+        {
+            var adminEmail = configuration["AdminAccount:Email"];
+            return await usersRepo.AllAsNoTracking()
+                .Where(u => u.Email == adminEmail)
+                .Select(u => u.Id)
+                .FirstAsync();
         }
     }
 }
