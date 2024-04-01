@@ -12,10 +12,16 @@
             productId: idOfProduct,
         },
         success: function (data) {
-            let deletedProductId = data.productId;
             removeBtn.closest(".product").next().remove();
             removeBtn.closest(".product").remove();
-            $(".products-count").text(data.newCount);
+            let newProductsLength = data.newCount
+            const products = $(".product");
+            for (let i = 0; i < products.length; i++) {
+                let quantity = "quantities[" + i + "]";
+                products.eq(i).find(".quantity-input").prop("id", quantity).prop("name", quantity);
+                products.eq(i).find(".quantity-input").prev().prop("for", quantity);
+            }
+            $(".products-count").text(newProductsLength);
             $(".total-price").text('$' + parseFloat(data.newTotalPrice).toFixed(2));
         },
         dataType: "json",

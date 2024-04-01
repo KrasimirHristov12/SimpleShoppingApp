@@ -175,19 +175,7 @@ namespace SimpleShoppingApp.Services.Orders
             int deliveryDays = orderInfo.Order.DeliveryDays;
             var paymentMethod = orderInfo.Order.PaymentMethod;
             decimal orderTotalPrice = orderInfo.Order.TotalPrice;
-            string tableHtml = "<table><tr><th style=\"border: 1px solid #ddd;\"></th><th style=\"border: 1px solid #ddd;\">Name</th><th style=\"border: 1px solid #ddd;\">Quantity</th><th style=\"border: 1px solid #ddd;\">Price</th></tr>";
-            foreach (var prod in orderInfo.Products)
-            {
-                tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\"><img width=\"100px\" src=\"https://localhost:7287/images/products/{prod.Image.Name}{prod.Image.Extension}\"/></td><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
-            }
-            tableHtml += "</table><hr/><br/>";
-            string priceHtml = $"<div><b>Total Price</b>: ${orderTotalPrice:F2}</div>";
-            string addressHtml = $"<div><b>Address</b>: {address}</div>";
-            string paymentHtml = $"<div><b>Payment Method</b>: {paymentMethod}</div>";
-            string deliveryHtml = $"<div><b>Delivery Days</b>: {deliveryDays} days from now.</div>";
-            string emailSubject = $"Order #{order.Id}";
-            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{tableHtml}{addressHtml}{deliveryHtml}{paymentHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
-            var emailResult = await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
+            await SendEmailAsync(order.Id, email, fullName, orderInfo.Products, address, deliveryDays, paymentMethod, orderTotalPrice);
 
             for (int i = 0; i < model.ProductIds.Count; i++)
             {
@@ -329,6 +317,24 @@ namespace SimpleShoppingApp.Services.Orders
 
             return orderProduct;
 
+        }
+
+        private async Task SendEmailAsync(int orderId, string email, string fullName, IEnumerable<OrderProductDetailsViewModel> products, string address, int deliveryDays, string paymentMethod, decimal orderTotalPrice)
+        {
+            string tableHtml = "<table style=\"max-width: 600px;\"><tr><th style=\"border: 1px solid #ddd;\"></th><th style=\"border: 1px solid #ddd;\">Name</th><th style=\"border: 1px solid #ddd;\">Quantity</th><th style=\"border: 1px solid #ddd;\">Price</th></tr>";
+            foreach (var prod in products)
+            {
+                var imagePath = !string.IsNullOrWhiteSpace(prod.Image.Name) && !string.IsNullOrWhiteSpace(prod.Image.Extension) ? "https://localhost:7287/images/products/" + prod.Image.Name + prod.Image.Extension : prod.Image.ImageUrl;
+                tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\"><img width=\"50px\" src=\"{imagePath}\"/></td><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
+            }
+            tableHtml += "</table><hr/><br/>";
+            string priceHtml = $"<div><b>Total Price</b>: ${orderTotalPrice:F2}</div>";
+            string addressHtml = $"<div><b>Address</b>: {address}</div>";
+            string paymentHtml = $"<div><b>Payment Method</b>: {paymentMethod}</div>";
+            string deliveryHtml = $"<div><b>Delivery Days</b>: {deliveryDays} days from now.</div>";
+            string emailSubject = $"Order #{orderId}";
+            string emailContent = $"Hi {fullName},<br/><br/>Thanks for the order!<br/><br/><b>Order Details</b>:<br/><br/>{tableHtml}{addressHtml}{deliveryHtml}{paymentHtml}{priceHtml}<br/><br/>Best regards,<br/>SimpleShoppingApp Team";
+            await emailsService.SendAsync(email, fullName, emailSubject, emailContent);
         }
     }
 }
