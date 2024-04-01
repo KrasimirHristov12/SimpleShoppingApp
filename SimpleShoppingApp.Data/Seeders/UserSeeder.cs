@@ -19,7 +19,7 @@ namespace SimpleShoppingApp.Data.Seeders
         {
             string adminEmail = config["AdminAccount:Email"];
             string password = config["AdminAccount:Password"];
-            var adminUser = userManager.FindByEmailAsync(adminEmail);
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)
             {
                 var user = new ApplicationUser

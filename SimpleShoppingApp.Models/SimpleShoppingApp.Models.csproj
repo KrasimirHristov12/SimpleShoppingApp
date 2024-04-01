@@ -13,7 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SimpleShoppingApp.Data\SimpleShoppingApp.Data.csproj" />
     <ProjectReference Include="..\SimpleShoppingApp.ValidationAttributes\SimpleShoppingApp.ValidationAttributes.csproj" />
-    <ProjectReference Include="..\SimpleShoppingApp.Web.ValidationAttributes\SimpleShoppingApp.ValidationAttributes.csproj" />
   </ItemGroup>
 
 </Project>

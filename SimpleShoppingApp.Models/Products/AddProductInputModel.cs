@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using SimpleShoppingApp.ValidationAttributes;
-using SimpleShoppingApp.Web.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 

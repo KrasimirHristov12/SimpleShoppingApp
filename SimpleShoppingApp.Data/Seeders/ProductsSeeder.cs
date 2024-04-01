@@ -14,6 +14,7 @@ namespace SimpleShoppingApp.Data.Seeders
         private readonly IRepository<ApplicationUser> usersRepo;
         private readonly IConfiguration configuration;
         private readonly IDictionary<string, int> categoryDict;
+        private string? adminId;
 
         public ProductsSeeder(IRepository<Product> _productsRepo,
             IRepository<Category> _categoriesRepo,
@@ -231,7 +232,11 @@ namespace SimpleShoppingApp.Data.Seeders
 
                     if (categoryDict.ContainsKey(categoryName))
                     {
-                        string adminUserId = await GetAdminIdAsync();
+                        if (adminId == null)
+                        {
+                             adminId = await GetAdminIdAsync();
+                        }
+                        
                         var product = new Product
                         {
                             Name = productName,
@@ -239,7 +244,7 @@ namespace SimpleShoppingApp.Data.Seeders
                             Price = productPriceDecimal,
                             CategoryId = categoryDict[categoryName],
                             Quantity = 1000,
-                            UserId = adminUserId,
+                            UserId = adminId,
                         };
 
                         if (imagesLinks != null)

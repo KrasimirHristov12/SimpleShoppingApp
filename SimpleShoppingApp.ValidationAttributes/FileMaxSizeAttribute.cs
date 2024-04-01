@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace SimpleShoppingApp.Web.ValidationAttributes
+namespace SimpleShoppingApp.ValidationAttributes
 {
     public class FileMaxSizeAttribute : ValidationAttribute
     {

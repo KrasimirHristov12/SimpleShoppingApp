@@ -78,8 +78,8 @@ using (var serviceScope = app.Services.CreateScope())
     var userSeeder = serviceScope.ServiceProvider.GetRequiredService<UserSeeder>();
     var productsSeeder = serviceScope.ServiceProvider.GetRequiredService<ProductsSeeder>();
     var categoriesSeeder = serviceScope.ServiceProvider.GetRequiredService<CategoriesSeeder>();
-    //adminRoleSeeder.SeedAsync().GetAwaiter().GetResult();
-    //userSeeder.SeedAsync().GetAwaiter().GetResult();
+    await adminRoleSeeder.SeedAsync();
+    await userSeeder.SeedAsync();
     await categoriesSeeder.SeedAsync();
     await productsSeeder.SeedAsync();
 }
