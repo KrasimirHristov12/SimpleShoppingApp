@@ -10,7 +10,7 @@ const urlObj = {
     prices: [],
     ratings: [],
     page: 1,
-    productsPerPage: 5,
+    productsPerPage: 12,
     categoryId: categoryId,
 
 };

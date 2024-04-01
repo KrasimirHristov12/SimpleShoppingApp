@@ -27,7 +27,7 @@ namespace SimpleShoppingApp.Web.Controllers.Api
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> AddUpdateRating([FromForm]AddUpdateProductRatingJsonModel model)
+        public async Task<ActionResult<double>> AddUpdateRating([FromForm]AddUpdateProductRatingJsonModel model)
         {
             string loggedInUserId = User.GetId();
             var ratingModel = await productsService.AddRatingFromUserAsync(model.ProductId, loggedInUserId, model.Rating);

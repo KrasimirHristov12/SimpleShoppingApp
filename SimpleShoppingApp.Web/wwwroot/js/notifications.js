@@ -1,6 +1,7 @@
 ﻿$(".list-group-item a").on("click", function (e) {
-
+    e.preventDefault();
     const currentClickedLink = $(this);
+    const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
 
     e.preventDefault();
 
@@ -8,11 +9,13 @@
     $.ajax({
         type: "POST",
         url: "/Notifications/Read",
+        headers: {
+            'X-CSRF-TOKEN': verificationToken
+        },
         data: {
             notificationId: notificationId,
         },
         success: function () {
-            console.log("test");
             window.open(currentClickedLink.attr("href"));
         },
     });

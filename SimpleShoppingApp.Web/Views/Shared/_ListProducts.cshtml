@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<ListProductsViewModel>
-@inject INameShortener nameShortener;
+@inject INameShortenerService nameShortener;
 @{
     var Products = Model.ToList();
 }

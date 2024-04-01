@@ -70,43 +70,7 @@ namespace SimpleShoppingApp.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteProduct(int productId)
-        {
-            string userId = User.GetId();
 
-            int cartId = await cartService.GetIdAsync(userId);
 
-            var removedProductInfo = await cartService.RemoveProductAsync(cartId, productId, userId);
-
-            if (removedProductInfo.Result == AddUpdateDeleteResult.NotFound)
-            {
-                return NotFound();
-            }
-
-            if (removedProductInfo.Result == AddUpdateDeleteResult.Forbidden)
-            {
-                return Forbid();
-            }
-            
-            return Ok(removedProductInfo.Model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateQuantity(int productId, int updatedQuantity)
-        {
-            var userId = User.GetId();
-            var cartId = await cartService.GetIdAsync(userId);
-
-            var updatedInfo = await cartService.UpdateQuantityInCartAsync(cartId, productId, updatedQuantity, userId);
-
-            if (updatedInfo == null)
-            {
-                return NotFound();
-            }
-
-            return Json(updatedInfo.Model);
-
-        }
     }
 }

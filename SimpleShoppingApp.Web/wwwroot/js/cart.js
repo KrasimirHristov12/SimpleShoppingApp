@@ -1,9 +1,13 @@
 ﻿$(".remove-btn").on("click", function () {
     let removeBtn = $(this);
+    const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
     let idOfProduct = removeBtn.closest(".product").find("input:hidden").val();
     $.ajax({
         type: "POST",
         url: "/Cart/DeleteProduct",
+        headers: {
+            'X-CSRF-TOKEN': verificationToken
+        },
         data: {
             productId: idOfProduct,
         },
@@ -43,11 +47,15 @@ $("#PhoneNumber").on("keyup", function () {
 
 $(".modal-address-footer .submit").on("click", function () {
     let address = $(".modal input#Name");
+    const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
     if (address.val()) {
 
         $.ajax({
             type: "POST",
             url: "/Addresses/AddAddress",
+            headers: {
+                'X-CSRF-TOKEN': verificationToken
+            },
             data: {
                 name: address.val(),
             },

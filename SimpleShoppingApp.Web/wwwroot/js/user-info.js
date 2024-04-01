@@ -1,5 +1,6 @@
 ﻿console.log("test")
-$(".edit-btn").on("click", function () {
+$(".edit-btn").on("click", function (e) {
+    e.preventDefault();
     let spanEdit = $(this).closest("li").find("span.edit-block");
     if (spanEdit.hasClass("d-none")) {
         spanEdit.removeClass("d-none").addClass("d-inline");
@@ -24,11 +25,12 @@ const obj = {
         propName: "phoneNumber",
     },
 }
-$(".save-btn").on("click", function () {
+$(".save-btn").on("click", function (e) {
+    e.preventDefault();
     let editBlock = $(this).closest("span.edit-block");
     let updatedValue = editBlock.find("input:text").val();
+    const verificationToken = $("[name='__RequestVerificationToken']").eq(1).attr("value");
     for (const [key, value] of Object.entries(obj)) {
-
 
         if (editBlock.hasClass(key)) {
 
@@ -42,6 +44,9 @@ $(".save-btn").on("click", function () {
                 type: "POST",
                 url: `/Users/${url}`,
                 contentType: "application/json",
+                headers: {
+                    'X-CSRF-TOKEN': verificationToken, 
+                },
                 data: JSON.stringify(objToSent),
                 success: function (data) {
                     console.log(data);

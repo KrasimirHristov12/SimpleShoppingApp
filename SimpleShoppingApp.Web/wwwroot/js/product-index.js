@@ -35,12 +35,16 @@ $(".bi-star-fill").on("mouseleave", function () {
 
 
 $(".bi-star-fill").on("click", function () {
+    const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
     let rating = $(".bi-star-fill").index($(this)) + 1;
     $(".bi-star-fill").removeClass("stars-yellow");
     let productId = $(".productId").val();
     $.ajax({
         type: "POST",
         url: "/Products/AddUpdateRating",
+        headers: {
+            'X-CSRF-TOKEN': verificationToken 
+        },
         data: {
             productId: productId,
             rating: rating,

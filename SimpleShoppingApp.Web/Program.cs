@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleShoppingApp.Data;
 using SimpleShoppingApp.Data.Models;
@@ -35,7 +36,16 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 }).AddRoles<IdentityRole>()
    .AddEntityFrameworkStores<ApplicationDbContext>()
    .AddDefaultTokenProviders();
-builder.Services.AddControllersWithViews();
+
+builder.Services.AddAntiforgery(opt =>
+{
+    opt.HeaderName = "X-CSRF-TOKEN";
+});
+
+builder.Services.AddControllersWithViews(opt =>
+{
+    opt.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -56,7 +66,7 @@ builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IAddressesService, AddressesService>();
 builder.Services.AddScoped<IEmailsService, EmailsService>();
 builder.Services.AddScoped<INotificationsService, NotificationsService>();
-builder.Services.AddSingleton<INameShortener, NameShortener>();
+builder.Services.AddSingleton<INameShortenerService, NameShortenerService>();
 
 
 

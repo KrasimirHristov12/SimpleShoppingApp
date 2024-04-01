@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimpleShoppingApp.Data.Enums;
-using SimpleShoppingApp.Models.Addresses;
+using SimpleShoppingApp.Extensions;
 using SimpleShoppingApp.Models.Orders;
 using SimpleShoppingApp.Services.Addresses;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Orders;
-using SimpleShoppingApp.Extensions;
-using SimpleShoppingApp.Services.Notifications;
-using SimpleShoppingApp.Services.Products;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -19,9 +16,7 @@ namespace SimpleShoppingApp.Web.Controllers
 
         public OrdersController(IOrdersService _ordersService,
             ICartsService _cartsService,
-            IAddressesService _addressesService,
-            INotificationsService _notificationsService,
-            IProductsService _productsService)
+            IAddressesService _addressesService)
         {
             ordersService = _ordersService;
             cartsService = _cartsService;
@@ -32,23 +27,6 @@ namespace SimpleShoppingApp.Web.Controllers
             string userId = User.GetId();
             var deliveredOrders = await ordersService.GetByStatusAsync(OrderStatus.Delivered, userId);
             return View(deliveredOrders);
-        }
-
-        public async Task<IActionResult> GetByStatus(int status)
-        {
-            if (!Enum.IsDefined(typeof(OrderStatus), status))
-            {
-                return NotFound();
-                
-            }
-            string userId = User.GetId();
-
-            var orderStatus = (OrderStatus)status;
-
-            var orders = await ordersService.GetByStatusAsync(orderStatus, userId);
-
-            return Json(orders);
-
         }
 
         [HttpPost]

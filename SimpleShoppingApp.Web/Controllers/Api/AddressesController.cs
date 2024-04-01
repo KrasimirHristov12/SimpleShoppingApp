@@ -16,7 +16,7 @@ namespace SimpleShoppingApp.Web.Controllers.Api
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> AddAddress([FromForm]AddAddressInputModel model)
+        public async Task<ActionResult<AddressViewModel>> AddAddress([FromForm]AddAddressInputModel model)
         {
             if (!ModelState.IsValid)
             {

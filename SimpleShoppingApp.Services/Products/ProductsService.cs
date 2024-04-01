@@ -7,6 +7,7 @@ using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.NameShortener;
 using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Users;
 
@@ -20,6 +21,7 @@ namespace SimpleShoppingApp.Services.Products
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
         private readonly INotificationsService notificationsService;
+        private readonly INameShortenerService shortenerService;
 
         public ProductsService(
             IRepository<Product> _productsRepo,
@@ -27,7 +29,8 @@ namespace SimpleShoppingApp.Services.Products
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
             IUsersService _usersService,
-            INotificationsService _notificationsService)
+            INotificationsService _notificationsService,
+            INameShortenerService _shortenerService)
         {
             productsRepo = _productsRepo;
             usersRatingRepo = _usersRatingRepo;
@@ -35,6 +38,7 @@ namespace SimpleShoppingApp.Services.Products
             categoriesService = _categoriesService;
             usersService = _usersService;
             notificationsService = _notificationsService;
+            shortenerService = _shortenerService;
         }
 
         public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId, string imagesDirectory)
@@ -201,6 +205,7 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in products)
             {
+
                 var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {
@@ -224,27 +229,10 @@ namespace SimpleShoppingApp.Services.Products
                 return null;
             }
 
-            List<ListProductsViewModel> products = new List<ListProductsViewModel>();
-
             var productsQuery = productsRepo.AllAsNoTracking()
             .Where(p => p.CategoryId == model.CategoryId && !p.IsDeleted);
 
-            if (model.Prices.Count() == 0 && model.Ratings.Count() == 0)
-            {
-                products =  await productsQuery
-                .Skip((model.Page - 1) * model.ProductsPerPage)
-                .Take(model.ProductsPerPage)
-                .Select(p => new ListProductsViewModel
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Price = p.Price,
-                    Rating = p.Rating,
-
-                }).ToListAsync();
-            }
-
-            else
+            if (model.Prices.Count() > 0 || model.Ratings.Count() > 0)
             {
                 var predicatePrice = PredicateBuilder.New<Product>();
                 var predicateRating = PredicateBuilder.New<Product>();
@@ -287,24 +275,24 @@ namespace SimpleShoppingApp.Services.Products
                     productsQuery = productsQuery.Where(predicateRating);
                 }
 
-
-                products = await productsQuery
-                    .Skip((model.Page - 1) * model.ProductsPerPage)
-                    .Take(model.ProductsPerPage)
-                    .Select(p => new ListProductsViewModel
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Price = p.Price,
-                        Rating = p.Rating,
-                    })
-                    .ToListAsync();
-
             }
+
+            var products = await productsQuery
+                .Skip((model.Page - 1) * model.ProductsPerPage)
+                .Take(model.ProductsPerPage)
+                .Select(p => new ListProductsViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Rating = p.Rating,
+                })
+                .ToListAsync();
 
 
             foreach (var product in products)
             {
+                product.Name = shortenerService.Shorten(50, product.Name);
                 var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {

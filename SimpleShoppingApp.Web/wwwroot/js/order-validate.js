@@ -32,6 +32,7 @@ $(".quantity-input").on("keyup change", function () {
     else {
 
         let quantityInput = $(this)
+        const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
         let updatedQuantity = quantityInput.val();
         let productName = quantityInput.closest(".row").find("p strong").eq(0).text();
         if (!isNaN(updatedQuantity)) {
@@ -41,6 +42,9 @@ $(".quantity-input").on("keyup change", function () {
                 $.ajax({
                     type: "POST",
                     url: "/Cart/UpdateQuantity",
+                    headers: {
+                        'X-CSRF-TOKEN': verificationToken
+                    },
                     data: {
                         productId: idOfProduct,
                         updatedQuantity: updatedQuantityNum.toString(),

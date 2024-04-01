@@ -1,6 +1,6 @@
 ﻿namespace SimpleShoppingApp.Services.NameShortener
 {
-    public class NameShortener : INameShortener
+    public class NameShortenerService : INameShortenerService
     {
         public string Shorten(int symbolsToDisplay, string name)
         {
