@@ -1,1 +1,2 @@
 # SimpleShoppingApp
+Education project
