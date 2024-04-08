@@ -87,6 +87,11 @@ namespace SimpleShoppingApp.Services.Addresses
 
         public async Task<bool> DoesAddressExistAsync(int id)
         {
+            if (id <= 0)
+            {
+                return false;
+            }
+
             return await addressesRepo
                 .AllAsNoTracking()
                 .AnyAsync(a => a.Id == id);

@@ -275,6 +275,7 @@ namespace SimpleShoppingApp.Web.Controllers
             }
 
             await signInManager.SignOutAsync();
+
             string email = user.Email;
             string subject = "Password changed";
             string content = "You have successfully changed your password!";

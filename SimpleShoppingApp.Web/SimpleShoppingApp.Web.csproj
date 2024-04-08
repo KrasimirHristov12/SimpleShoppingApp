@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ModelBinders\" />
     <Folder Include="wwwroot\images\products\" />
   </ItemGroup>
 

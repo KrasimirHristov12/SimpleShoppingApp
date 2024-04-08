@@ -8,7 +8,6 @@ using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
 using SimpleShoppingApp.Extensions;
-using System.Security.Claims;
 
 namespace SimpleShoppingApp.Web.Controllers
 {

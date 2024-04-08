@@ -31,11 +31,11 @@ namespace SimpleShoppingApp.Data.Seeders
         {
             if (productsRepo.AllAsNoTracking().Count() == 0)
             {
-                var categoriesLinks = GetCategoriesLinks();
+                var categoriesLinks = GetCategoriesLinks(10);
 
                 foreach (var categoryLink in categoriesLinks)
                 {
-                    var productLinks = await GetProductsLinksAsync(categoryLink, 20);
+                    var productLinks = await GetProductsLinksAsync(categoryLink, 10);
                     if (productLinks != null)
                     {
                         foreach (var productLink in productLinks)
