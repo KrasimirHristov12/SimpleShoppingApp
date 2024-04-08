@@ -14,7 +14,26 @@ namespace SimpleShoppingApp.Services.Categories
             categoryRepo = _categoryRepo;
         }
 
-        public async Task<bool> DoesCategoryExist(int id)
+        public async Task<bool> AddAsync(string name)
+        {
+            if (categoryRepo.AllAsNoTracking().Any(c => !c.IsDeleted && c.Name == name))
+            {
+                return false;
+            }
+
+            var category = new Category
+            {
+                Name = name,
+            };
+
+            await categoryRepo.AddAsync(category);
+
+            await categoryRepo.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DoesCategoryExistAsync(int id)
         {
             if (id <= 0)
             {

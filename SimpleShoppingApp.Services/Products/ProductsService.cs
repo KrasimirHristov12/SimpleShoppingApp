@@ -52,7 +52,7 @@ namespace SimpleShoppingApp.Services.Products
                 };
             }
 
-            if (!await categoriesService.DoesCategoryExist(model.CategoryId))
+            if (!await categoriesService.DoesCategoryExistAsync(model.CategoryId))
             {
                 return new AddProductModel
                 {
@@ -224,7 +224,7 @@ namespace SimpleShoppingApp.Services.Products
                 return null;
             }
 
-            if (!await categoriesService.DoesCategoryExist(model.CategoryId))
+            if (!await categoriesService.DoesCategoryExistAsync(model.CategoryId))
             {
                 return null;
             }
@@ -436,7 +436,7 @@ namespace SimpleShoppingApp.Services.Products
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            if (!await categoriesService.DoesCategoryExist(model.CategoryId))
+            if (!await categoriesService.DoesCategoryExistAsync(model.CategoryId))
             {
                 return AddUpdateDeleteResult.NotFound;
             }

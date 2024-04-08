@@ -4,7 +4,11 @@ namespace SimpleShoppingApp.Services.Categories
 {
     public interface ICategoriesService
     {
-        Task<bool> DoesCategoryExist(int id);
+
+        Task<bool> AddAsync(string name);
+
+        Task<bool> DoesCategoryExistAsync(int id);
+
         Task<IEnumerable<CategoryViewModel>> GetAllAsync();
 
         Task<int> GetCountAsync();
