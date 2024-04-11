@@ -11,7 +11,7 @@
                 <div class="card">
                 <img src="@(!string.IsNullOrWhiteSpace(Products[i].Image.Name) && !string.IsNullOrWhiteSpace(Products[i].Image.Extension) ? $"/images/products/{Products[i].Image.Name}{Products[i].Image.Extension}" : Products[i].Image.ImageUrl)" class="card-img-top product-img" alt="@Products[i].Name Image" />
                     <div class="card-body">
-                        <h5 class="card-title">@nameShortener.Shorten(50, Products[i].Name)</h5>
+                        <h5 class="card-title">@nameShortener.Shorten(Products[i].Name)</h5>
                         <p class="card-text">Rating: @Products[i].Rating<br /><br /><span class="text-danger fw-bold fs-6">$@Products[i].Price</span></p>
                     </div>
                 </div>

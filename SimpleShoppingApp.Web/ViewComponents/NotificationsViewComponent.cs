@@ -16,7 +16,7 @@ namespace SimpleShoppingApp.Web.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var userId = UserClaimsPrincipal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var notifications = await notificationsService.GetNotificationsAsync(1, 10, userId);
+            var notifications = await notificationsService.GetNotificationsAsync(10, userId);
             return View(notifications);
         }
     }

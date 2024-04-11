@@ -2,7 +2,7 @@
 {
     public class NameShortenerService : INameShortenerService
     {
-        public string Shorten(int symbolsToDisplay, string name)
+        public string Shorten(string name, int symbolsToDisplay = 50)
         {
             int length = symbolsToDisplay >= name.Length ? name.Length : symbolsToDisplay;
             string shortenedName = name.Substring(0, length);

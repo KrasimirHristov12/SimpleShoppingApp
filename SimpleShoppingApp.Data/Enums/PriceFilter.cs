@@ -2,12 +2,12 @@
 {
     public enum PriceFilter
     {
-        OneToFifty,
-        FiftyOneToTwoHundred,
-        TwoHundredOneToFiveHundred,
-        FiveHundredOneToOneThousand,
-        OneThousandToOneThousandFourHundredNinetyNine,
-        OneThousandFiveHundredOrMore
+        ZeroToFifty,
+        FiftyToTwoHundred,
+        TwoHundredToFiveHundred,
+        FiveHundredToNineHundredNinetyNine,
+        NineHundredNinetyNineToOneThousandFourHundredNinetyNine,
+        OverOneThousandFourHundredNinetyNine,
 
     }
 }

@@ -1,4 +1,4 @@
-﻿$(".list-group-item a").on("click", function (e) {
+﻿$(".notifications-container .list-group-item a").on("click", function (e) {
     e.preventDefault();
     const currentClickedLink = $(this);
     const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
@@ -16,7 +16,7 @@
             notificationId: notificationId,
         },
         success: function () {
-            window.open(currentClickedLink.attr("href"));
+            window.open(currentClickedLink.attr("href"), "_top");
         },
     });
 });

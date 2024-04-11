@@ -241,12 +241,12 @@ namespace SimpleShoppingApp.Services.Products
                 {
                     predicatePrice = priceFilter switch
                     {
-                        PriceFilter.OneToFifty => predicatePrice.Or(p => p.Price >= 1 && p.Price <= 50),
-                        PriceFilter.FiftyOneToTwoHundred => predicatePrice.Or(p => p.Price >= 51 && p.Price <= 200),
-                        PriceFilter.TwoHundredOneToFiveHundred => predicatePrice.Or(p => p.Price >= 201 && p.Price <= 500),
-                        PriceFilter.FiveHundredOneToOneThousand => predicatePrice.Or(p => p.Price >= 501 && p.Price <= 1000),
-                        PriceFilter.OneThousandToOneThousandFourHundredNinetyNine => predicatePrice.Or(p => p.Price >= 1000 && p.Price <= 1499),
-                        PriceFilter.OneThousandFiveHundredOrMore => predicatePrice.Or(p => p.Price >= 1500),
+                        PriceFilter.ZeroToFifty => predicatePrice.Or(p => p.Price > 0 && p.Price <= 50),
+                        PriceFilter.FiftyToTwoHundred => predicatePrice.Or(p => p.Price > 50 && p.Price <= 200),
+                        PriceFilter.TwoHundredToFiveHundred => predicatePrice.Or(p => p.Price > 200 && p.Price <= 500),
+                        PriceFilter.FiveHundredToNineHundredNinetyNine => predicatePrice.Or(p => p.Price > 500 && p.Price <= 999),
+                        PriceFilter.NineHundredNinetyNineToOneThousandFourHundredNinetyNine => predicatePrice.Or(p => p.Price > 999 && p.Price <= 1499),
+                        PriceFilter.OverOneThousandFourHundredNinetyNine => predicatePrice.Or(p => p.Price > 1499),
                         _ => predicatePrice,
                     };
                 }
@@ -292,7 +292,7 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in products)
             {
-                product.Name = shortenerService.Shorten(50, product.Name);
+                product.Name = shortenerService.Shorten(name: product.Name);
                 var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {
@@ -616,10 +616,14 @@ namespace SimpleShoppingApp.Services.Products
                     Result = AddUpdateDeleteResult.Success,
                 };
             }
-
+            
             userProductRating.Rating = rating;
             await usersRatingRepo.SaveChangesAsync();
+
             var avgRating = await GetAverageRatingAsync(productId);
+            product.Rating = avgRating;
+            await productsRepo.SaveChangesAsync();
+
             return new ProductRatingViewModel
             {
                 AvgRating = avgRating,

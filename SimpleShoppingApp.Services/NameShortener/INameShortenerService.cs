@@ -2,6 +2,6 @@
 {
     public interface INameShortenerService
     {
-        string Shorten(int symbolsToDisplay, string name);
+        string Shorten(string name, int symbolsToDisplay = 50);
     }
 }

@@ -15,6 +15,7 @@ using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
+using SimpleShoppingApp.Web.ModelBinders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +45,7 @@ builder.Services.AddAntiforgery(opt =>
 
 builder.Services.AddControllersWithViews(opt =>
 {
+    opt.ModelBinderProviders.Insert(0, new DecimalModelBinderProvider());
     opt.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
 builder.Services.ConfigureApplicationCookie(options =>

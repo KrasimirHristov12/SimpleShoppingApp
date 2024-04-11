@@ -51,10 +51,10 @@ namespace SimpleShoppingApp.Services.Notifications
 
         }
 
-        public async Task<NotificationsViewModel> GetNotificationsAsync(int page, int numberOfElements, string userId)
+        public async Task<NotificationsViewModel> GetNotificationsAsync(int numberOfElements, string userId)
         {
             var newNotificationsCount = await GetNewNotificationsCountAsync(userId);
-            var notifications = await notificationsRepo.AllAsNoTracking()
+            var notificationsQuery = notificationsRepo.AllAsNoTracking()
                 .Where(n => n.ReceiverUserId == userId && !n.IsDeleted)
                 .Select(n => new NotificationViewModel
                 {
@@ -63,10 +63,22 @@ namespace SimpleShoppingApp.Services.Notifications
                     Url = n.Url,
                     IsRead = n.IsRead,
                 })
-                .Skip((page - 1) * numberOfElements)
+                .OrderByDescending(n => n.Id);
+
+
+            var notReadNotifications = await notificationsQuery.Where(n => !n.IsRead)
                 .Take(numberOfElements)
-                .OrderByDescending(n => n.Id)
                 .ToListAsync();
+
+            int notReadCount = notReadNotifications.Count;
+
+
+            var readNotifications = await notificationsQuery.Where(n => n.IsRead)
+                .Take(numberOfElements - notReadCount)
+                .ToListAsync();
+
+            var notifications = notReadNotifications.Concat(readNotifications);
+
 
             return new NotificationsViewModel
             {

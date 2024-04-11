@@ -25,13 +25,13 @@ namespace SimpleShoppingApp.Tests
             var usersServiceMock = new Mock<IUsersService>();
 
             usersServiceMock.Setup(x => x.DoesUserExistAsync("NotExistingUser"))
-                .Returns(Task.FromResult(false));
+                .ReturnsAsync(false);
 
             usersServiceMock.Setup(x => x.DoesUserExistAsync("ExistingUser"))
-                .Returns(Task.FromResult(true));
+                .ReturnsAsync(true);
 
             usersServiceMock.Setup(x => x.DoesUserExistAsync("ExistingUser2"))
-                .Returns(Task.FromResult(true));
+                .ReturnsAsync(true);
 
             usersService = usersServiceMock.Object;
 
@@ -77,7 +77,7 @@ namespace SimpleShoppingApp.Tests
                 await service.AddAsync("ExistingUser", "ExistingUser2", "Some text" + (i + 1).ToString());
             }
 
-            var notifications = await service.GetNotificationsAsync(1, 11, "ExistingUser");
+            var notifications = await service.GetNotificationsAsync(11, "ExistingUser");
 
             Assert.That(notifications.Notifications.Count(), Is.EqualTo(0));
         }
@@ -90,7 +90,7 @@ namespace SimpleShoppingApp.Tests
                 await service.AddAsync("ExistingUser", "ExistingUser2", "Some text" + (i+1).ToString());
             }
 
-            var notifications = await service.GetNotificationsAsync(1, 11, "ExistingUser2");
+            var notifications = await service.GetNotificationsAsync(11, "ExistingUser2");
 
             Assert.That(notifications.Notifications.Count(), Is.EqualTo(10));
         }
