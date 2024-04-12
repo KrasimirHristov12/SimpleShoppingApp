@@ -4,6 +4,13 @@
     var RandomProducts = Model.RandomProducts.ToList();
 }
 
+@if (TempData.ContainsKey("ProductUnApproved"))
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ProductUnApproved"]
+    </div>
+}
+
 <div class="text-center mb-4">
     <h1 class="display-6">Welcome to the best shop in the world!</h1>
 </div>

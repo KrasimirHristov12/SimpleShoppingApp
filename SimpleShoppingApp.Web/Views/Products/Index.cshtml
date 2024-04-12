@@ -19,17 +19,38 @@
     </div>
 }
 
+@if (TempData.ContainsKey("ProductApproved"))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["ProductApproved"]
+    </div>
+}
+
 
 <h6><a asp-action="Category" asp-route-name="@Model.CategoryName" asp-route-id="@Model.CategoryId" asp-route-page="1">@Model.CategoryName</a></h6>
 <div class="row mb-2">
     <div class="col-md-9"><h3>@ViewData["Title"]</h3><span class="fst-italic">Added By: @Model.UserName</span></div>
-    @if (Model.BelongsToCurrentUser)
+    @if (Model.BelongsToCurrentUser && Model.IsApproved)
     {
         <div class="col-md-3">
             <a class="btn btn-warning" asp-action="Update" asp-route-id="@Model.Id">Edit</a>
             <form asp-action="Delete" method="post" class="delete-product-form d-inline">
                 <input type="hidden" name="id" value="@Model.Id" />
                 <button type="submit" class="btn btn-danger delete-btn">Delete</button>
+            </form>
+        </div>
+    }
+
+    else if (!Model.IsApproved && Model.IsUserAdmin)
+    {
+        <div class="row">
+            <form asp-area="Administration" asp-controller="Products" asp-action="Approve" method="post" class="d-inline">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type=submit class="btn btn-success">Approve</button>
+            </form>
+            <form asp-area="Administration" asp-controller="Products" asp-action="UnApprove" method="post" class="d-inline">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type=submit class="btn btn-danger">Not approve</button>
             </form>
         </div>
     }
@@ -62,7 +83,7 @@
     </div>
     <div class="col-md-4 my-auto">
 
-        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved)
         {
             <div class="rating-container text-center">
                 <span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span>
@@ -83,8 +104,9 @@
             {
                 <li class="list-group-item text-center">Availability: <span class="text-success fw-bold text-decoration-underline fs-4">In stock</span></li>
             }
-            
-            <li class="list-group-item text-center">Price:
+
+            <li class="list-group-item text-center">
+                Price:
                 @if (!Model.HasDiscount)
                 {
                     <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.Price</span>
@@ -95,18 +117,18 @@
                     <span class="text-primary text-decoration-line-through fs-1">$@Model.Price</span>
                     <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.NewPrice</span>
                 }
-                
-                </li>
+
+            </li>
             <li class="list-group-item text-center">
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved)
                 {
                     <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                        <input type="hidden" name="id" class="productId" value="@Model.Id"/>
+                        <input type="hidden" name="id" class="productId" value="@Model.Id" />
                         <button class="btn btn-success">Add to cart</button>
                     </form>
-                    
+
                 }
-                else
+                else if (User.Identity == null || !User.Identity.IsAuthenticated)
                 {
                     <span><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Log-in</a> to be able to buy this product.</span>
                 }

@@ -3,8 +3,6 @@
     const currentClickedLink = $(this);
     const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
 
-    e.preventDefault();
-
     let notificationId = currentClickedLink.closest(".list-group-item").attr("id").split("-")[1];
     $.ajax({
         type: "POST",
@@ -16,7 +14,15 @@
             notificationId: notificationId,
         },
         success: function () {
-            window.open(currentClickedLink.attr("href"), "_top");
+            let link = currentClickedLink.attr("href");
+            console.log(link)
+            if (link.includes("#")) {
+                location.reload();
+            }
+            else {
+                window.open(link, "_top");
+            }
+            
         },
     });
 });

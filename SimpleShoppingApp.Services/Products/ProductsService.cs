@@ -112,7 +112,7 @@ namespace SimpleShoppingApp.Services.Products
                 string? adminUserId = await usersService.GetAdminIdAsync();
                 if (!string.IsNullOrWhiteSpace(adminUserId))
                 {
-                    bool notificationsResult = await notificationsService.AddAsync(userId, adminUserId, "A new product was added for approval.", $"/Administration/Products/Approve/{product.Id}");
+                    bool notificationsResult = await notificationsService.AddAsync(userId, adminUserId, "A new product was added for approval.", $"/Products/Index/{product.Id}");
                 }
                 
             }
@@ -145,6 +145,7 @@ namespace SimpleShoppingApp.Services.Products
                     UserName = p.User.UserName,
                     HasDiscount = p.HasDiscount,
                     NewPrice = p.NewPrice,
+                    IsApproved = p.IsApproved,
                 })
                .FirstOrDefaultAsync();
 
@@ -163,6 +164,8 @@ namespace SimpleShoppingApp.Services.Products
             }
             else
             {
+                bool isUserAdmin = await usersService.IsInRoleAsync(userId, "Administrator");
+                product.IsUserAdmin = isUserAdmin;
                 product.BelongsToCurrentUser = await BelognsToUserAsync(id, userId);
                 var rating = await GetRatingAsync(id, userId);
                 product.Rating = rating;
@@ -675,6 +678,66 @@ namespace SimpleShoppingApp.Services.Products
             }
 
             return ownerId;
+        }
+
+        public async Task<bool> ApproveAsync(int productId)
+        {
+            var product = await productsRepo.AllAsTracking()
+                .FirstOrDefaultAsync(p => p.Id == productId);
+            if (product == null)
+            {
+                return false;
+            }
+            product.IsApproved = true;
+            await productsRepo.SaveChangesAsync();
+            var adminUserId = await usersService.GetAdminIdAsync();
+            var ownerUserId = await GetOwnerIdAsync(productId);
+
+            if (string.IsNullOrWhiteSpace(adminUserId) || string.IsNullOrWhiteSpace(ownerUserId))
+            {
+                return false;
+            }
+
+            await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has been approved by the administrator", $"/Products/Index/{productId}");
+            return true;
+        }
+
+        public async Task<bool> UnApproveAsync(int productId)
+        {
+            var product = await productsRepo.AllAsTracking()
+                .FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (product == null)
+            {
+                return false;
+            }
+
+            product.IsDeleted = true;
+
+            await productsRepo.SaveChangesAsync();
+
+            var adminUserId = await usersService.GetAdminIdAsync();
+            var ownerUserId = await GetOwnerIdAsync(productId);
+
+            if (string.IsNullOrWhiteSpace(adminUserId) || string.IsNullOrWhiteSpace(ownerUserId))
+            {
+                return false;
+            }
+
+            await notificationsService.AddAsync(adminUserId, ownerUserId, "Unfortunately, a product you have created has not been approved by the administrator");
+            return true;
+        }
+
+        private IQueryable<Product> GetNotDeletedProducts()
+        {
+            return productsRepo.AllAsNoTracking()
+                .Where(p => !p.IsDeleted);
+        }
+
+        private IQueryable<Product> GetApprovedProducts()
+        {
+            return productsRepo.AllAsNoTracking()
+            .Where(p => !p.IsDeleted && p.IsApproved);
         }
     }
 }

@@ -34,6 +34,10 @@ namespace SimpleShoppingApp.Models.Products
 
         public decimal? NewPrice { get; set; }
 
+        public bool IsApproved { get; set; }
+
+        public bool IsUserAdmin { get; set; }
+
         public IEnumerable<ImageViewModel> Images { get; set; }
     }
 }

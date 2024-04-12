@@ -12,6 +12,7 @@ using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Services.NameShortener;
+using SimpleShoppingApp.Services.Notifications;
 
 namespace SimpleShoppingApp.Tests
 {
@@ -27,6 +28,7 @@ namespace SimpleShoppingApp.Tests
         private IUsersService usersService;
         private IImagesService imagesService;
         private INameShortenerService shortenerService;
+        private INotificationsService notificationsService;
 
         [SetUp]
         public async Task Initialize()
@@ -73,6 +75,8 @@ namespace SimpleShoppingApp.Tests
 
             var shortenerMock = new Mock<INameShortenerService>();
 
+            var notificationsMock = new Mock<INotificationsService>();
+
             usersServiceMock.Setup(x => x.IsInRoleAsync("AdministatorID", "Administrator"))
                 .ReturnsAsync(true);
 
@@ -88,17 +92,21 @@ namespace SimpleShoppingApp.Tests
                    .ReturnsAsync((ImageViewModel)null);
             }
 
-            
+            usersServiceMock.Setup(x => x.GetAdminIdAsync())
+                .ReturnsAsync("");
 
             shortenerMock.Setup(x => x.Shorten("TestProd", 50))
                 .Returns("Test");
 
+            notificationsMock.Setup(x => x.AddAsync(string.Empty, string.Empty, string.Empty, null))
+                .ReturnsAsync(true);
+
             usersService = usersServiceMock.Object;
             imagesService = imagesServiceMock.Object;
             shortenerService = shortenerMock.Object;
+            notificationsService = notificationsMock.Object;
 
-
-            productsService = new ProductsService(productsRepository, usersRatingRepository, imagesService, categoriesService, usersService, null, shortenerService);
+            productsService = new ProductsService(productsRepository, usersRatingRepository, imagesService, categoriesService, usersService, notificationsService, shortenerService);
         }
 
         [Test]
@@ -487,6 +495,82 @@ namespace SimpleShoppingApp.Tests
             {
                 Assert.That(filteredProducts.TotalProducts, Is.EqualTo(1));
             }
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task TestApproveProductWhenProductDoesNotExist(int productId)
+        {
+            var result = await productsService.ApproveAsync(productId);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task TestUnApproveProductWhenProductExists()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+             await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            var resultOne = await productsService.UnApproveAsync(1);
+            var resultTwo = await productsService.UnApproveAsync(2);
+            Assert.IsTrue(resultOne);
+            Assert.IsTrue(resultTwo);
+
+
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task TestUnApproveProductWhenProductDoesNotExist(int productId)
+        {
+            var result = await productsService.UnApproveAsync(productId);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task TestApproveProductWhenProductExists()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            var resultOne = await productsService.ApproveAsync(1);
+            var resultTwo = await productsService.ApproveAsync(2);
+            Assert.IsTrue(resultOne);
+            Assert.IsTrue(resultTwo);
 
 
         }

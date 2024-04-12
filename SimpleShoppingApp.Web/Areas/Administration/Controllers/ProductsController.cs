@@ -11,17 +11,33 @@ namespace SimpleShoppingApp.Web.Areas.Administration.Controllers
         {
             productsService = _productsService;
         }
+
+        [HttpPost]
         public async Task<IActionResult> Approve(int id)
         {
-            var product = await productsService.GetProductToApproveAsync(id);
-
-            if (product == null)
+            var approveResult = await productsService.ApproveAsync(id);
+            if (!approveResult)
             {
                 return NotFound();
             }
 
-            return View(product);
+            TempData["ProductApproved"] = "You have successfully approved this product.";
+
+            return RedirectToAction("Index", "Products", new { id, area = "" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UnApprove(int id)
+        {
+            var approveResult = await productsService.UnApproveAsync(id);
+            if (!approveResult)
+            {
+                return NotFound();
+            }
+
+            TempData["ProductUnApproved"] = "You have not approved the product.";
+
+            return RedirectToAction("Index", "Home", new { area = "" });
+        }
     }
 }
