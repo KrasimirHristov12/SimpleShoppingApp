@@ -114,9 +114,9 @@ namespace SimpleShoppingApp.Web.Controllers
                 return NotFound();
             }
 
-            TempData["SuccessfullyAdded"] = "Product successfully added!";
+            TempData["SuccessfullyAdded"] = "Product successfully added and is sent for approval to the administrator! We will get back to you soon.";
 
-            return RedirectToAction(nameof(Index), new { id = addProductResult.ProductId });
+            return RedirectToAction(nameof(Index), "Home");
            
         }
 

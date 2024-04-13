@@ -54,7 +54,7 @@ namespace SimpleShoppingApp.Services.Images
 
             var images = await imagesRepo
                 .AllAsNoTracking()
-                .Where(i => i.ProductId == productId)
+                .Where(i => i.ProductId == productId && !i.IsDeleted)
                 .Select(i => new ImageViewModel
                 {
                     Name = i.Name,

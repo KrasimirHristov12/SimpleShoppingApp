@@ -147,11 +147,9 @@ namespace SimpleShoppingApp.Services.Orders
                 actualProduct.Quantity = actualProductQuantity - productQuantity;
             }
 
-            await orderRepo.AddAsync(order);
-            await orderRepo.SaveChangesAsync();
-
             var email = await usersService.GetEmailAsync(userId);
             var fullName = await usersService.GetFullNameAsync(userId);
+
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName))
             {
                 return new MakeOrderResultModel
@@ -160,6 +158,9 @@ namespace SimpleShoppingApp.Services.Orders
                     ErrorMessage = null,
                 };
             }
+
+            await orderRepo.AddAsync(order);
+            await orderRepo.SaveChangesAsync();
 
             var orderInfo = await GetOrderDetailsAsync(order.Id);
             if (orderInfo == null)
@@ -215,7 +216,7 @@ namespace SimpleShoppingApp.Services.Orders
 
         public async Task<IEnumerable<OrderViewModel>> GetByStatusAsync(OrderStatus status, string userId)
         {
-            var query = orderRepo.AllAsNoTracking();
+            var query = GetNotDeleted();
 
             if (status == OrderStatus.Delivered)
             {
@@ -227,7 +228,7 @@ namespace SimpleShoppingApp.Services.Orders
 
             }
 
-            return await query.Where(o => o.UserId == userId && !o.IsDeleted)
+            return await query.Where(o => o.UserId == userId)
                  .Select(o => new OrderViewModel
                  {
                      Id = o.Id,
@@ -238,9 +239,8 @@ namespace SimpleShoppingApp.Services.Orders
 
         public async Task<OrderStatus?> GetOrderStatusAsync(int orderId)
         {
-            var order = await orderRepo
-                .AllAsNoTracking()
-                .Where(o => o.Id == orderId && !o.IsDeleted)
+            var order = await GetNotDeleted()
+                .Where(o => o.Id == orderId)
                 .Select(o => new
                 {
                     DeliveryDate = o.DeliveryDate,
@@ -259,8 +259,8 @@ namespace SimpleShoppingApp.Services.Orders
 
         public async Task<OrderDetailsViewModel?> GetOrderDetailsAsync(int orderId)
         {
-            var orderProduct = await orderRepo.AllAsNoTracking()
-                .Where(o => o.Id == orderId && !o.IsDeleted)
+            var orderProduct = await GetNotDeleted()
+                .Where(o => o.Id == orderId)
                 .Select(o => new OrderDetailsViewModel
                 {
                     Order = new OrderOrderDetailsViewModel { 
@@ -317,6 +317,12 @@ namespace SimpleShoppingApp.Services.Orders
 
             return orderProduct;
 
+        }
+
+        private IQueryable<Order> GetNotDeleted()
+        {
+            return orderRepo.AllAsNoTracking()
+                .Where(o => !o.IsDeleted);
         }
 
         private async Task SendEmailAsync(int orderId, string email, string fullName, IEnumerable<OrderProductDetailsViewModel> products, string address, int deliveryDays, string paymentMethod, decimal orderTotalPrice)

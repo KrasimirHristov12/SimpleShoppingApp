@@ -13,6 +13,7 @@ using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Services.NameShortener;
 using SimpleShoppingApp.Services.Notifications;
+using SimpleShoppingApp.Services.Emails;
 
 namespace SimpleShoppingApp.Tests
 {
@@ -23,12 +24,14 @@ namespace SimpleShoppingApp.Tests
         private IRepository<Category> categoryRepository;
         private IRepository<ApplicationUser> userRepository;
         private IRepository<UsersRating> usersRatingRepository;
+        private IRepository<CartsProducts> cartsProductsRepository;
         private IProductsService productsService;
         private ICategoriesService categoriesService;
         private IUsersService usersService;
         private IImagesService imagesService;
         private INameShortenerService shortenerService;
         private INotificationsService notificationsService;
+        private IEmailsService emailService;
 
         [SetUp]
         public async Task Initialize()
@@ -42,6 +45,7 @@ namespace SimpleShoppingApp.Tests
             categoryRepository = new Repository<Category>(db);
             userRepository = new Repository<ApplicationUser>(db);
             usersRatingRepository = new Repository<UsersRating>(db);
+            cartsProductsRepository = new Repository<CartsProducts>(db);
             categoriesService = new CategoriesService(categoryRepository);
 
             await categoryRepository.AddAsync(new Category
@@ -77,6 +81,8 @@ namespace SimpleShoppingApp.Tests
 
             var notificationsMock = new Mock<INotificationsService>();
 
+            var emailServiceMock = new Mock<IEmailsService>();
+
             usersServiceMock.Setup(x => x.IsInRoleAsync("AdministatorID", "Administrator"))
                 .ReturnsAsync(true);
 
@@ -101,12 +107,17 @@ namespace SimpleShoppingApp.Tests
             notificationsMock.Setup(x => x.AddAsync(string.Empty, string.Empty, string.Empty, null))
                 .ReturnsAsync(true);
 
+            emailServiceMock.Setup(x => x.SendAsync(string.Empty, string.Empty, string.Empty, string.Empty))
+                .ReturnsAsync(true);
+
             usersService = usersServiceMock.Object;
             imagesService = imagesServiceMock.Object;
             shortenerService = shortenerMock.Object;
             notificationsService = notificationsMock.Object;
+            emailService = emailServiceMock.Object;
 
-            productsService = new ProductsService(productsRepository, usersRatingRepository, imagesService, categoriesService, usersService, notificationsService, shortenerService);
+
+            productsService = new ProductsService(productsRepository, usersRatingRepository, cartsProductsRepository, imagesService, categoriesService, usersService, notificationsService, shortenerService, emailService);
         }
 
         [Test]

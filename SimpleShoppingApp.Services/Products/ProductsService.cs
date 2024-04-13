@@ -6,6 +6,7 @@ using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
+using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.NameShortener;
 using SimpleShoppingApp.Services.Notifications;
@@ -23,6 +24,7 @@ namespace SimpleShoppingApp.Services.Products
         private readonly IUsersService usersService;
         private readonly INotificationsService notificationsService;
         private readonly INameShortenerService shortenerService;
+        private readonly IEmailsService emailsService;
 
         public ProductsService(
             IRepository<Product> _productsRepo,
@@ -32,7 +34,8 @@ namespace SimpleShoppingApp.Services.Products
             ICategoriesService _categoriesService,
             IUsersService _usersService,
             INotificationsService _notificationsService,
-            INameShortenerService _shortenerService)
+            INameShortenerService _shortenerService,
+            IEmailsService _emailsService)
         {
             productsRepo = _productsRepo;
             usersRatingRepo = _usersRatingRepo;
@@ -42,6 +45,7 @@ namespace SimpleShoppingApp.Services.Products
             usersService = _usersService;
             notificationsService = _notificationsService;
             shortenerService = _shortenerService;
+            emailsService = _emailsService;
         }
 
         public async Task<AddProductModel> AddAsync(AddProductInputModel model, string userId, string imagesDirectory)
@@ -661,7 +665,7 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<string?> GetOwnerIdAsync(int productId)
         {
-            var ownerId = await GetApprovedProducts()
+            var ownerId = await GetNotDeletedProducts()
                 .Where(p => p.Id == productId)
                 .Select(p => p.UserId)
                 .FirstOrDefaultAsync();
@@ -676,7 +680,7 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<bool> ApproveAsync(int productId)
         {
-            var product = await GetNotDeletedProducts()
+            var product = await GetNotDeletedProductsAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == productId);
             if (product == null)
             {
@@ -687,18 +691,28 @@ namespace SimpleShoppingApp.Services.Products
             var adminUserId = await usersService.GetAdminIdAsync();
             var ownerUserId = await GetOwnerIdAsync(productId);
 
-            if (string.IsNullOrWhiteSpace(adminUserId) || string.IsNullOrWhiteSpace(ownerUserId))
+            if (!string.IsNullOrWhiteSpace(adminUserId) && !string.IsNullOrWhiteSpace(ownerUserId))
             {
-                return false;
-            }
 
-            await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has been approved by the administrator", $"/Products/Index/{productId}");
+                var emailOfOwner = await usersService.GetEmailAsync(ownerUserId);
+
+                if (!string.IsNullOrWhiteSpace(emailOfOwner))
+                {
+                    await emailsService.SendAsync(emailOfOwner, string.Empty, "Product approved", $"A product with id = {productId} has been approved from the administrator");
+                }
+
+                await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has been approved by the administrator", $"/Products/Index/{productId}");
+
+            }
             return true;
         }
 
         public async Task<bool> UnApproveAsync(int productId)
         {
-            var product = await GetNotDeletedProducts()
+            var adminUserId = await usersService.GetAdminIdAsync();
+            var ownerUserId = await GetOwnerIdAsync(productId);
+
+            var product = await GetNotDeletedProductsAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
@@ -710,21 +724,30 @@ namespace SimpleShoppingApp.Services.Products
 
             await productsRepo.SaveChangesAsync();
 
-            var adminUserId = await usersService.GetAdminIdAsync();
-            var ownerUserId = await GetOwnerIdAsync(productId);
-
-            if (string.IsNullOrWhiteSpace(adminUserId) || string.IsNullOrWhiteSpace(ownerUserId))
+            if (!string.IsNullOrWhiteSpace(adminUserId) && !string.IsNullOrWhiteSpace(ownerUserId))
             {
-                return false;
-            }
 
-            await notificationsService.AddAsync(adminUserId, ownerUserId, "Unfortunately, a product you have created has not been approved by the administrator");
+                var emailOfOwner = await usersService.GetEmailAsync(ownerUserId);
+
+                if (!string.IsNullOrWhiteSpace(emailOfOwner))
+                {
+                    await emailsService.SendAsync(emailOfOwner, string.Empty, "Product not approved", $"A product with id = {productId} has NOT been approved from the administrator");
+                }
+
+                await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has not been approved by the administrator");
+            }
             return true;
         }
 
         private IQueryable<Product> GetNotDeletedProducts()
         {
             return productsRepo.AllAsNoTracking()
+                .Where(p => !p.IsDeleted);
+        }
+
+        private IQueryable<Product> GetNotDeletedProductsAsTracking()
+        {
+            return productsRepo.AllAsTracking()
                 .Where(p => !p.IsDeleted);
         }
 

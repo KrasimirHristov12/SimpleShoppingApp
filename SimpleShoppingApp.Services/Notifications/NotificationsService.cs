@@ -54,8 +54,8 @@ namespace SimpleShoppingApp.Services.Notifications
         public async Task<NotificationsViewModel> GetNotificationsAsync(int numberOfElements, string userId)
         {
             var newNotificationsCount = await GetNewNotificationsCountAsync(userId);
-            var notificationsQuery = notificationsRepo.AllAsNoTracking()
-                .Where(n => n.ReceiverUserId == userId && !n.IsDeleted)
+            var notificationsQuery = GetNotDeleted()
+                .Where(n => n.ReceiverUserId == userId)
                 .Select(n => new NotificationViewModel
                 {
                     Id = n.Id,
@@ -89,16 +89,15 @@ namespace SimpleShoppingApp.Services.Notifications
 
         public async Task<int> GetNewNotificationsCountAsync(string userId)
         {
-            return await notificationsRepo.AllAsNoTracking()
-                .Where(n => !n.IsRead && !n.IsDeleted && n.ReceiverUserId == userId)
+            return await GetNotDeleted()
+                .Where(n => !n.IsRead && n.ReceiverUserId == userId)
                 .CountAsync();
         }
 
         public async Task<bool> ReadAsync(string userId, int notificationId)
         {
-            var notification = await notificationsRepo
-                .AllAsTracking()
-                .Where(n => n.ReceiverUserId == userId && n.Id == notificationId && !n.IsRead && !n.IsDeleted)
+            var notification = await GetNotDeletedAsTracking()
+                .Where(n => n.ReceiverUserId == userId && n.Id == notificationId && !n.IsRead)
                 .FirstOrDefaultAsync();
 
             if (notification == null)
@@ -111,6 +110,18 @@ namespace SimpleShoppingApp.Services.Notifications
 
             await notificationsRepo.SaveChangesAsync();
             return true;
+        }
+
+        private IQueryable<Notification> GetNotDeleted()
+        {
+            return notificationsRepo.AllAsNoTracking()
+                .Where(n => !n.IsDeleted);
+        }
+
+        public IQueryable<Notification> GetNotDeletedAsTracking()
+        {
+            return notificationsRepo.AllAsTracking()
+                .Where(n => !n.IsDeleted);
         }
     }
 }

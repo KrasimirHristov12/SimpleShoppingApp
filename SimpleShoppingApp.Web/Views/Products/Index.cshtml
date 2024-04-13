@@ -12,13 +12,6 @@
     </div>
 }
 
-@if (TempData.ContainsKey("SuccessfullyAdded"))
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["SuccessfullyAdded"]
-    </div>
-}
-
 @if (TempData.ContainsKey("ProductApproved"))
 {
     <div class="alert alert-success" role="alert">
@@ -51,14 +44,18 @@
     else if (!Model.IsApproved && Model.IsUserAdmin)
     {
         <div class="row">
-            <form asp-area="Administration" asp-controller="Products" asp-action="Approve" method="post" class="d-inline">
-                <input type="hidden" name="id" value="@Model.Id" />
-                <button type=submit class="btn btn-success">Approve</button>
-            </form>
-            <form asp-area="Administration" asp-controller="Products" asp-action="UnApprove" method="post" class="d-inline">
-                <input type="hidden" name="id" value="@Model.Id" />
-                <button type=submit class="btn btn-danger">Not approve</button>
-            </form>
+            <div class="col-md-1">
+                <form asp-area="Administration" asp-controller="Products" asp-action="Approve" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type=submit class="btn btn-success">Approve</button>
+                </form>
+            </div>
+            <div class="col-md-2">
+                <form asp-area="Administration" asp-controller="Products" asp-action="UnApprove" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type=submit class="btn btn-danger">Not approve</button>
+                </form>
+            </div>
         </div>
     }
 

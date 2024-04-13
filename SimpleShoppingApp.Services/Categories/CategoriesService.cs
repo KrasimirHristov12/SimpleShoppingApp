@@ -16,7 +16,7 @@ namespace SimpleShoppingApp.Services.Categories
 
         public async Task<bool> AddAsync(string name)
         {
-            if (categoryRepo.AllAsNoTracking().Any(c => !c.IsDeleted && c.Name == name))
+            if (await GetNotDeleted().AnyAsync(c => c.Name == name))
             {
                 return false;
             }
@@ -40,14 +40,12 @@ namespace SimpleShoppingApp.Services.Categories
                 return false;
             }
 
-            return await categoryRepo
-                .AllAsNoTracking()
-                .AnyAsync(c => c.Id == id && !c.IsDeleted);
+            return await GetNotDeleted()
+                .AnyAsync(c => c.Id == id);
         }
         public async Task<IEnumerable<CategoryViewModel>> GetAllAsync()
         {
-            var categories = await categoryRepo.AllAsNoTracking()
-                .Where(c => !c.IsDeleted)
+            var categories = await GetNotDeleted()
                 .Select(c => new CategoryViewModel
                 {
                     Id = c.Id,
@@ -59,9 +57,14 @@ namespace SimpleShoppingApp.Services.Categories
 
         public async Task<int> GetCountAsync()
         {
-            return await categoryRepo.AllAsNoTracking()
-                .Where(c => !c.IsDeleted)
+            return await GetNotDeleted()
                 .CountAsync();
+        }
+
+        private IQueryable<Category> GetNotDeleted()
+        {
+            return categoryRepo.AllAsNoTracking()
+                .Where(c => !c.IsDeleted);
         }
     }
 }
