@@ -335,7 +335,7 @@ namespace SimpleShoppingApp.Services.Products
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            var productToDelete = await GetApprovedProducts()
+            var productToDelete = await GetApprovedProductsAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (productToDelete == null)
@@ -432,7 +432,7 @@ namespace SimpleShoppingApp.Services.Products
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            var productToEdit = await GetApprovedProducts()
+            var productToEdit = await GetApprovedProductsAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == model.Id);
 
             if (productToEdit == null)
@@ -721,5 +721,11 @@ namespace SimpleShoppingApp.Services.Products
             return productsRepo.AllAsNoTracking()
             .Where(p => !p.IsDeleted && p.IsApproved);
         }
+        private IQueryable<Product> GetApprovedProductsAsTracking()
+        {
+            return productsRepo.AllAsTracking()
+            .Where(p => !p.IsDeleted && p.IsApproved);
+        }
+
     }
 }

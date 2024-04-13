@@ -26,6 +26,13 @@
     </div>
 }
 
+@if (TempData.ContainsKey("ProductUpdated"))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["ProductUpdated"]
+    </div>
+}
+
 
 <h6><a asp-action="Category" asp-route-name="@Model.CategoryName" asp-route-id="@Model.CategoryId" asp-route-page="1">@Model.CategoryName</a></h6>
 <div class="row mb-2">

@@ -137,6 +137,8 @@ namespace SimpleShoppingApp.Web.Controllers
                 return Forbid();
             }
 
+            TempData["ProductDeleted"] = "You have successfully deleted the product";
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -196,6 +198,8 @@ namespace SimpleShoppingApp.Web.Controllers
             {
                 return Forbid();
             }
+
+            TempData["ProductUpdated"] = "You have successfully updated this product.";
 
             return RedirectToAction(nameof(Index), new { id = model.Id });
         }
