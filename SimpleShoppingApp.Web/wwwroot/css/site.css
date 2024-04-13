@@ -67,3 +67,11 @@ label.error {
 .notifications-container .list-group {
     position: absolute;
 }
+
+.notifications-container .dropdown-menu {
+    width: 500px;
+    white-space: normal;
+}
+.notifications-container .dropdown-menu .dropdown-item {
+    white-space: normal;
+}
