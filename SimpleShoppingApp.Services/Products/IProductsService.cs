@@ -21,8 +21,6 @@ namespace SimpleShoppingApp.Services.Products
 
         Task<EditProductModel> GetToEditAsync(int id, string currentUserId);
 
-        Task<ApproveProductViewModel?> GetProductToApproveAsync(int productId);
-
         Task<AddUpdateDeleteResult> UpdateAsync(EditProductInputModel model, string currentUserId);
 
         Task<IEnumerable<ListProductsViewModel>> GetByNameAsync(string name);

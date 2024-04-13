@@ -131,8 +131,22 @@ namespace SimpleShoppingApp.Services.Products
                 return null;
             }
 
-            var product = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == id && !p.IsDeleted)
+            var productQuery = GetNotDeletedProducts();
+
+            bool isUserAdmin = false;
+
+            if (userId != null)
+            {
+                isUserAdmin = await usersService.IsInRoleAsync(userId, "Administrator");
+
+                productQuery = isUserAdmin ? productQuery.Where(p => p.Id == id) : GetApprovedProducts().Where(p => p.Id == id);
+            }
+            else
+            {
+                productQuery = GetApprovedProducts().Where(p => p.Id == id);
+            }
+
+            var product = await productQuery
                 .Select(p => new ProductViewModel
                 {
                     Id = id,
@@ -164,7 +178,7 @@ namespace SimpleShoppingApp.Services.Products
             }
             else
             {
-                bool isUserAdmin = await usersService.IsInRoleAsync(userId, "Administrator");
+                
                 product.IsUserAdmin = isUserAdmin;
                 product.BelongsToCurrentUser = await BelognsToUserAsync(id, userId);
                 var rating = await GetRatingAsync(id, userId);
@@ -177,7 +191,7 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<string?> GetNameAsync(int productId)
         {
-            var productName = await productsRepo.AllAsNoTracking()
+            var productName = await GetApprovedProducts()
                 .Where(p => p.Id == productId)
                 .Select(p => p.Name)
                 .FirstOrDefaultAsync();
@@ -192,8 +206,7 @@ namespace SimpleShoppingApp.Services.Products
                 return new List<ListProductsViewModel>();
             }
 
-            var products = await productsRepo.AllAsNoTracking()
-                .Where(p => !p.IsDeleted)
+            var products = await GetApprovedProducts()
                 .OrderBy(p => Guid.NewGuid())
                 .Take(n)
                 .Select(p => new ListProductsViewModel
@@ -232,8 +245,8 @@ namespace SimpleShoppingApp.Services.Products
                 return null;
             }
 
-            var productsQuery = productsRepo.AllAsNoTracking()
-            .Where(p => p.CategoryId == model.CategoryId && !p.IsDeleted);
+            var productsQuery = GetApprovedProducts()
+            .Where(p => p.CategoryId == model.CategoryId);
 
             if (model.Prices.Count() > 0 || model.Ratings.Count() > 0)
             {
@@ -322,8 +335,8 @@ namespace SimpleShoppingApp.Services.Products
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            var productToDelete = await productsRepo.AllAsTracking()
-                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+            var productToDelete = await GetApprovedProducts()
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (productToDelete == null)
             {
@@ -348,9 +361,8 @@ namespace SimpleShoppingApp.Services.Products
                 return 0;
             }
 
-            return await productsRepo
-                .AllAsNoTracking()
-                .Where(p => p.CategoryId == categoryId && !p.IsDeleted)
+            return await GetApprovedProducts()
+                .Where(p => p.CategoryId == categoryId)
                 .CountAsync();
         }
 
@@ -365,8 +377,8 @@ namespace SimpleShoppingApp.Services.Products
                 };
             }
 
-            var productToEdit = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == id && !p.IsDeleted)
+            var productToEdit = await GetApprovedProducts()
+                .Where(p => p.Id == id)
                 .Select(p => new EditProductInputModel
                 {
                     Id = p.Id,
@@ -407,30 +419,6 @@ namespace SimpleShoppingApp.Services.Products
             };
         }
 
-        public async Task<ApproveProductViewModel?> GetProductToApproveAsync(int productId)
-        {
-            var product = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Id == productId && !p.IsDeleted)
-                .Select(p => new ApproveProductViewModel
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name,
-                    Description = p.Description,
-                    Images = p.Images.Select(i => new ImageViewModel
-                    {
-                        Extension = i.Extension,
-                        ImageUrl = i.ImageUrl,
-                        Name = i.Name,
-
-                    }).ToList(),
-                })
-                .FirstOrDefaultAsync();
-
-            return product;
-
-        }
 
         public async Task<AddUpdateDeleteResult> UpdateAsync(EditProductInputModel model, string currentUserId)
         {
@@ -444,9 +432,8 @@ namespace SimpleShoppingApp.Services.Products
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            var productToEdit = await productsRepo
-                .AllAsTracking()
-                .FirstOrDefaultAsync(p => p.Id == model.Id && !p.IsDeleted);
+            var productToEdit = await GetApprovedProducts()
+                .FirstOrDefaultAsync(p => p.Id == model.Id);
 
             if (productToEdit == null)
             {
@@ -478,8 +465,8 @@ namespace SimpleShoppingApp.Services.Products
                 return new List<ListProductsViewModel>();
             }
 
-            var filteredProducts = await productsRepo.AllAsNoTracking()
-                .Where(p => p.Name.ToLower().Contains(name.ToLower()) && !p.IsDeleted)
+            var filteredProducts = await GetApprovedProducts()
+                .Where(p => p.Name.ToLower().Contains(name.ToLower()))
                 .Select(p => new ListProductsViewModel
                 {
                     Id = p.Id,
@@ -505,9 +492,8 @@ namespace SimpleShoppingApp.Services.Products
             {
                 return false;
             }
-            var creatorUserId = await productsRepo
-                .AllAsNoTracking()
-                .Where(p => p.Id == productId && !p.IsDeleted)
+            var creatorUserId = await GetApprovedProducts()
+                .Where(p => p.Id == productId)
                 .Select(p => p.UserId)
                 .FirstOrDefaultAsync();
 
@@ -544,9 +530,8 @@ namespace SimpleShoppingApp.Services.Products
                 return null;
             }
 
-            return await productsRepo
-                .AllAsNoTracking()
-                .Where(p => p.Id == id && !p.IsDeleted)
+            return await GetApprovedProducts()
+                .Where(p => p.Id == id)
                 .Select(p => p.Quantity)
                 .FirstOrDefaultAsync();
         }
@@ -557,9 +542,8 @@ namespace SimpleShoppingApp.Services.Products
             {
                 return false;
             }
-            return await productsRepo
-                .AllAsNoTracking()
-                .AnyAsync(p => p.Id == productId && !p.IsDeleted);
+            return await GetApprovedProducts()
+                .AnyAsync(p => p.Id == productId);
         }
 
         public async Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating)
@@ -573,8 +557,7 @@ namespace SimpleShoppingApp.Services.Products
                 };
             }
 
-            var product = await productsRepo
-            .AllAsTracking()
+            var product = await GetApprovedProducts()
             .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
@@ -660,14 +643,13 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<int> GetCountAsync()
         {
-            return await productsRepo.AllAsNoTracking()
-                .Where(p => !p.IsDeleted)
+            return await GetApprovedProducts()
                 .CountAsync();
         }
 
         public async Task<string?> GetOwnerIdAsync(int productId)
         {
-            var ownerId = await productsRepo.AllAsNoTracking()
+            var ownerId = await GetApprovedProducts()
                 .Where(p => p.Id == productId)
                 .Select(p => p.UserId)
                 .FirstOrDefaultAsync();
@@ -682,7 +664,7 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<bool> ApproveAsync(int productId)
         {
-            var product = await productsRepo.AllAsTracking()
+            var product = await GetNotDeletedProducts()
                 .FirstOrDefaultAsync(p => p.Id == productId);
             if (product == null)
             {
@@ -704,7 +686,7 @@ namespace SimpleShoppingApp.Services.Products
 
         public async Task<bool> UnApproveAsync(int productId)
         {
-            var product = await productsRepo.AllAsTracking()
+            var product = await GetNotDeletedProducts()
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)

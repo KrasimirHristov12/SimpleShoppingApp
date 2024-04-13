@@ -245,6 +245,7 @@ namespace SimpleShoppingApp.Data.Seeders
                             CategoryId = categoryDict[categoryName],
                             Quantity = 1000,
                             UserId = adminId,
+                            IsApproved = true,
                         };
 
                         if (imagesLinks != null)
