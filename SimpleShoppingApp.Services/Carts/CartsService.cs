@@ -49,9 +49,8 @@ namespace SimpleShoppingApp.Services.Carts
                 return false;
             }
 
-            return await cartsRepo.
-                AllAsNoTracking()
-               .AnyAsync(c => c.Id == id && !c.IsDeleted);
+            return await GetNotDeleted()
+               .AnyAsync(c => c.Id == id);
         }
 
         public async Task<AddUpdateProductToCartResult> AddProductAsync(int cartId, int productId, string currentUserId)
@@ -131,8 +130,8 @@ namespace SimpleShoppingApp.Services.Carts
 
         public async Task<CartViewModel?> GetAsync(string currentUserId)
         {
-            var cart = await cartsRepo.AllAsNoTracking()
-                .Where(c => c.UserId == currentUserId && !c.IsDeleted)
+            var cart = await GetNotDeleted()
+                .Where(c => c.UserId == currentUserId)
                 .Select(c => new CartViewModel
                 {
                     CartProducts = c.CartsProducts.Where(cp => !cp.IsDeleted).Select(cp => new CartProductsViewModel
@@ -162,8 +161,8 @@ namespace SimpleShoppingApp.Services.Carts
         }
         public async Task<int> GetIdAsync(string userId)
         {
-            return await cartsRepo.AllAsNoTracking()
-                .Where(c => c.UserId == userId && !c.IsDeleted)
+            return await GetNotDeleted()
+                .Where(c => c.UserId == userId)
                 .Select(c => c.Id)
                 .FirstAsync();
         }
@@ -178,8 +177,8 @@ namespace SimpleShoppingApp.Services.Carts
                     Model = null,
                 };
             }
-            var cartProduct = await cartsProductsRepo.AllAsTracking()
-            .Where(cp => cp.CartId == cartId && cp.ProductId == productId && !cp.IsDeleted)
+            var cartProduct = await GetNotDeletedCartProductsAsTracking()
+            .Where(cp => cp.CartId == cartId && cp.ProductId == productId)
             .FirstOrDefaultAsync();
 
             if (cartProduct == null)
@@ -213,8 +212,8 @@ namespace SimpleShoppingApp.Services.Carts
 
             cartProduct.IsDeleted = true;
             await cartsProductsRepo.SaveChangesAsync();
-            var cartUpdatedInfo = await cartsProductsRepo.AllAsTracking()
-            .Where(cp => cp.CartId == cartId && !cp.IsDeleted)
+            var cartUpdatedInfo = await GetNotDeletedCartProducts()
+            .Where(cp => cp.CartId == cartId)
             .Select(cp => cp.Product.Price * cp.Quantity)
             .ToListAsync();
 
@@ -237,9 +236,8 @@ namespace SimpleShoppingApp.Services.Carts
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            var cartProduct = await cartsProductsRepo
-                .AllAsTracking()
-                .Where(cp => cp.CartId == cartId && !cp.IsDeleted)
+            var cartProduct = await GetNotDeletedCartProductsAsTracking()
+                .Where(cp => cp.CartId == cartId)
                 .ToListAsync();
 
             if (cartProduct.Count == 0)
@@ -280,10 +278,9 @@ namespace SimpleShoppingApp.Services.Carts
                 };
             }
 
-            var productCart = await cartsProductsRepo
-                .AllAsTracking()
+            var productCart = await GetNotDeletedCartProductsAsTracking()
                 .Include(cp => cp.Product)
-                .FirstOrDefaultAsync(cp => cp.CartId == cartId && cp.ProductId == productId && !cp.IsDeleted);
+                .FirstOrDefaultAsync(cp => cp.CartId == cartId && cp.ProductId == productId);
 
             if (productCart == null)
             {
@@ -345,9 +342,8 @@ namespace SimpleShoppingApp.Services.Carts
 
             await cartsProductsRepo.SaveChangesAsync();
 
-            var cartUpdatedInfo = await cartsProductsRepo
-                .AllAsTracking()
-                .Where(cp => cp.CartId == cartId && !cp.IsDeleted)
+            var cartUpdatedInfo = await GetNotDeletedCartProducts()
+                .Where(cp => cp.CartId == cartId)
                 .Select(cp => cp.Product.Price * cp.Quantity)
                 .ToListAsync();
 
@@ -372,9 +368,8 @@ namespace SimpleShoppingApp.Services.Carts
                 return null;
             }
 
-            return await cartsRepo.
-                AllAsNoTracking()
-                .Where(c => c.Id == id && !c.IsDeleted)
+            return await GetNotDeleted()
+                .Where(c => c.Id == id)
                 .Select(c => c.UserId)
                 .FirstOrDefaultAsync();
         }
@@ -400,6 +395,25 @@ namespace SimpleShoppingApp.Services.Carts
 
             return false;
 
+        }
+
+        private IQueryable<ShoppingCart> GetNotDeleted()
+        {
+            return cartsRepo.AllAsNoTracking()
+                .Where(c => !c.IsDeleted);
+        }
+
+
+        private IQueryable<CartsProducts> GetNotDeletedCartProducts()
+        {
+            return cartsProductsRepo.AllAsNoTracking()
+                .Where(cp => !cp.IsDeleted);
+        }
+
+        private IQueryable<CartsProducts> GetNotDeletedCartProductsAsTracking()
+        {
+            return cartsProductsRepo.AllAsTracking()
+                .Where(cp => !cp.IsDeleted);
         }
 
     }

@@ -113,14 +113,14 @@ namespace SimpleShoppingApp.Services.Orders
                 }
 
                 var actualProduct = await productRepo.AllAsTracking()
-                    .FirstOrDefaultAsync(p => p.Id == productId);
+                    .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
 
                 if (actualProduct == null)
                 {
                     return new MakeOrderResultModel
                     {
-                        Result = MakeOrderResult.NotFound,
-                        ErrorMessage = null,
+                        Result = MakeOrderResult.SomethingWentWrong,
+                        ErrorMessage = "Something went wrong. Please try again later.",
                     };
                 }
 

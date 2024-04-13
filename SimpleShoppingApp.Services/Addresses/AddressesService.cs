@@ -18,8 +18,8 @@ namespace SimpleShoppingApp.Services.Addresses
         {
             var address = new ShippingAddress
             {
-                Name = name, 
-                UserId = userId, 
+                Name = name,
+                UserId = userId,
             };
 
             await addressesRepo.AddAsync(address);
@@ -35,11 +35,10 @@ namespace SimpleShoppingApp.Services.Addresses
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            var foundAddress = await addressesRepo
-                .AllAsNoTracking()
-                .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+            var foundAddress = await GetNotDeletedAsTracking()
+                .FirstOrDefaultAsync(a => a.Id == id);
 
-            if (foundAddress == null) 
+            if (foundAddress == null)
             {
                 return AddUpdateDeleteResult.NotFound;
             }
@@ -56,9 +55,8 @@ namespace SimpleShoppingApp.Services.Addresses
 
         public async Task<IEnumerable<AddressViewModel>> GetAllForUserAsync(string userId)
         {
-            return await addressesRepo
-                .AllAsNoTracking()
-                .Where(a => a.UserId == userId && !a.IsDeleted)
+            return await GetNotDeleted()
+                .Where(a => a.UserId == userId)
                 .Select(a => new AddressViewModel
                 {
                     Id = a.Id,
@@ -74,9 +72,8 @@ namespace SimpleShoppingApp.Services.Addresses
                 return null;
             }
 
-            return await addressesRepo
-                .AllAsNoTracking()
-                .Where(a => a.Id == id && !a.IsDeleted)
+            return await GetNotDeleted()
+                .Where(a => a.Id == id)
                 .Select(a => new AddressViewModel
                 {
                     Id = a.Id,
@@ -92,9 +89,21 @@ namespace SimpleShoppingApp.Services.Addresses
                 return false;
             }
 
-            return await addressesRepo
-                .AllAsNoTracking()
+            return await GetNotDeleted()
                 .AnyAsync(a => a.Id == id);
+        }
+
+        private IQueryable<ShippingAddress> GetNotDeleted()
+        {
+            return addressesRepo.AllAsNoTracking()
+                .Where(a => !a.IsDeleted);
+        }
+
+        private IQueryable<ShippingAddress> GetNotDeletedAsTracking()
+        {
+            return addressesRepo.AllAsTracking()
+            .Where(a => !a.IsDeleted);
         }
     }
 }
+

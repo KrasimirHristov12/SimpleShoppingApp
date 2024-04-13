@@ -17,6 +17,7 @@ namespace SimpleShoppingApp.Services.Products
     {
         private readonly IRepository<Product> productsRepo;
         private readonly IRepository<UsersRating> usersRatingRepo;
+        private readonly IRepository<CartsProducts> cartsProductsRepo;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
@@ -26,6 +27,7 @@ namespace SimpleShoppingApp.Services.Products
         public ProductsService(
             IRepository<Product> _productsRepo,
             IRepository<UsersRating> _usersRatingRepo,
+            IRepository<CartsProducts> _cartsProductsRepo,
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
             IUsersService _usersService,
@@ -34,6 +36,7 @@ namespace SimpleShoppingApp.Services.Products
         {
             productsRepo = _productsRepo;
             usersRatingRepo = _usersRatingRepo;
+            cartsProductsRepo = _cartsProductsRepo;
             imagesService = _imagesService;
             categoriesService = _categoriesService;
             usersService = _usersService;
@@ -349,6 +352,15 @@ namespace SimpleShoppingApp.Services.Products
             }
 
             productToDelete.IsDeleted = true;
+
+            var cartProducts = cartsProductsRepo.AllAsTracking()
+                .Where(cp => cp.ProductId == id).ToList();
+
+            foreach (var cartProduct in cartProducts)
+            {
+                cartProduct.IsDeleted = true;
+            }
+
             await productsRepo.SaveChangesAsync();
             return AddUpdateDeleteResult.Success;
 
