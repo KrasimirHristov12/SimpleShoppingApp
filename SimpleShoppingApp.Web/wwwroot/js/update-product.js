@@ -4,5 +4,6 @@
     }
     else {
         $(".new-price").addClass("d-none");
+        $(".new-price input:text").val("");
     }
 }).trigger("change");

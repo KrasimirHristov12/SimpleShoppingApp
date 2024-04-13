@@ -118,8 +118,9 @@
 
                 else
                 {
-                    <span class="text-primary text-decoration-line-through fs-1">$@Model.Price</span>
-                    <span class="text-primary fw-bold text-decoration-underline fs-4">$@Model.NewPrice</span>
+                    <span class="text-primary text-decoration-line-through fs-4">$@Model.Price</span>
+                    <span class="text-primary fw-bold text-decoration-underline fs-1">$@Model.NewPrice</span>
+                    <span class="text-primary fw-bold" style="font-size: 15px">(-@Model.DiscountPercentage%)</span>
                 }
 
             </li>

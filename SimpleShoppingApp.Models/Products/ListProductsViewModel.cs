@@ -12,6 +12,12 @@ namespace SimpleShoppingApp.Models.Products
 
         public double Rating { get; set; }
 
+        public bool HasDiscount { get; set; }
+
+        public decimal? NewPrice { get; set; }
+
+        public int? DiscountPercentage => NewPrice == null ? null : 100 - (int)(NewPrice / Price * 100);
+
         public ImageViewModel Image { get; set; } = null!;
     }
 }

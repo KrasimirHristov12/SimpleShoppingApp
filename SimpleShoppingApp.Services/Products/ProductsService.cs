@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
-using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Emails;
@@ -222,6 +221,8 @@ namespace SimpleShoppingApp.Services.Products
                     Name = p.Name,
                     Price = p.Price,
                     Rating = p.Rating,
+                    HasDiscount = p.HasDiscount,
+                    NewPrice = p.NewPrice,
 
                 })
                 .ToListAsync();
@@ -309,6 +310,8 @@ namespace SimpleShoppingApp.Services.Products
                     Name = p.Name,
                     Price = p.Price,
                     Rating = p.Rating,
+                    HasDiscount = p.HasDiscount,
+                    NewPrice = p.NewPrice,
                 })
                 .ToListAsync();
 
@@ -489,6 +492,8 @@ namespace SimpleShoppingApp.Services.Products
                     Name = p.Name,
                     Price = p.Price,
                     Rating = p.Rating,
+                    HasDiscount = p.HasDiscount,
+                    NewPrice = p.NewPrice,
                 }).ToListAsync();
 
             foreach (var product in filteredProducts)

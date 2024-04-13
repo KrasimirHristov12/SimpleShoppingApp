@@ -4,19 +4,28 @@
     var Products = Model.ToList();
 }
 
-    @for (int i = 0; i < Products.Count; i++)
-    {
-        <div class="col-md-3 mb-2 product">
-            <a asp-controller="Products" asp-action="Index" asp-route-id="@Products[i].Id" class="link-dark text-decoration-none">
-                <div class="card">
+@for (int i = 0; i < Products.Count; i++)
+{
+    <div class="col-md-3 mb-2 product">
+        <a asp-controller="Products" asp-action="Index" asp-route-id="@Products[i].Id" class="link-dark text-decoration-none">
+            <div class="card">
                 <img src="@(!string.IsNullOrWhiteSpace(Products[i].Image.Name) && !string.IsNullOrWhiteSpace(Products[i].Image.Extension) ? $"/images/products/{Products[i].Image.Name}{Products[i].Image.Extension}" : Products[i].Image.ImageUrl)" class="card-img-top product-img" alt="@Products[i].Name Image" />
-                    <div class="card-body">
-                        <h5 class="card-title">@nameShortener.Shorten(Products[i].Name)</h5>
-                        <p class="card-text">Rating: @Products[i].Rating<br /><br /><span class="text-danger fw-bold fs-6">$@Products[i].Price</span></p>
-                    </div>
+                <div class="card-body">
+                    <h5 class="card-title">@nameShortener.Shorten(Products[i].Name)</h5>
+                    <p class="card-text">
+                        Rating: @Products[i].Rating<br /><br /><span class="text-danger fw-bold fs-6 @(Products[i].HasDiscount ? "text-decoration-line-through" : "")">$@Products[i].Price</span>
+                        @if (Products[i].HasDiscount)
+                        {
+                            <br />
+                            <span class="text-danger fw-bold fs-6">$@Products[i].NewPrice</span>
+                            <br/> 
+                            <span class="text-danger fw-bold" style="font-size: 12px">(-@Products[i].DiscountPercentage%)</span>
+                        }
+                    </p>
                 </div>
-            </a>
-        </div>
-    }
+            </div>
+        </a>
+    </div>
+}
 
 
