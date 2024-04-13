@@ -13,6 +13,10 @@ namespace SimpleShoppingApp.Models.Products
             ImagesUrls = new List<string>();
         }
 
+        [Required]
+        [Range(typeof(int), "1", "1000000")]
+        public int? Quantity { get; set; }
+
         [ValidateImage]
         [FileMaxSize(5)]
         public IEnumerable<IFormFile>? Images { get; set; }

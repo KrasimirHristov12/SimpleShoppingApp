@@ -25,10 +25,6 @@ namespace SimpleShoppingApp.Models.Products
         [Range(typeof(decimal), "0.50", "10000", ConvertValueInInvariantCulture = true)]
         public decimal? Price { get; set; }
 
-        [Required]
-        [Range(typeof(int), "1", "1000000")]
-        public int? Quantity { get; set; }
-
         [BindNever]
         public IEnumerable<CategoryViewModel> Categories { get; set; }
 

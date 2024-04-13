@@ -10,6 +10,10 @@ namespace SimpleShoppingApp.Models.Products
         [Display(Name = "New Price")]
         public decimal? NewPrice { get; set; }
 
+        [Required]
+        [Range(typeof(int), "0", "1000000")]
+        public int? Quantity { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (!HasDiscount && NewPrice != null)
