@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SimpleShoppingApp.Extensions;
 using SimpleShoppingApp.Services.Products;
 
 namespace SimpleShoppingApp.Web.Areas.Administration.Controllers
@@ -15,7 +16,8 @@ namespace SimpleShoppingApp.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> Approve(int id)
         {
-            var approveResult = await productsService.ApproveAsync(id);
+            var adminUserId = User.GetId();
+            var approveResult = await productsService.ApproveAsync(id, adminUserId);
             if (!approveResult)
             {
                 return NotFound();
@@ -29,7 +31,8 @@ namespace SimpleShoppingApp.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> UnApprove(int id)
         {
-            var approveResult = await productsService.UnApproveAsync(id);
+            var adminUserId = User.GetId();
+            var approveResult = await productsService.UnApproveAsync(id, adminUserId);
             if (!approveResult)
             {
                 return NotFound();

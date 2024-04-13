@@ -37,8 +37,8 @@ namespace SimpleShoppingApp.Services.Products
 
         Task<string?> GetOwnerIdAsync(int productId);
 
-        Task<bool> ApproveAsync(int productId);
+        Task<bool> ApproveAsync(int productId, string userId);
 
-        Task<bool> UnApproveAsync(int productId);
+        Task<bool> UnApproveAsync(int productId, string userId);
     }
 }

@@ -89,6 +89,12 @@ namespace SimpleShoppingApp.Tests
             usersServiceMock.Setup(x => x.IsInRoleAsync("UserId", "Administrator"))
                 .ReturnsAsync(false);
 
+            usersServiceMock.Setup(x => x.GetAdminIdAsync())
+            .ReturnsAsync("AdminId");
+
+            usersServiceMock.Setup(x => x.GetEmailAsync("UserId"))
+                .ReturnsAsync(string.Empty);
+
             imagesServiceMock.Setup(x => x.GetAsync(1))
                 .ReturnsAsync(new List<ImageViewModel>());
 
@@ -96,10 +102,7 @@ namespace SimpleShoppingApp.Tests
             {
                 imagesServiceMock.Setup(x => x.GetFirstAsync(i))
                    .ReturnsAsync((ImageViewModel)null);
-            }
-
-            usersServiceMock.Setup(x => x.GetAdminIdAsync())
-                .ReturnsAsync("");
+            };
 
             shortenerMock.Setup(x => x.Shorten("TestProd", 50))
                 .Returns("Test");
@@ -156,7 +159,7 @@ namespace SimpleShoppingApp.Tests
                 Name = "TestProd",
                 Price = 2M,
                 Quantity = 2,
-                Description = "Test Description"
+                Description = "Test Description",
             }, "UserId", string.Empty);
 
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
@@ -194,7 +197,11 @@ namespace SimpleShoppingApp.Tests
                 Description = "Test Description"
             }, "UserId", string.Empty);
 
-            var result = await productsService.GetAsync(1, null) ?? new ProductViewModel();
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.GetAsync(1, null);
+
+            Assert.IsNotNull(result);
 
             Assert.IsFalse(result.BelongsToCurrentUser);
         }
@@ -211,7 +218,9 @@ namespace SimpleShoppingApp.Tests
                 Description = "Test Description"
             }, "UserId", string.Empty);
 
-            var product = await productsService.GetAsync(1, "UserId");
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var product = await productsService.GetAsync(1, null);
 
             Assert.IsNotNull(product);
         }
@@ -226,7 +235,7 @@ namespace SimpleShoppingApp.Tests
         [Test]
         public async Task TestGetProductNameSuccessfully()
         {
-           await productsService.AddAsync(new AddProductInputModel
+            await productsService.AddAsync(new AddProductInputModel
             {
                 CategoryId = 1,
                 Name = "TestProd",
@@ -234,6 +243,8 @@ namespace SimpleShoppingApp.Tests
                 Quantity = 2,
                 Description = "Test Description"
             }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
 
             var productName = await productsService.GetNameAsync(1);
 
@@ -268,6 +279,10 @@ namespace SimpleShoppingApp.Tests
                 Quantity = 2,
                 Description = "Test Description2"
             }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            await productsService.ApproveAsync(2, "AdminId");
 
             var products = await productsService.GetRandomProductsAsync(2);
 
@@ -352,6 +367,8 @@ namespace SimpleShoppingApp.Tests
                     Quantity = 2,
                     Description = "Test Description2"
                 }, "UserId", string.Empty);
+
+                await productsService.ApproveAsync(i + 1, "AdminId");
             }
 
             var result = await productsService.GetByCategoryAsync(new ProductsFilterModel
@@ -394,6 +411,8 @@ namespace SimpleShoppingApp.Tests
                     Quantity = 2,
                     Description = "Test Desc",
                 }, "UserId", string.Empty);
+
+                await productsService.ApproveAsync(i + 1, "AdminId");
             }
 
             var filteredProducts = await productsService.GetByCategoryAsync(new ProductsFilterModel
@@ -472,13 +491,15 @@ namespace SimpleShoppingApp.Tests
                 }, "UserId", string.Empty);
 
 
+                await productsService.ApproveAsync(result.ProductId ?? 0, "AdminId");
+
                 if (filter != RatingFilter.Zero)
                 {
 
                     var ratingsList = kvp.Value;
 
-                    await productsService.AddRatingFromUserAsync(result.ProductId ?? 1, "UserId", ratingsList[0]);
-                    await productsService.AddRatingFromUserAsync(result.ProductId ?? 1, "UserId2", ratingsList[1]);
+                    await productsService.AddRatingFromUserAsync(result.ProductId ?? 0, "UserId", ratingsList[0]);
+                    await productsService.AddRatingFromUserAsync(result.ProductId ?? 0, "UserId2", ratingsList[1]);
                 }
 
             }
@@ -514,7 +535,7 @@ namespace SimpleShoppingApp.Tests
         [TestCase(3)]
         public async Task TestApproveProductWhenProductDoesNotExist(int productId)
         {
-            var result = await productsService.ApproveAsync(productId);
+            var result = await productsService.ApproveAsync(productId, "AdminId");
             Assert.IsFalse(result);
         }
 
@@ -530,7 +551,7 @@ namespace SimpleShoppingApp.Tests
                 Description = "Test Desc",
             }, "UserId", string.Empty);
 
-             await productsService.AddAsync(new AddProductInputModel
+            await productsService.AddAsync(new AddProductInputModel
             {
                 CategoryId = 1,
                 Name = "TestProd",
@@ -539,8 +560,8 @@ namespace SimpleShoppingApp.Tests
                 Description = "Test Desc",
             }, "UserId", string.Empty);
 
-            var resultOne = await productsService.UnApproveAsync(1);
-            var resultTwo = await productsService.UnApproveAsync(2);
+            var resultOne = await productsService.UnApproveAsync(1, "AdminId");
+            var resultTwo = await productsService.UnApproveAsync(2, "AdminId");
             Assert.IsTrue(resultOne);
             Assert.IsTrue(resultTwo);
 
@@ -553,7 +574,7 @@ namespace SimpleShoppingApp.Tests
         [TestCase(3)]
         public async Task TestUnApproveProductWhenProductDoesNotExist(int productId)
         {
-            var result = await productsService.UnApproveAsync(productId);
+            var result = await productsService.UnApproveAsync(productId, "AdminId");
             Assert.IsFalse(result);
         }
 
@@ -578,14 +599,694 @@ namespace SimpleShoppingApp.Tests
                 Description = "Test Desc",
             }, "UserId", string.Empty);
 
-            var resultOne = await productsService.ApproveAsync(1);
-            var resultTwo = await productsService.ApproveAsync(2);
+            var resultOne = await productsService.ApproveAsync(1, "AdminId");
+            var resultTwo = await productsService.ApproveAsync(2, "AdminId");
             Assert.IsTrue(resultOne);
             Assert.IsTrue(resultTwo);
 
 
         }
 
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-100)]
+        public async Task TestDeleteWhenIdIsNotAPositiveNumber(int id)
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.DeleteAsync(id, string.Empty);
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+
+        }
+
+        [Test]
+        public async Task TestDeleteWhenProductToDeleteIsNotFound()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.DeleteAsync(2, string.Empty);
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestDeleteWhenUserTryingToDeleteItIsNotTheOwner()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.DeleteAsync(1, "UserId2");
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.Forbidden));
+        }
+
+        [Test]
+        public async Task TestSuccessfulDelete()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.DeleteAsync(1, "UserId");
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.Success));
+        }
+
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-100)]
+        public async Task TestCategoryCountWhenCategoryIdIsNotAPositiveNumber(int categoryId)
+        {
+            var count = await productsService.GetCountForCategoryAsync(categoryId);
+            Assert.That(count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task TestCategoryCountWhenCategoryDoesNoExist()
+        {
+            var count = await productsService.GetCountForCategoryAsync(300);
+            Assert.That(count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task TestCategoryCountWhenThereAreNoProducts()
+        {
+            var count = await productsService.GetCountForCategoryAsync(1);
+            Assert.That(count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task TestCategoryCountWhenThereAreProducts()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                await productsService.AddAsync(new AddProductInputModel
+                {
+                    CategoryId = 1,
+                    Name = "TestProd",
+                    Price = 1,
+                    Quantity = 2,
+                    Description = "Test Desc",
+                }, "UserId", string.Empty);
+
+                await productsService.ApproveAsync(i + 1, "AdminId");
+            }
+
+            var count = await productsService.GetCountForCategoryAsync(1);
+
+            Assert.That(count, Is.EqualTo(10));
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-10)]
+        public async Task TestGetToEditWhenProductIdIsNotAPositiveNumber(int productId)
+        {
+            var result = await productsService.GetToEditAsync(productId, string.Empty);
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestGetToEditWhenProductDoesNotExist()
+        {
+            var result = await productsService.GetToEditAsync(1, string.Empty);
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestGetToEditWhenUserTryingToEditIsNotTheOwner()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.GetToEditAsync(1, "UserId2");
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Forbidden));
+
+        }
+
+        [Test]
+        public async Task TestGetToEditSuccessfully()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.GetToEditAsync(1, "UserId");
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-10)]
+        public async Task TestUpdateWhenProductIdIsNotAPositiveNumber(int productId)
+        {
+            var result = await productsService.UpdateAsync(new EditProductInputModel
+            {
+                Id = productId,
+                CategoryId = 1,
+
+            }, string.Empty);
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-10)]
+        public async Task TestUpdateWhenCategoryIdIsNotAPositiveNumber(int categoryId)
+        {
+            var result = await productsService.UpdateAsync(new EditProductInputModel
+            {
+                Id = 1,
+                CategoryId = categoryId,
+
+            }, string.Empty);
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestUpdateWhenCategoryDoesNotExist()
+        {
+            var result = await productsService.UpdateAsync(new EditProductInputModel
+            {
+                Id = 1,
+                CategoryId = 2,
+
+            }, string.Empty);
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestUpdateWhenProductDoesNotExist()
+        {
+            var result = await productsService.UpdateAsync(new EditProductInputModel
+            {
+                Id = 1,
+                CategoryId = 1,
+
+            }, string.Empty);
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestUpdateWhenUserTryingToUpdateItIsNotTheOwner()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.UpdateAsync(new EditProductInputModel
+            {
+                Id = 1,
+                CategoryId = 1,
+
+            }, "UserId2");
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.Forbidden));
+
+        }
+
+        [Test]
+        public async Task TestUpdateSuccessfully()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.UpdateAsync(new EditProductInputModel
+            {
+                Id = 1,
+                CategoryId = 1,
+                Name = "UpdatedTestProd"
+
+            }, "UserId");
+
+            Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.Success));
+        }
+
+        [Test]
+        [TestCase(null)]
+        [TestCase("")]
+        public async Task TestGetByNameWhenNameIsEmpty(string? name)
+        {
+            var products = await productsService.GetByNameAsync(name);
+            Assert.That(products.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task TestGetByNameWhenTheNameIsValid()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "Prod",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "ProdTest",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+            await productsService.ApproveAsync(2, "AdminId");
+            await productsService.ApproveAsync(3, "AdminId");
+
+            var products = await productsService.GetByNameAsync("Prod");
+
+            Assert.That(products.Count(), Is.EqualTo(3));
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-10)]
+        public async Task TestBelongsToUserWhenProductIdIsNotAPositiveNumber(int productId)
+        {
+            var result = await productsService.BelognsToUserAsync(productId, string.Empty);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task TestBelongsToUserWhenProductDoesNotExist()
+        {
+            var result = await productsService.BelognsToUserAsync(1, string.Empty);
+            Assert.IsFalse(result);
+        }
+
+
+        [Test]
+        public async Task TestBelongsToUserWhenLoggedInUserIsNotTheOwner()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.BelognsToUserAsync(1, "UserId2");
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task TestBelongsToUserWhenLoggedInUserIsTheOwner()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.BelognsToUserAsync(1, "UserId");
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public async Task TestBelongsToUserWhenLoggedInUserIsTheAdmin()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.BelognsToUserAsync(1, "AdminId");
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-10)]
+        public async Task TestGetQuantityWhenProductIdIsNotAPositiveNumber(int productId)
+        {
+            var result = await productsService.GetQuantityAsync(productId);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task TestGetQuantityWhenProductDoesNotExist()
+        {
+            var result = await productsService.GetQuantityAsync(1);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task TestGetQuantityWhenProductExists()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.GetQuantityAsync(1);
+
+            Assert.NotNull(result);
+
+            Assert.That(result, Is.EqualTo(2));
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-10)]
+        public async Task TestDoesProductExistWhenProductIdIsNotAPositiveNumber(int productId)
+        {
+            var result = await productsService.DoesProductExistAsync(productId);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task TestDoesProductExistWhenProductDoesNotExist()
+        {
+            var result = await productsService.DoesProductExistAsync(1);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public async Task TestDoesProductExistWhenProductExists()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.DoesProductExistAsync(1);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-100)]
+        public async Task TestAddRatingFromUserWhenProductIdIsNotAPositiveNumber(int productId)
+        {
+            var result = await productsService.AddRatingFromUserAsync(productId, string.Empty, 1);
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestAddRatingFromUserWhenProductDoesNotExist()
+        {
+            var result = await productsService.AddRatingFromUserAsync(1, string.Empty, 1);
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(6)]
+        public async Task TestAddRatingFromUserWhenRatingIsInvalid(int rating)
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+            var result = await productsService.AddRatingFromUserAsync(1, string.Empty, rating);
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.NotFound));
+        }
+
+        [Test]
+        public async Task TestAddRatingSuccessfullyWhenThereIsOneRating()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.AddRatingFromUserAsync(1, "UserId", 3);
+
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+            Assert.That(result.AvgRating, Is.EqualTo(3));
+
+        }
+
+
+        [Test]
+        public async Task TestAddRatingSuccessfullyWhenThereAreMoreThanOneRating()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.AddRatingFromUserAsync(1, "UserId", 3);
+            var result2 = await productsService.AddRatingFromUserAsync(1, "UserId2", 4);
+            var result3 = await productsService.AddRatingFromUserAsync(1, "UserId2", 5);
+
+
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+            Assert.That(result.AvgRating, Is.EqualTo(3));
+
+            Assert.That(result2.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+            Assert.That(result2.AvgRating, Is.EqualTo(3.5));
+
+            Assert.That(result3.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+            Assert.That(result3.AvgRating, Is.EqualTo(4));
+
+        }
+
+        [Test]
+        public async Task TestAddRatingSuccessfullyWhenUserChangesRating()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.AddRatingFromUserAsync(1, "UserId", 3);
+            var result2 = await productsService.AddRatingFromUserAsync(1, "UserId", 4);
+
+
+            Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+            Assert.That(result.AvgRating, Is.EqualTo(3));
+
+            Assert.That(result2.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
+            Assert.That(result2.AvgRating, Is.EqualTo(4));
+
+        }
+
+        [Test]
+        public async Task TestGetCountWhenThereAreNoApprovedProducts()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                await productsService.AddAsync(new AddProductInputModel
+                {
+                    CategoryId = 1,
+                    Name = "TestProd",
+                    Price = 1,
+                    Quantity = 2,
+                    Description = "Test Desc",
+                }, "UserId", string.Empty);
+            }
+
+            var count = await productsService.GetCountAsync();
+            Assert.That(count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task TestGetCountSuccessfully()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                await productsService.AddAsync(new AddProductInputModel
+                {
+                    CategoryId = 1,
+                    Name = "TestProd",
+                    Price = 1,
+                    Quantity = 2,
+                    Description = "Test Desc",
+                }, "UserId", string.Empty);
+
+                await productsService.ApproveAsync(i+1, "AdminId");
+
+            }
+
+            var count = await productsService.GetCountAsync();
+            Assert.That(count, Is.EqualTo(10));
+        }
+
+        [Test]
+        public async Task TestGetOwnerIdWhenProductDoesNotExist()
+        {
+            var result = await productsService.GetOwnerIdAsync(1);
+            Assert.IsNull(result);
+        }
+
+
+        [Test]
+        public async Task TestGetOwnerIdWhenProductNotApproved()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            var result = await productsService.GetOwnerIdAsync(1);
+            Assert.IsNotNull(result);
+            Assert.That(result, Is.EqualTo("UserId"));
+        }
+
+        [Test]
+        public async Task TestGetOwnerIdWhenExists()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 1,
+                Quantity = 2,
+                Description = "Test Desc",
+            }, "UserId", string.Empty);
+
+            await productsService.ApproveAsync(1, "AdminId");
+
+            var result = await productsService.GetOwnerIdAsync(1);
+            Assert.IsNotNull(result);
+            Assert.That(result, Is.EqualTo("UserId"));
+        }
 
     }
 }

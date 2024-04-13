@@ -553,7 +553,7 @@ namespace SimpleShoppingApp.Services.Products
 
             return await GetApprovedProducts()
                 .Where(p => p.Id == id)
-                .Select(p => p.Quantity)
+                .Select(p => p.Quantity as int?)
                 .FirstOrDefaultAsync();
         }
 
@@ -578,7 +578,7 @@ namespace SimpleShoppingApp.Services.Products
                 };
             }
 
-            var product = await GetApprovedProducts()
+            var product = await GetApprovedProductsAsTracking()
             .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
@@ -683,7 +683,7 @@ namespace SimpleShoppingApp.Services.Products
             return ownerId;
         }
 
-        public async Task<bool> ApproveAsync(int productId)
+        public async Task<bool> ApproveAsync(int productId, string userId)
         {
             var product = await GetNotDeletedProductsAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == productId);
@@ -691,32 +691,35 @@ namespace SimpleShoppingApp.Services.Products
             {
                 return false;
             }
-            product.IsApproved = true;
-            await productsRepo.SaveChangesAsync();
             var adminUserId = await usersService.GetAdminIdAsync();
             var ownerUserId = await GetOwnerIdAsync(productId);
 
-            if (!string.IsNullOrWhiteSpace(adminUserId) && !string.IsNullOrWhiteSpace(ownerUserId))
+            if (string.IsNullOrWhiteSpace(adminUserId) || string.IsNullOrWhiteSpace(ownerUserId))
             {
-
-                var emailOfOwner = await usersService.GetEmailAsync(ownerUserId);
-
-                if (!string.IsNullOrWhiteSpace(emailOfOwner))
-                {
-                    await emailsService.SendAsync(emailOfOwner, string.Empty, "Product approved", $"A product with id = {productId} has been approved from the administrator");
-                }
-
-                await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has been approved by the administrator", $"/Products/Index/{productId}");
-
+                return false;
             }
+
+            if (userId != adminUserId)
+            {
+                return false;
+            }
+
+            var emailOfOwner = await usersService.GetEmailAsync(ownerUserId);
+
+            if (!string.IsNullOrWhiteSpace(emailOfOwner))
+            {
+                await emailsService.SendAsync(emailOfOwner, string.Empty, "Product approved", $"A product with id = {productId} has been approved from the administrator");
+            }
+
+            await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has been approved by the administrator", $"/Products/Index/{productId}");
+
+            product.IsApproved = true;
+            await productsRepo.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> UnApproveAsync(int productId)
+        public async Task<bool> UnApproveAsync(int productId, string userId)
         {
-            var adminUserId = await usersService.GetAdminIdAsync();
-            var ownerUserId = await GetOwnerIdAsync(productId);
-
             var product = await GetNotDeletedProductsAsTracking()
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
@@ -724,23 +727,35 @@ namespace SimpleShoppingApp.Services.Products
             {
                 return false;
             }
+
+            var adminUserId = await usersService.GetAdminIdAsync();
+            var ownerUserId = await GetOwnerIdAsync(productId);
+
+            if (string.IsNullOrWhiteSpace(adminUserId) || string.IsNullOrWhiteSpace(ownerUserId))
+            {
+                return false;
+            }
+
+
+            if (userId != adminUserId)
+            {
+                return false;
+            }
+
+
+            var emailOfOwner = await usersService.GetEmailAsync(ownerUserId);
+
+            if (!string.IsNullOrWhiteSpace(emailOfOwner))
+            {
+                await emailsService.SendAsync(emailOfOwner, string.Empty, "Product not approved", $"A product with id = {productId} has NOT been approved from the administrator");
+            }
+
+            await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has not been approved by the administrator");
 
             product.IsDeleted = true;
 
             await productsRepo.SaveChangesAsync();
 
-            if (!string.IsNullOrWhiteSpace(adminUserId) && !string.IsNullOrWhiteSpace(ownerUserId))
-            {
-
-                var emailOfOwner = await usersService.GetEmailAsync(ownerUserId);
-
-                if (!string.IsNullOrWhiteSpace(emailOfOwner))
-                {
-                    await emailsService.SendAsync(emailOfOwner, string.Empty, "Product not approved", $"A product with id = {productId} has NOT been approved from the administrator");
-                }
-
-                await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has not been approved by the administrator");
-            }
             return true;
         }
 
