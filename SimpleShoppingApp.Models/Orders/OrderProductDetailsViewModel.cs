@@ -18,6 +18,6 @@ namespace SimpleShoppingApp.Models.Orders
 
         public decimal Price { get; set; }
 
-        public ImageViewModel Image { get; set; }
+        public ImageViewModel? Image { get; set; }
     }
 }

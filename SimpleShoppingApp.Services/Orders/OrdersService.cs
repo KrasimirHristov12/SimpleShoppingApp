@@ -284,7 +284,7 @@ namespace SimpleShoppingApp.Services.Orders
                             Name = i.Name,
                             ImageUrl = i.ImageUrl,
 
-                        }).First()
+                        }).FirstOrDefault()
                     }).ToList(),
                 })
                 .FirstOrDefaultAsync();
@@ -330,7 +330,7 @@ namespace SimpleShoppingApp.Services.Orders
             string tableHtml = "<table style=\"max-width: 600px;\"><tr><th style=\"border: 1px solid #ddd;\"></th><th style=\"border: 1px solid #ddd;\">Name</th><th style=\"border: 1px solid #ddd;\">Quantity</th><th style=\"border: 1px solid #ddd;\">Price</th></tr>";
             foreach (var prod in products)
             {
-                var imagePath = !string.IsNullOrWhiteSpace(prod.Image.Name) && !string.IsNullOrWhiteSpace(prod.Image.Extension) ? "https://localhost:7287/images/products/" + prod.Image.Name + prod.Image.Extension : prod.Image.ImageUrl;
+                var imagePath = !string.IsNullOrWhiteSpace(prod.Image?.Name) && !string.IsNullOrWhiteSpace(prod.Image.Extension) ? "https://localhost:7287/images/products/" + prod.Image.Name + prod.Image.Extension : prod.Image?.ImageUrl;
                 tableHtml += $"<tr><td style=\"border: 1px solid #ddd;\"><img width=\"50px\" src=\"{imagePath}\"/></td><td style=\"border: 1px solid #ddd;\">{prod.Name}</td><td style=\"border: 1px solid #ddd;\">{prod.Quantity}</td><td style=\"border: 1px solid #ddd;\">${prod.Price}</td></tr>";
             }
             tableHtml += "</table><hr/><br/>";
