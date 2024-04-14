@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Data.Models
 {
@@ -14,7 +15,7 @@ namespace SimpleShoppingApp.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(500)]
+        [MaxLength(ProductNameMaxLength)]
         public string Name { get; set; } = null!;
 
         [Required]

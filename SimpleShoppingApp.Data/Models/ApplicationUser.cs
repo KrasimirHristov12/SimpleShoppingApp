@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Data.Models
 {
@@ -15,10 +16,10 @@ namespace SimpleShoppingApp.Data.Models
             ReceivedNotifications = new HashSet<Notification>();
         }
 
-        [MaxLength(50)]
+        [MaxLength(UserMaxLength)]
         public string? FirstName { get; set; }
 
-        [MaxLength(50)]   
+        [MaxLength(UserMaxLength)]   
         public string? LastName { get; set; }
 
         public ShoppingCart Cart { get; set; } = null!;

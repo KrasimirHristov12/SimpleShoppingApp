@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 namespace SimpleShoppingApp.Data.Models
 {
     public class Image
@@ -8,7 +8,7 @@ namespace SimpleShoppingApp.Data.Models
 
         public string? Name { get; set; }
 
-        [MaxLength(6)]
+        [MaxLength(ImageExtensionMaxLength)]
         public string? Extension { get; set; }
 
         public string? ImageUrl { get; set; }

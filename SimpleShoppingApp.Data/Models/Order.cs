@@ -1,6 +1,6 @@
 ﻿using SimpleShoppingApp.Data.Enums;
 using System.ComponentModel.DataAnnotations;
-
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 namespace SimpleShoppingApp.Data.Models
 {
     public class Order
@@ -30,7 +30,7 @@ namespace SimpleShoppingApp.Data.Models
         public DateTime DeliveryDate { get; set; }
 
         [Required]
-        [MaxLength(10)]
+        [MaxLength(PhoneNumberMaxLength)]
         public string PhoneNumber { get; set; } = null!;
 
         public int AddressId { get; set; }
