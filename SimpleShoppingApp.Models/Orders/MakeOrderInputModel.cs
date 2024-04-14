@@ -1,6 +1,7 @@
 ﻿using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Models.Addresses;
 using System.ComponentModel.DataAnnotations;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Models.Orders
 {
@@ -13,15 +14,15 @@ namespace SimpleShoppingApp.Models.Orders
             Addresses = new List<AddressViewModel>();
         }
 
-        [Display(Name = "Shipping Address")]
+        [Display(Name = AddressIdDisplay)]
         public int AddressId { get; set; }
 
-        [Display(Name = "Payment Method")]
+        [Display(Name = PaymentMethodDisplay)]
         public PaymentMethod PaymentMethod { get; set; }
 
         [Required]
         [Phone]
-        [Display(Name = "Phone Number")]
+        [Display(Name = PhoneNumberDisplay)]
         public string PhoneNumber { get; set; } = null!;
 
         public IEnumerable<AddressViewModel> Addresses { get; set; }
@@ -34,7 +35,7 @@ namespace SimpleShoppingApp.Models.Orders
         {
             if (ProductIds.Count == 0 || Quantities.Count == 0)
             {
-                yield return new ValidationResult("You should add at least one product to proceed with the order");
+                yield return new ValidationResult(NoProductsErrorMessage);
             }
         }
     }

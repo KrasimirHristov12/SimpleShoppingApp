@@ -1,31 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
-
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 namespace SimpleShoppingApp.Models.Users
 {
     public class AdministrationUserViewModel
     {
         public string Id { get; set; } = null!;
 
-        [StringLength(100, MinimumLength = 6)]
-        [Display(Name = "Username")]
+        [StringLength(EmailMaxLength, MinimumLength = EmailMinLength)]
+        [Display(Name = UsernameDisplay)]
         public string? UserName { get; set; }
 
         [BindNever]
         public string? Email { get; set; }
 
         [Phone]
-        [Display(Name = "Phone Number")]
+        [Display(Name = PhoneNumberDisplay)]
         public string? PhoneNumber { get; set; }
 
-        [StringLength(50, MinimumLength = 2)]
-        [RegularExpression("^([A-Za-z][A-Za-z]+){2,50}$")]
-        [Display(Name = "First Name")]
+        [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [Display(Name = FirstNameDisplay)]
         public string? FirstName { get; set; }
 
-        [StringLength(50, MinimumLength = 2)]
-        [RegularExpression("^([A-Za-z][A-Za-z]+){2,50}$")]
-        [Display(Name = "Last Name")]
+        [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [Display(Name = LastNameDisplay)]
         public string? LastName { get; set; }
     }
 }

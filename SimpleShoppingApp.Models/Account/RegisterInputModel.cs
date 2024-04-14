@@ -1,39 +1,40 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Models.Account
 {
     public class RegisterInputModel
     {
         [Required]
-        [StringLength(100, MinimumLength = 6)]
+        [StringLength(EmailMaxLength, MinimumLength = EmailMinLength)]
         [EmailAddress]
         public string Email { get; set; } = null!;
 
         [Required]
-        [StringLength(50, MinimumLength = 2)]
-        [Display(Name = "First Name")]
+        [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [Display(Name = FirstNameDisplay)]
         public string FirstName { get; set; } = null!;
 
         [Required]
-        [StringLength(50, MinimumLength = 2)]
-        [Display(Name = "Last Name")]
+        [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [Display(Name = LastNameDisplay)]
         public string LastName { get; set; } = null!;
 
         [Required]
         [Phone]
-        [Display(Name = "Phone Number")]
+        [Display(Name = PhoneNumberDisplay)]
         public string PhoneNumber { get; set; } = null!;
 
         [Required]
-        [MinLength(6)]
+        [MinLength(PasswordMinLength)]
         [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
         [Required]
-        [MinLength(6)]
+        [MinLength(PasswordMinLength)]
         [Compare(nameof(Password))]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
+        [Display(Name = ConfirmPasswordDisplay)]
         public string ConfirmPassword { get; set; } = null!;
     }
 }

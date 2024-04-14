@@ -1,19 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Models.Account
 {
     public class NewPasswordInputModel
     {
         [Required]
-        [MinLength(6)]
+        [MinLength(PasswordMinLength)]
         [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
         [Required]
-        [MinLength(6)]
+        [MinLength(PasswordMinLength)]
         [Compare(nameof(Password))]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
+        [Display(Name = ConfirmPasswordDisplay)]
         public string ConfirmPassword { get; set; } = null!;
 
         [Required]
@@ -21,7 +22,7 @@ namespace SimpleShoppingApp.Models.Account
 
         [Required]
         [EmailAddress]
-        [StringLength(100, MinimumLength = 6)]
+        [StringLength(EmailMaxLength, MinimumLength = EmailMinLength)]
         public string Email { get; set; } = null!;
     }
 }

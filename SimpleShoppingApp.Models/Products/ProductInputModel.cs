@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SimpleShoppingApp.Models.Categories;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -14,21 +15,21 @@ namespace SimpleShoppingApp.Models.Products
         public int Id { get; set; }
 
         [Required]
-        [StringLength(500, MinimumLength = 5)]
+        [StringLength(ProductNameMaxLength, MinimumLength = ProductNameMinLength)]
         public string Name { get; set; } = null!;
 
         [Required]
-        [MinLength(10)]
+        [MinLength(ProductDescriptionMinLength)]
         public string Description { get; set; } = null!;
 
         [Required]
-        [Range(typeof(decimal), "0.50", "10000", ConvertValueInInvariantCulture = true)]
+        [Range(typeof(decimal), ProductPriceMinRange, ProductPriceMaxRange, ConvertValueInInvariantCulture = true)]
         public decimal? Price { get; set; }
 
         [BindNever]
         public IEnumerable<CategoryViewModel> Categories { get; set; }
 
-        [Display(Name = "Category")]
+        [Display(Name = CategoryIdDisplay)]
         public int CategoryId { get; set; }
     }
 }
