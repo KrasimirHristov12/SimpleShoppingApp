@@ -21,7 +21,6 @@ namespace SimpleShoppingApp.Services.Products
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
-        private readonly INotificationsService notificationsService;
         private readonly INameShortenerService shortenerService;
         private readonly IEmailsService emailsService;
 
@@ -32,7 +31,6 @@ namespace SimpleShoppingApp.Services.Products
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
             IUsersService _usersService,
-            INotificationsService _notificationsService,
             INameShortenerService _shortenerService,
             IEmailsService _emailsService)
         {
@@ -42,7 +40,6 @@ namespace SimpleShoppingApp.Services.Products
             imagesService = _imagesService;
             categoriesService = _categoriesService;
             usersService = _usersService;
-            notificationsService = _notificationsService;
             shortenerService = _shortenerService;
             emailsService = _emailsService;
         }
@@ -113,20 +110,12 @@ namespace SimpleShoppingApp.Services.Products
 
             await productsRepo.SaveChangesAsync();
 
-            if (!product.IsApproved)
-            {
-                string? adminUserId = await usersService.GetAdminIdAsync();
-                if (!string.IsNullOrWhiteSpace(adminUserId))
-                {
-                    bool notificationsResult = await notificationsService.AddAsync(userId, adminUserId, "A new product was added for approval.", $"/Products/Index/{product.Id}");
-                }
-                
-            }
 
             return new AddProductModel
             {
                 Result = AddUpdateDeleteResult.Success,
                 ProductId = product.Id,
+                IsApproved = product.IsApproved,
             };
         }
 
@@ -711,8 +700,6 @@ namespace SimpleShoppingApp.Services.Products
                 await emailsService.SendAsync(emailOfOwner, string.Empty, "Product approved", $"A product with id = {productId} has been approved from the administrator");
             }
 
-            await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has been approved by the administrator", $"/Products/Index/{productId}");
-
             product.IsApproved = true;
             await productsRepo.SaveChangesAsync();
             return true;
@@ -749,9 +736,6 @@ namespace SimpleShoppingApp.Services.Products
             {
                 await emailsService.SendAsync(emailOfOwner, string.Empty, "Product not approved", $"A product with id = {productId} has NOT been approved from the administrator");
             }
-
-            await notificationsService.AddAsync(adminUserId, ownerUserId, "A product you have created has not been approved by the administrator");
-
             product.IsDeleted = true;
 
             await productsRepo.SaveChangesAsync();

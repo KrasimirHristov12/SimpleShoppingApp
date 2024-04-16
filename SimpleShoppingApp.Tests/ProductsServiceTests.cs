@@ -30,7 +30,6 @@ namespace SimpleShoppingApp.Tests
         private IUsersService usersService;
         private IImagesService imagesService;
         private INameShortenerService shortenerService;
-        private INotificationsService notificationsService;
         private IEmailsService emailService;
 
         [SetUp]
@@ -67,19 +66,11 @@ namespace SimpleShoppingApp.Tests
 
             await categoryRepository.SaveChangesAsync();
 
-            //categoriesServiceMock.Setup(x => x.DoesCategoryExistAsync(1))
-            //    .ReturnsAsync(true);
-
-            //categoriesServiceMock.Setup(x => x.DoesCategoryExistAsync(2))
-            //    .ReturnsAsync(false);
-
             var imagesServiceMock = new Mock<IImagesService>();
 
             var usersServiceMock = new Mock<IUsersService>();
 
             var shortenerMock = new Mock<INameShortenerService>();
-
-            var notificationsMock = new Mock<INotificationsService>();
 
             var emailServiceMock = new Mock<IEmailsService>();
 
@@ -107,8 +98,6 @@ namespace SimpleShoppingApp.Tests
             shortenerMock.Setup(x => x.Shorten("TestProd", 50))
                 .Returns("Test");
 
-            notificationsMock.Setup(x => x.AddAsync(string.Empty, string.Empty, string.Empty, null))
-                .ReturnsAsync(true);
 
             emailServiceMock.Setup(x => x.SendAsync(string.Empty, string.Empty, string.Empty, string.Empty))
                 .ReturnsAsync(true);
@@ -116,11 +105,10 @@ namespace SimpleShoppingApp.Tests
             usersService = usersServiceMock.Object;
             imagesService = imagesServiceMock.Object;
             shortenerService = shortenerMock.Object;
-            notificationsService = notificationsMock.Object;
             emailService = emailServiceMock.Object;
 
 
-            productsService = new ProductsService(productsRepository, usersRatingRepository, cartsProductsRepository, imagesService, categoriesService, usersService, notificationsService, shortenerService, emailService);
+            productsService = new ProductsService(productsRepository, usersRatingRepository, cartsProductsRepository, imagesService, categoriesService, usersService, shortenerService, emailService);
         }
 
         [Test]

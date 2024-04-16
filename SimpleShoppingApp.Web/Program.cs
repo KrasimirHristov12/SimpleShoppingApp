@@ -15,6 +15,7 @@ using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
+using SimpleShoppingApp.Web.Hubs;
 using SimpleShoppingApp.Web.ModelBinders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +54,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
 });
+
+builder.Services.AddSignalR().AddMessagePackProtocol();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductsService, ProductsService>();
@@ -121,4 +124,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+app.MapHub<NotificationsHub>("/notificationsHub");
+
 app.Run();

@@ -28,7 +28,6 @@ namespace SimpleShoppingApp.Tests
         private IProductsService productsService;
         private IUsersService usersService;
         private IEmailsService emailsService;
-        private INotificationsService notificationsService;
         private IImagesService imagesService;
         private ApplicationDbContext db;
 
@@ -40,8 +39,6 @@ namespace SimpleShoppingApp.Tests
             var usersServiceMock = new Mock<IUsersService>();
 
             var emailsServiceMock = new Mock<IEmailsService>();
-
-            var notificationsServiceMock = new Mock<INotificationsService>();
 
             var imagesServiceMock = new Mock<IImagesService>();
 
@@ -61,8 +58,6 @@ namespace SimpleShoppingApp.Tests
             emailsServiceMock.Setup(x => x.SendAsync(string.Empty, string.Empty, string.Empty, string.Empty))
                 .ReturnsAsync(true);
 
-            notificationsServiceMock.Setup(x => x.AddAsync(string.Empty, string.Empty, string.Empty, null))
-                .ReturnsAsync(true);
 
             imagesServiceMock.Setup(x => x.GetFirstAsync(1))
                 .ReturnsAsync(new ImageViewModel());
@@ -82,9 +77,8 @@ namespace SimpleShoppingApp.Tests
             productsService = productsServiceMock.Object;
             usersService = usersServiceMock.Object;
             emailsService = emailsServiceMock.Object;
-            notificationsService = notificationsServiceMock.Object;
             imagesService = imagesServiceMock.Object;
-            ordersService = new OrdersService(ordersRepository, productsRepository, productsService, addressesService, emailsService, usersService, imagesService, notificationsService);
+            ordersService = new OrdersService(ordersRepository, productsRepository, productsService, addressesService, emailsService, usersService, imagesService);
         }
 
         [Test]

@@ -23,7 +23,6 @@ namespace SimpleShoppingApp.Services.Orders
         private readonly IEmailsService emailsService;
         private readonly IUsersService usersService;
         private readonly IImagesService imagesService;
-        private readonly INotificationsService notificationsService;
 
         public OrdersService(IRepository<Order> _orderRepo,
             IRepository<Product> _productRepo,
@@ -31,8 +30,7 @@ namespace SimpleShoppingApp.Services.Orders
             IAddressesService _addressesService,
             IEmailsService _emailsService,
             IUsersService _usersService,
-            IImagesService _imagesService,
-            INotificationsService _notificationsService)
+            IImagesService _imagesService)
         {
             orderRepo = _orderRepo;
             productRepo = _productRepo;
@@ -41,7 +39,6 @@ namespace SimpleShoppingApp.Services.Orders
             emailsService = _emailsService;
             usersService = _usersService;
             imagesService = _imagesService;
-            notificationsService = _notificationsService;
         }
         public async Task<MakeOrderResultModel> AddAsync(MakeOrderInputModel model, string userId)
         {
@@ -178,37 +175,11 @@ namespace SimpleShoppingApp.Services.Orders
             decimal orderTotalPrice = orderInfo.Order.TotalPrice;
             await SendEmailAsync(order.Id, email, fullName, orderInfo.Products, address, deliveryDays, paymentMethod, orderTotalPrice);
 
-            for (int i = 0; i < model.ProductIds.Count; i++)
-            {
-                var ownerId = await productsService.GetOwnerIdAsync(model.ProductIds[i]);
-                if (ownerId == null)
-                {
-                    return new MakeOrderResultModel
-                    {
-                        Result = MakeOrderResult.NotFound,
-                        ErrorMessage = null,
-                    };
-                }
-
-                var buyerEmail = await usersService.GetEmailAsync(userId);
-
-                if (buyerEmail == null)
-                {
-                    return new MakeOrderResultModel
-                    {
-                        Result = MakeOrderResult.NotFound,
-                        ErrorMessage = null,
-                    };
-                }
-
-                var notificationResult = await notificationsService.AddAsync(userId, ownerId, $"{buyerEmail} has just bought {model.Quantities[i]} pieces of one of your products", $"/Products/Index/{model.ProductIds[i]}");
-
-            }
-
-
             return new MakeOrderResultModel
             {
                 Result = MakeOrderResult.Success,
+                ProductsIds = model.ProductIds,
+                Quantities = model.Quantities,
                 ErrorMessage = null,
             };
 

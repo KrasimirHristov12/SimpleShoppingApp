@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using SimpleShoppingApp.Data.Enums;
+using SimpleShoppingApp.Extensions;
 using SimpleShoppingApp.Models.Categories;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Extensions;
+using SimpleShoppingApp.Web.Hubs;
 
 namespace SimpleShoppingApp.Web.Controllers
 {
@@ -18,18 +21,24 @@ namespace SimpleShoppingApp.Web.Controllers
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
         private readonly IUsersService usersService;
+        private readonly INotificationsService notificationsService;
+        private readonly IHubContext<NotificationsHub> notificationsHub;
 
         public ProductsController(IProductsService _productsService, 
             IWebHostEnvironment _env,
             IImagesService _imagesService,
             ICategoriesService _categoriesService,
-            IUsersService _usersService)
+            IUsersService _usersService,
+            INotificationsService _notificationsService,
+            IHubContext<NotificationsHub> _notificationsHub)
         {
             productsService = _productsService;
             env = _env;
             imagesService = _imagesService;
             categoriesService = _categoriesService;
             usersService = _usersService;
+            notificationsService = _notificationsService;
+            notificationsHub = _notificationsHub;
         }
 
         [AllowAnonymous]
@@ -112,6 +121,26 @@ namespace SimpleShoppingApp.Web.Controllers
             if (addProductResult.Result == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
+            }
+
+            bool isApproved = addProductResult.IsApproved;
+
+            var productId = addProductResult.ProductId;
+
+            if (!isApproved)
+            {
+                string? adminUserId = await usersService.GetAdminIdAsync();
+                if (!string.IsNullOrWhiteSpace(adminUserId))
+                {
+                    string notificationText = "A new product was added for approval.";
+                    string productLink = $"/Products/Index/{productId}";
+                    int notificationId = await notificationsService.AddAsync(userId, adminUserId, notificationText, productLink);
+                    if (notificationId > 0)
+                    {
+                        await notificationsHub.Clients.User(adminUserId).SendAsync("ReceiveNotification", notificationText, productLink, notificationId);
+                    }
+                    
+                }
             }
 
             TempData["SuccessfullyAdded"] = "Product successfully added and is sent for approval to the administrator! We will get back to you soon.";

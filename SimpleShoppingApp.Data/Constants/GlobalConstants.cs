@@ -11,6 +11,7 @@
         public const int ProductNameMaxLength = 500;
         public const int ProductDescriptionMinLength = 10;
         public const int AddressNameMaxLength = 100;
+        public const int AddressNameMinLength = 10;
         public const int PasswordMinLength = 6;
         public const int EmailMinLength = 6;
         public const int EmailMaxLength = 100;
@@ -42,6 +43,8 @@
         public const string NoProductsErrorMessage = "You should add at least one product to proceed with the order";
         public const string NoImagesErrorMessage = "Please provide at least one url or at least one image";
         public const string ImagesUrlsRegex = "^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$";
+        public const string PhoneRegex = "^([+]?359)|0?(|-| )8[789]\\d{1}(|-| )\\d{3}(|-| )\\d{3}$";
+        public const string PhoneNumberErrorMessage = "Please provide valid Bulgarian phone number";
         public const string InvalidImageUrlErrorMessage = "Invalid image url";
         public const string HasDiscountErrorMessage = "Please check Has Discount or delete the specified new price";
         public const string NewPriceErrorMessage = "Please specify new price";

@@ -54,24 +54,31 @@ $("#PhoneNumber").on("keyup", function () {
 $(".modal-address-footer .submit").on("click", function () {
     let address = $(".modal input#Name");
     const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
-    if (address.val()) {
+    $.ajax({
+        type: "POST",
+        url: "/Addresses/AddAddress",
+        headers: {
+            'X-CSRF-TOKEN': verificationToken
+        },
+        data: {
+            name: address.val(),
+        },
+        success: function (data) {
+            $(".address-select").append(`<option value="${data.id}">${data.name}</option>`);
+            $(".address-select").val(data.id).trigger("change");
+            address.val('');
+            $(".modal-address-footer .close").trigger("click");
+        },
+        error: function (xhr, status, error) {
+            if (xhr.status == 400) {
+                let errors = xhr.responseJSON.errors;
+                $(".error-message").remove();
+                for (let error of errors.Name) {
+                    $(".modal-body").append($(`<span class="error-message text-danger">${error}</span>`))
+                }
+            }
+        },
+        dataType: "json",
+    });
 
-        $.ajax({
-            type: "POST",
-            url: "/Addresses/AddAddress",
-            headers: {
-                'X-CSRF-TOKEN': verificationToken
-            },
-            data: {
-                name: address.val(),
-            },
-            success: function (data) {
-                $(".address-select").append(`<option value="${data.id}">${data.name}</option>`);
-                $(".address-select").val(data.id).trigger("change");
-                address.val('');
-                $(".modal-address-footer .close").trigger("click");
-            },
-            dataType: "json",
-        });
-    }
 });

@@ -17,6 +17,14 @@
         "css/bootstrap-reboot.min.css",
         "css/bootstrap-grid.min.css"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "@microsoft/signalr@6.0.25",
+      "destination": "wwwroot/lib/microsoft/signalr/",
+      "files": [
+        "dist/browser/signalr.min.js"
+      ]
     }
-]
+  ]
 }

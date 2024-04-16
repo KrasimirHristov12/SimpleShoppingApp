@@ -11,7 +11,7 @@
                 <li id="n-@notification.Id" class="list-group-item">
                     @if (!notification.IsRead)
                     {
-                        <span style="font-size: 10px;">NEW</span> <br />
+                        <span class="new-label" style="font-size: 10px;">NEW<br /></span>
 
                     }
                     <a class="dropdown-item" href="@(string.IsNullOrWhiteSpace(notification.Url) ? "#" : notification.Url)">@notification.Text</a>

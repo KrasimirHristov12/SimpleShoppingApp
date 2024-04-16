@@ -45,28 +45,28 @@ namespace SimpleShoppingApp.Tests
         public async Task TestAddNotificationWhenSenderUserDoesNotExist()
         {
             var result = await service.AddAsync("NotExistingUser", string.Empty, string.Empty);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.EqualTo(0));
         }
 
         [Test]
         public async Task TestAddNotificationWhenReceiverUserDoesNotExist()
         {
             var result = await service.AddAsync(string.Empty, "NotExistingUser", string.Empty);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.EqualTo(0));
         }
 
         [Test]
         public async Task TestAddNotificationWhenTheSameUserSendsAndReceivesNotification()
         {
             var result = await service.AddAsync("ExistingUser", "ExistingUser", string.Empty);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.EqualTo(0));
         }
 
         [Test]
         public async Task TestSuccessfulAddingOfNotification()
         {
             var result = await service.AddAsync("ExistingUser", "ExistingUser2", "Some text");
-            Assert.IsTrue(result);
+            Assert.That(result, Is.EqualTo(1));
         }
 
         [Test]

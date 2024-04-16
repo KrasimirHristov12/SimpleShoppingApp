@@ -48,7 +48,7 @@ namespace SimpleShoppingApp.Tests
                 .ReturnsAsync(true);
 
             notificationsServiceMock.Setup(x => x.AddAsync(string.Empty, string.Empty, string.Empty, null))
-                .ReturnsAsync(true);
+                .ReturnsAsync(1);
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -62,7 +62,7 @@ namespace SimpleShoppingApp.Tests
             usersService = usersServiceMock.Object;
             categoriesService = categoriesServiceMock.Object;
             notificationsService = notificationsServiceMock.Object;
-            productsService = new ProductsService(productsRepo, usersRatingRepo, cartsProductsRepo, null, categoriesService, usersService, notificationsService, null, null);
+            productsService = new ProductsService(productsRepo, usersRatingRepo, cartsProductsRepo, null, categoriesService, usersService, null, null);
             cartsService = new CartsService(cartsRepo, cartsProductsRepo, productsService, null, usersService);
         }
 

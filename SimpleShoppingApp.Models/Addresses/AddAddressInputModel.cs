@@ -6,7 +6,7 @@ namespace SimpleShoppingApp.Models.Addresses
     public class AddAddressInputModel
     {
         [Required]
-        [MaxLength(AddressNameMaxLength)]
+        [StringLength(AddressNameMaxLength, MinimumLength = AddressNameMinLength)]
         [Display(Name = AddressDisplay)]
         public string Name { get; set; } = null!;
     }

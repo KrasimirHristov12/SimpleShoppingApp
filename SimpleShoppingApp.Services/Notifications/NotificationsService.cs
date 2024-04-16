@@ -17,24 +17,24 @@ namespace SimpleShoppingApp.Services.Notifications
             usersService = _usersService;
             notificationsRepo = _notificationsRepo;
         }
-        public async Task<bool> AddAsync(string senderUserId,
+        public async Task<int> AddAsync(string senderUserId,
             string receiverUserId,
             string notificationText,
             string? url = null)
         {
             if (!await usersService.DoesUserExistAsync(senderUserId))
             {
-                return false;
+                return 0;
             }
 
             if (!await usersService.DoesUserExistAsync(receiverUserId))
             {
-                return false;
+                return 0;
             }
 
             if (senderUserId == receiverUserId)
             {
-                return false;
+                return 0;
             }
 
             var notification = new Notification()
@@ -47,7 +47,7 @@ namespace SimpleShoppingApp.Services.Notifications
 
             await notificationsRepo.AddAsync(notification);
             await notificationsRepo.SaveChangesAsync();
-            return true;
+            return notification.Id;
 
         }
 

@@ -18,13 +18,10 @@ namespace SimpleShoppingApp.Web.Controllers.Api
         [Route("[action]")]
         public async Task<ActionResult<AddressViewModel>> AddAddress([FromForm]AddAddressInputModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
             string userId = User.GetId();
             var addedAddress = await addressesService.AddAsync(model.Name, userId);
             return Ok(addedAddress);
         }
+
     }
 }
