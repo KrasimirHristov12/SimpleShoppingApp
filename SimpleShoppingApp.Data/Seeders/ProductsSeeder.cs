@@ -29,27 +29,61 @@ namespace SimpleShoppingApp.Data.Seeders
         }
         public async Task SeedAsync()
         {
-            if (productsRepo.AllAsNoTracking().Count() == 0)
+            try
             {
-                var categoriesLinks = GetCategoriesLinks(10);
-
-                foreach (var categoryLink in categoriesLinks)
+                int initialProductsCount = productsRepo.AllAsNoTracking().Count();
+                if (initialProductsCount == 0)
                 {
-                    var productLinks = await GetProductsLinksAsync(categoryLink, 10);
-                    if (productLinks != null)
+                    var categoriesLinks = GetCategoriesLinks(10);
+
+                    foreach (var categoryLink in categoriesLinks)
                     {
-                        foreach (var productLink in productLinks)
+                        var productLinks = await GetProductsLinksAsync(categoryLink, 10);
+                        if (productLinks != null)
                         {
-                            var product = await GetProductAsync(productLink);
-                            if (product != null)
+                            foreach (var productLink in productLinks)
                             {
-                                await productsRepo.AddAsync(product);
+                                var product = await GetProductAsync(productLink);
+                                if (product != null)
+                                {
+                                    await productsRepo.AddAsync(product);
+                                }
                             }
+                            await productsRepo.SaveChangesAsync();
                         }
-                        await productsRepo.SaveChangesAsync();
                     }
                 }
+
             }
+            catch (Exception)
+            {
+                //Adding this code in case emag returns 511 due to high traffic
+
+                int updatedProductsCount = productsRepo.AllAsNoTracking().Count();
+                if (updatedProductsCount < 100)
+                {
+                    var random = new Random();
+
+                    for (int i = 0; i < 100 - updatedProductsCount; i++)
+                    {
+                        int categoryId = random.Next(1, 14);
+
+
+                        await productsRepo.AddAsync(new Product
+                        {
+                            Name = $"Seeded Product {i + 1}",
+                            CategoryId = categoryId,
+                            Description = "Seeded Description",
+                            IsApproved = true,
+                            Images = new List<Image> { new Image { ImageUrl = "https://wiki.dave.eu/images/thumb/4/47/Placeholder.png/600px-Placeholder.png" } },
+                            UserId = await GetAdminIdAsync(),
+                        });
+                    }
+
+                    await productsRepo.SaveChangesAsync();
+                }
+            }
+
 
         }
 
@@ -234,9 +268,9 @@ namespace SimpleShoppingApp.Data.Seeders
                     {
                         if (adminId == null)
                         {
-                             adminId = await GetAdminIdAsync();
+                            adminId = await GetAdminIdAsync();
                         }
-                        
+
                         var product = new Product
                         {
                             Name = productName,

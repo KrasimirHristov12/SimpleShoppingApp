@@ -13,7 +13,7 @@ namespace SimpleShoppingApp.Web.ViewComponents
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model = await categoriesService.GetAllAsync();
+            var model = await categoriesService.GetAllWithProductsAsync();
 
             return View(model);
         }

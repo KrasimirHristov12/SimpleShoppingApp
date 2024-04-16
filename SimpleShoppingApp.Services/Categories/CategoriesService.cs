@@ -55,6 +55,21 @@ namespace SimpleShoppingApp.Services.Categories
             return categories;
         }
 
+        public async Task<IEnumerable<CategoryViewModel>> GetAllWithProductsAsync()
+        {
+            var categories = await GetNotDeleted()
+                .Where(c => c.Products.Any(p => !p.IsDeleted && p.IsApproved))
+                .Select(c => new CategoryViewModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                }).ToListAsync();
+
+            return categories;
+        }
+
+
+
         public async Task<int> GetCountAsync()
         {
             return await GetNotDeleted()

@@ -11,6 +11,8 @@ namespace SimpleShoppingApp.Services.Categories
 
         Task<IEnumerable<CategoryViewModel>> GetAllAsync();
 
+        Task<IEnumerable<CategoryViewModel>> GetAllWithProductsAsync();
+
         Task<int> GetCountAsync();
     }
 }
