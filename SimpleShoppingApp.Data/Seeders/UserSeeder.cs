@@ -26,6 +26,7 @@ namespace SimpleShoppingApp.Data.Seeders
                 {
                     Email = adminEmail,
                     UserName = adminEmail,
+                    EmailConfirmed = true,
                 };
 
                 var userCreationResult = await userManager.CreateAsync(user, password);
