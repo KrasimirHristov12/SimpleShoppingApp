@@ -205,7 +205,7 @@ namespace SimpleShoppingApp.Services.Orders
                      Id = o.Id,
                      TotalPrice = o.OrdersProducts.Where(op => !op.IsDeleted).Select(op => op.Product.Price * op.Quantity).Sum(),
 
-                 }).ToListAsync();
+                 }).OrderByDescending(o => o.Id).ToListAsync();
         }
 
         public async Task<OrderStatus?> GetOrderStatusAsync(int orderId)

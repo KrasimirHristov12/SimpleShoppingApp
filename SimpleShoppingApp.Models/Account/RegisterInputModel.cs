@@ -12,11 +12,13 @@ namespace SimpleShoppingApp.Models.Account
 
         [Required]
         [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [RegularExpression(FirstLastNameRegex, ErrorMessage = FirstNameErrorMessage)]
         [Display(Name = FirstNameDisplay)]
         public string FirstName { get; set; } = null!;
 
         [Required]
         [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [RegularExpression(FirstLastNameRegex, ErrorMessage = LastNameErrorMessage)]
         [Display(Name = LastNameDisplay)]
         public string LastName { get; set; } = null!;
 

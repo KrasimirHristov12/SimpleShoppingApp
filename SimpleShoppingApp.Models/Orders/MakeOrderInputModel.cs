@@ -22,6 +22,7 @@ namespace SimpleShoppingApp.Models.Orders
 
         [Required]
         [Phone]
+        [RegularExpression(PhoneRegex, ErrorMessage = PhoneNumberErrorMessage)]
         [Display(Name = PhoneNumberDisplay)]
         public string PhoneNumber { get; set; } = null!;
 

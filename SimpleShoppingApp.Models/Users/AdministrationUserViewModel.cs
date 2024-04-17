@@ -19,10 +19,12 @@ namespace SimpleShoppingApp.Models.Users
         public string? PhoneNumber { get; set; }
 
         [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [RegularExpression(FirstLastNameRegex, ErrorMessage = FirstNameErrorMessage)]
         [Display(Name = FirstNameDisplay)]
         public string? FirstName { get; set; }
 
         [StringLength(FirstLastNameMaxLength, MinimumLength = FirstLastNameMinLength)]
+        [RegularExpression(FirstLastNameRegex, ErrorMessage = LastNameErrorMessage)]
         [Display(Name = LastNameDisplay)]
         public string? LastName { get; set; }
     }

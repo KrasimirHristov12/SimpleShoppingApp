@@ -2,6 +2,7 @@
 using SimpleShoppingApp.Models.Users;
 using SimpleShoppingApp.Services.Users;
 using SimpleShoppingApp.Extensions;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Web.Controllers.Api
 {

@@ -48,7 +48,9 @@ $(".paymentMethod-dropdown").on("change", function () {
 }).trigger("change");
 
 $("#PhoneNumber").on("keyup", function () {
-    $(".phone-number span").text($(this).val());
+    let phoneNumber = $(this).val();
+    $(".phone-number span").text(phoneNumber);
+    
 }).trigger("keyup");
 
 $(".modal-address-footer .submit").on("click", function () {

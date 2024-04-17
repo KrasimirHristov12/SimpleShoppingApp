@@ -19,7 +19,7 @@ for (let i = 0; i < inputs.length; i++) {
 form.validate(validateObject);
 
 
-$(".quantity-input").on("keyup change", function () {
+inputs.on("keyup change", function () {
 
     if (!form.valid()) {
         $(".total-price").text("");

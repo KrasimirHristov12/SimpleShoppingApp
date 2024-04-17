@@ -49,13 +49,14 @@ $(".save-btn").on("click", function (e) {
                 },
                 data: JSON.stringify(objToSent),
                 success: function (data) {
-                    console.log(data);
+                    $(`.${key} .errors-list`).remove();
                     $(`span.${spanClassName}`).text(data[propName]);
                     editBlock.addClass("d-none");
                 },
+                
                 error: function (error) {
                     let errorObj = error.responseJSON.errors;
-                    $(`.${key} .errors-list`).empty();
+                    $(`.${key} .errors-list`).remove();
                     for (const [key, value] of Object.entries(errorObj)) {
                         for (const err of value) {
                             editBlock.append($(`<div class="errors-list"><span class="text-danger">${err}</span></div>`));
