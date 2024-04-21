@@ -32,6 +32,13 @@
     </div>
 }
 
+@if (TempData.ContainsKey("CategoryCreated"))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["CategoryCreated"]
+    </div>
+}
+
 
 <div class="text-center mb-4">
     <h1 class="display-6">Welcome to the best shop in the world!</h1>

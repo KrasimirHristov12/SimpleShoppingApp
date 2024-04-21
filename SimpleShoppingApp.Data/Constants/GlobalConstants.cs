@@ -4,6 +4,7 @@
     {
         public const int UserMaxLength = 50;
         public const int CategoryNameMaxLength = 100;
+        public const int CategoryNameMinLength = 3;
         public const int ImageExtensionMaxLength = 6;
         public const int NotificationTextMaxLength = 100;
         public const int PhoneNumberMaxLength = 10;
@@ -40,6 +41,7 @@
         public const string HasDiscountDisplay = "Has Discount";
         public const string NewPriceDisplay = "New Price";
         public const string CategoryIdDisplay = "Category";
+        public const string CategoryNameDisplay = "Category Name";
         public const string UsernameDisplay = "Username";
 
         public const string NoProductsErrorMessage = "You should add at least one product to proceed with the order";
@@ -55,6 +57,7 @@
         public const string InvalidImageUrlErrorMessage = "Invalid image url";
         public const string HasDiscountErrorMessage = "Please check Has Discount or delete the specified new price";
         public const string NewPriceErrorMessage = "Please specify new price";
+        public const string AddCategoryErrorMessage = "There is already category with that name.";
 
 
     }
