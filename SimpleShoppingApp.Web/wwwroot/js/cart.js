@@ -66,6 +66,7 @@ $(".modal-address-footer .submit").on("click", function () {
             name: address.val(),
         },
         success: function (data) {
+            $(".error-message").remove();
             $(".address-select").append(`<option value="${data.id}">${data.name}</option>`);
             $(".address-select").val(data.id).trigger("change");
             address.val('');

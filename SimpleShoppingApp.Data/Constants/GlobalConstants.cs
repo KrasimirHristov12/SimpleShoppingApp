@@ -51,7 +51,7 @@
         public const string FirstLastNameRegex = "^[a-zA-Z]+$";
         public const string FullNameRegex = "^[a-zA-Z]{2,50} [a-zA-Z]{2,50}$";
         public const string PhoneNumberErrorMessage = "Please provide valid Bulgarian phone number";
-        public const string FullNameErrorMessage = "Invalid Full Name. Please make sure it contains space to separate first and last name and you use latin letters only and both first and last name should be between 2 to 50 characters long";
+        public const string FullNameErrorMessage = "Invalid Full Name. Please make sure there is space to separate first and last name, you use latin letters only and both first and last name are between 2 and 50 characters long";
         public const string FirstNameErrorMessage = "Invalid First Name. Please make sure you use latin letters only";
         public const string LastNameErrorMessage = "Invalid Last Name. Please make sure you use latin letters only";
         public const string InvalidImageUrlErrorMessage = "Invalid image url";

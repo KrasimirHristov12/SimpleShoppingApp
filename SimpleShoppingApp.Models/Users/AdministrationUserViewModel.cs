@@ -15,6 +15,7 @@ namespace SimpleShoppingApp.Models.Users
         public string? Email { get; set; }
 
         [Phone]
+        [RegularExpression(PhoneRegex, ErrorMessage = PhoneNumberErrorMessage)]
         [Display(Name = PhoneNumberDisplay)]
         public string? PhoneNumber { get; set; }
 

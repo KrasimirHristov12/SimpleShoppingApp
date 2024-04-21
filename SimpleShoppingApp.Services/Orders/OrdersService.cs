@@ -78,10 +78,12 @@ namespace SimpleShoppingApp.Services.Orders
                 };
             }
 
+            var phoneNumber = model.PhoneNumber.StartsWith("+359") ? model.PhoneNumber.Replace("+359", "0") : model.PhoneNumber;
+
             var order = new Order
             {
                 UserId = userId,
-                PhoneNumber = model.PhoneNumber,
+                PhoneNumber = phoneNumber,
                 AddressId = model.AddressId,
                 PaymentMethod = model.PaymentMethod,
             };

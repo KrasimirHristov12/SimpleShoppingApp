@@ -86,13 +86,15 @@ namespace SimpleShoppingApp.Web.Controllers
                 return View(model);
             }
 
+            string phoneNumber = model.PhoneNumber.StartsWith("+359") ? model.PhoneNumber.Replace("+359", "0") : model.PhoneNumber;
+
             var user = new ApplicationUser
             {
                 Email = model.Email,
                 UserName = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                PhoneNumber = model.PhoneNumber,
+                PhoneNumber = phoneNumber,
             };
 
             var result = await userManager.CreateAsync(user, model.Password);

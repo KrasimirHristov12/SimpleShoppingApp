@@ -105,8 +105,8 @@ namespace SimpleShoppingApp.Services.Users
             {
                 return false;
             }
-
-            user.PhoneNumber = model.PhoneNumber;
+            var phoneNumber =  model.PhoneNumber.StartsWith("+359") ? model.PhoneNumber.Replace("+359", "0") : model.PhoneNumber;
+            user.PhoneNumber = phoneNumber;
             await userRepo.SaveChangesAsync();
             return true;
         }
@@ -159,11 +159,19 @@ namespace SimpleShoppingApp.Services.Users
             {
                 return false;
             }
+            string? phoneNumber = null;
+
+            if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
+            {
+                phoneNumber = model.PhoneNumber.StartsWith("+359") ? model.PhoneNumber.Replace("+359", "0") : model.PhoneNumber;
+            }
+
+
 
             userEntityModel.UserName = model.UserName;
             userEntityModel.FirstName = model.FirstName;
             userEntityModel.LastName = model.LastName;
-            userEntityModel.PhoneNumber = model.PhoneNumber;
+            userEntityModel.PhoneNumber = phoneNumber;
 
             await userRepo.SaveChangesAsync();
             return true;
