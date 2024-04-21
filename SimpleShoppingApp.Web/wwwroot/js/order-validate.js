@@ -57,7 +57,7 @@ inputs.on("keyup change", function () {
                         else {
                             let quantityLeft = data.updatedQuantity;
                             if (data.isThereLessThanRequested) {
-                                alert(`There are ${quantityLeft} ${productName} left.`);
+                                alert(`There are ${quantityLeft} pieces left.`);
                             }
 
                             quantityInput.val(quantityLeft);

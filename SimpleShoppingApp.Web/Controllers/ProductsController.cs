@@ -139,13 +139,18 @@ namespace SimpleShoppingApp.Web.Controllers
                     {
                         await notificationsHub.Clients.User(adminUserId).SendAsync("ReceiveNotification", notificationText, productLink, notificationId);
                     }
-                    
+
                 }
+
+                TempData["SuccessfullyAdded"] = "Product successfully added and is sent for approval to the administrator! We will get back to you soon.";
+
+                return RedirectToAction(nameof(Index), "Home");
             }
 
-            TempData["SuccessfullyAdded"] = "Product successfully added and is sent for approval to the administrator! We will get back to you soon.";
+            TempData["SuccessfullyAddedByAdmin"] = "Product successfully added!";
 
-            return RedirectToAction(nameof(Index), "Home");
+            return RedirectToAction(nameof(Index), new { id = productId });
+
            
         }
 

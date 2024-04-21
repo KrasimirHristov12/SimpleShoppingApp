@@ -8,7 +8,6 @@ using SimpleShoppingApp.Services.Categories;
 using SimpleShoppingApp.Services.Emails;
 using SimpleShoppingApp.Services.Images;
 using SimpleShoppingApp.Services.NameShortener;
-using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Users;
 
 namespace SimpleShoppingApp.Services.Products
@@ -307,7 +306,7 @@ namespace SimpleShoppingApp.Services.Products
 
             foreach (var product in products)
             {
-                product.Name = shortenerService.Shorten(name: product.Name);
+                product.Name = shortenerService.Shorten(product.Name);
                 var image = await imagesService.GetFirstAsync(product.Id);
                 if (image != null)
                 {
@@ -342,7 +341,7 @@ namespace SimpleShoppingApp.Services.Products
                 return AddUpdateDeleteResult.NotFound;
             }
 
-            if (productToDelete.UserId != currentUserId)
+            if (!await BelognsToUserAsync(id, currentUserId))
             {
                 return AddUpdateDeleteResult.Forbidden;
             }

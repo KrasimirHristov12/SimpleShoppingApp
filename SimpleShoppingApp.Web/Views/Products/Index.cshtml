@@ -26,6 +26,15 @@
     </div>
 }
 
+@if (TempData.ContainsKey("SuccessfullyAddedByAdmin"))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessfullyAddedByAdmin"]
+    </div>
+}
+
+
+
 
 <h6><a asp-action="Category" asp-route-name="@Model.CategoryName" asp-route-id="@Model.CategoryId" asp-route-page="1">@Model.CategoryName</a></h6>
 <div class="row mb-2">
@@ -100,6 +109,11 @@
 
 
         <ul class="list-group mt-3">
+
+            <li class="list-group-item text-center">
+                <span>Quantity: <span class="fw-bold fs-4 text-decoration-underline text-body-tertiary">@Model.Quantity</span></span>
+            </li>
+
             @if (Model.Quantity == 0)
             {
                 <li class="list-group-item text-center">Availability: <span class="text-danger fw-bold text-decoration-underline fs-4">Not In stock</span></li>

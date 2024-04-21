@@ -45,7 +45,7 @@
         public const string NoProductsErrorMessage = "You should add at least one product to proceed with the order";
         public const string NoImagesErrorMessage = "Please provide at least one url or at least one image";
         public const string ImagesUrlsRegex = "^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$";
-        public const string PhoneRegex = "^([+]?359)|0?(|-| )8[789]\\d{1}(|-| )\\d{3}(|-| )\\d{3}$";
+        public const string PhoneRegex = "^(\\+359|0)\\s?8(\\d{2}\\s\\d{3}\\d{3}|[789]\\d{7})$";
         public const string FirstLastNameRegex = "^[a-zA-Z]+$";
         public const string FullNameRegex = "^[a-zA-Z]{2,50} [a-zA-Z]{2,50}$";
         public const string PhoneNumberErrorMessage = "Please provide valid Bulgarian phone number";
