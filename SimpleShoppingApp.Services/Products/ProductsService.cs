@@ -555,7 +555,7 @@ namespace SimpleShoppingApp.Services.Products
                 .AnyAsync(p => p.Id == productId);
         }
 
-        public async Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating)
+        public async Task<ProductRatingViewModel> AddRatingFromUserAsync(int productId, string loggedInUserId, int rating, string? reviewText)
         {
             if (productId <= 0)
             {
@@ -598,6 +598,7 @@ namespace SimpleShoppingApp.Services.Products
                     UserId = loggedInUserId,
                     ProductId = productId,
                     Rating = rating,
+                    Text = reviewText,
                 };
 
                 await usersRatingRepo.AddAsync(userProductRating);
@@ -611,7 +612,7 @@ namespace SimpleShoppingApp.Services.Products
                     Result = AddUpdateDeleteResult.Success,
                 };
             }
-            
+            userProductRating.Text = reviewText;
             userProductRating.Rating = rating;
             await usersRatingRepo.SaveChangesAsync();
 
@@ -624,6 +625,45 @@ namespace SimpleShoppingApp.Services.Products
                 AvgRating = avgRating,
                 Result = AddUpdateDeleteResult.Success,
             };
+        }
+
+        public async Task<string?> GetReviewTextAsync(string userId, int productId)
+        {
+            var reviewText = await usersRatingRepo.AllAsNoTracking()
+                .Where(ur => ur.UserId == userId && ur.ProductId == productId)
+                .Select(ur => ur.Text)
+                .FirstOrDefaultAsync();
+
+            return reviewText;
+        }
+
+        public async Task<IEnumerable<ProductReviewViewModel>> GetReviewsAsync(int productId, string? userName)
+        {
+            var reviews =  await usersRatingRepo
+                .AllAsNoTracking()
+                .Where(ur => ur.ProductId == productId)
+                .Select(ur => new ProductReviewViewModel
+                {
+                    Rating = ur.Rating,
+                    UserName = ur.User.UserName,
+                    Text = ur.Text,
+                    IsMine = false,
+                })
+                .ToListAsync();
+
+
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                foreach (var review in reviews)
+                {
+                    if (review.UserName == userName)
+                    {
+                        review.IsMine = true;
+                    }
+                }
+            }
+
+            return reviews.OrderByDescending(r => r.IsMine).ToList();
         }
 
         private async Task<int> GetRatingAsync(int productId, string userId)

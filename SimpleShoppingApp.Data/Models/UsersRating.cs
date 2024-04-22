@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static SimpleShoppingApp.Data.Constants.GlobalConstants;
 
 namespace SimpleShoppingApp.Data.Models
 {
@@ -18,5 +19,9 @@ namespace SimpleShoppingApp.Data.Models
         public Product Product { get; set; } = null!;
 
         public int Rating { get; set; }
+
+
+        [MaxLength(ReviewTextMaxLength)]
+        public string? Text { get; set; }
     }
 }

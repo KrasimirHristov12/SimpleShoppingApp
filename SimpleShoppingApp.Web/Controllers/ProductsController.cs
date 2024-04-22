@@ -50,7 +50,7 @@ namespace SimpleShoppingApp.Web.Controllers
             if (product == null)
             {
                 return NotFound();
-            }       
+            }
 
             return View(product);
         }
@@ -251,6 +251,21 @@ namespace SimpleShoppingApp.Web.Controllers
             var model = await productsService.GetByNameAsync(name);
 
             return View(model);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Reviews(int id)
+        {
+            if (!await productsService.DoesProductExistAsync(id))
+            {
+                return NotFound();
+            }
+
+            string? userName = User.Identity?.Name;
+            var productName = await productsService.GetNameAsync(id);
+            ViewBag.Name = productName;
+            var reviews = await productsService.GetReviewsAsync(id, userName);
+            return View(reviews);
         }
 
     }

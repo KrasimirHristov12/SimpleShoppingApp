@@ -20,6 +20,8 @@
         public const int FirstLastNameMaxLength = 50;
         public const int FullNameMinLength = 5;
         public const int FullNameMaxLength = 100;
+        public const int ReviewTextMaxLength = 2000;
+        public const int ReviewTextMinLength = 5;
         public const string ProductPriceMinRange = "0.50";
         public const string ProductPriceMaxRange = "10000";
         public const string ProductQuantityMinRange = "1";

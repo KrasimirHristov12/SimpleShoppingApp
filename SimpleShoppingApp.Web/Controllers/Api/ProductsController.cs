@@ -30,12 +30,25 @@ namespace SimpleShoppingApp.Web.Controllers.Api
         public async Task<ActionResult<double>> AddUpdateRating([FromForm]AddUpdateProductRatingJsonModel model)
         {
             string loggedInUserId = User.GetId();
-            var ratingModel = await productsService.AddRatingFromUserAsync(model.ProductId, loggedInUserId, model.Rating);
+            var ratingModel = await productsService.AddRatingFromUserAsync(model.ProductId, loggedInUserId, model.Rating, model.Text);
             if (ratingModel.Result == AddUpdateDeleteResult.NotFound)
             {
                 return NotFound();
             }
             return Ok(ratingModel.AvgRating);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<string?>> GetReviewText(int productId)
+        {
+            string userId = User.GetId();
+            var reviewText = await productsService.GetReviewTextAsync(userId, productId);
+            if (string.IsNullOrWhiteSpace(reviewText))
+            {
+                return BadRequest();
+            }
+            return Ok(reviewText);
         }
     }
 }

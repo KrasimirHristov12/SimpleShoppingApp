@@ -99,12 +99,23 @@
         @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved)
         {
             <div class="rating-container text-center">
-                <span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span>
+                <span class="rating-info"><span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span><span> (<a asp-action="Reviews" asp-route-id="@Model.Id" class="link-dark">Reviews</a>)</span></span>
                 @for (int i = 0; i < 5; i++)
                 {
                     <i class="bi bi-star-fill @(i == Model.Rating - 1 ? "star-selected" : "") @(i < Model.Rating ? "stars-yellow" : "")"></i>
                 }
+                <div class="review-text-input-container d-none">
+                    <label for="review-text-input">Please share your thoughts on this product (You can leave this box empty)</label>
+                    <textarea id="review-text-input" class="form-control"></textarea>
+                    <button class="btn btn-primary mt-2" type="button">Submit</button>
+                </div>
             </div>
+        }
+
+        @if (User.Identity != null && !User.Identity.IsAuthenticated && Model.IsApproved)
+        {
+            <div class="text-center" style="font-size:20px;"><a asp-action="Reviews" asp-route-id="@Model.Id" class="link-dark">Reviews</a></div>
+            <hr/>
         }
 
 

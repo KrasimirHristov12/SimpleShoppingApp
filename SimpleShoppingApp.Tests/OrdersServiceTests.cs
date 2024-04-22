@@ -189,6 +189,7 @@ namespace SimpleShoppingApp.Tests
                 AddressId = 1,
                 ProductIds = new List<int> { 1 },
                 Quantities = new List<int> { quantity },
+                PhoneNumber = "+359888888888",
             }, string.Empty);
 
             Assert.That(result.Result, Is.EqualTo(MakeOrderResult.InvalidQuantity));
@@ -212,6 +213,7 @@ namespace SimpleShoppingApp.Tests
                 AddressId = 1,
                 ProductIds = new List<int> { productId },
                 Quantities = new List<int> { 1 },
+                PhoneNumber = "+359888888888",
             }, string.Empty);
 
             Assert.That(result.Result, Is.EqualTo(MakeOrderResult.SomethingWentWrong));
@@ -233,6 +235,7 @@ namespace SimpleShoppingApp.Tests
                 AddressId = 1,
                 ProductIds = new List<int> { 1 },
                 Quantities = new List<int> { 1 },
+                PhoneNumber = "+359888888888",
             }, string.Empty);
 
             Assert.That(result.Result, Is.EqualTo(MakeOrderResult.SomethingWentWrong));
@@ -265,6 +268,7 @@ namespace SimpleShoppingApp.Tests
                 AddressId = 1,
                 ProductIds = new List<int> { 1 },
                 Quantities = new List<int> { 3 },
+                PhoneNumber = "+359888888888",
             }, "TestUserId");
 
             Assert.That(result.Result, Is.EqualTo(MakeOrderResult.InvalidQuantity));

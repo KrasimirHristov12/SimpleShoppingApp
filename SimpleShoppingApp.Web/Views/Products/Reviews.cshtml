@@ -1,0 +1,53 @@
+﻿@model List<ProductReviewViewModel>
+
+@{
+    ViewData["Title"] = $"Reviews of {ViewBag.Name}";
+    var id = ViewContext.RouteData.Values["id"];
+}
+
+<a asp-action="Index" asp-route-id="@id">Go back to the product page</a>
+
+<h3 class="mb-4 mt-4">@ViewBag.Title</h3>
+
+@if (Model.Any())
+{
+    <ul class="list-group">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <li class="list-group-item">
+                @if (Model[i].IsMine)
+                {
+
+                    <h5>Your review:</h5>
+                }
+
+                @if (!Model[i].IsMine)
+                {
+                    <span class="fw-bold">@Model[i].UserName</span>
+                }
+
+                @for (int j = 1; j < 6; j++)
+                {
+                    <i class="bi bi-star-fill pe-none @(j <= Model[i].Rating ? "stars-yellow" : "")"></i>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model[i].Text))
+                {
+                    <p><i>@Model[i].Text</i></p>
+                }
+
+                else
+                {
+                    <p><i>No text provided</i></p>
+                }
+
+            </li>
+        }
+    </ul>
+
+}
+
+else
+{
+    <h5>No reviews for this product yet!</h5>
+}
