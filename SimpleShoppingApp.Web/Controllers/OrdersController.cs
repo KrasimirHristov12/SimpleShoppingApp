@@ -165,11 +165,19 @@ namespace SimpleShoppingApp.Web.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
+            var userId = User.GetId();
+            var adminUserId = await usersService.GetAdminIdAsync();
             var orderDetails = await ordersService.GetOrderDetailsAsync(id);
             if (orderDetails == null)
             {
                 return NotFound();
             }
+
+            if (orderDetails.UserId != userId && userId != adminUserId)
+            {
+                return Forbid();
+            }
+
             return View(orderDetails);
         }
     }

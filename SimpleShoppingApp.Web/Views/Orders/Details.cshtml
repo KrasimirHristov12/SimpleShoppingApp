@@ -5,7 +5,7 @@
 
 <h5 class="text-center">@ViewData["Title"] Details</h5>
 
-<section class="vh-100 gradient-custom-2">
+<section class="gradient-custom-2">
     <div class="container">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-md-10 col-lg-8 col-xl-6">
@@ -15,6 +15,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-muted mb-2">Order ID: <span class="fw-bold text-body">@Model.Order.Id</span></p>
+                                <p class="text-muted mb-2">Placed by: <span class="fw-bold text-body">@Model.UserName</span></p>
                                 <p class="text-muted mb-2">Placed on: <span class="fw-bold text-body">@Model.Order.CreatedOn.ToString("M")</span> </p>
                                 <p class="text-muted mb-2">Payment Method: <span class="fw-bold text-body">@Model.Order.PaymentMethod</span> </p>
                                 <p class="text-muted mb-2">Delivered on: <span class="fw-bold text-body">@Model.Order.DeliveryDate.ToString("M")</span></p>

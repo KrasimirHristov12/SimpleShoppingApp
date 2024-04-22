@@ -9,5 +9,9 @@
         public OrderOrderDetailsViewModel Order { get; set; } = null!;
 
         public IEnumerable<OrderProductDetailsViewModel> Products { get; set; }
+
+        public string UserId { get; set; } = null!;
+
+        public string UserName { get; set; } = null!;
     }
 }

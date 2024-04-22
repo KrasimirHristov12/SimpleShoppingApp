@@ -259,6 +259,9 @@ namespace SimpleShoppingApp.Services.Orders
 
                         }).FirstOrDefault()
                     }).ToList(),
+
+                    UserId = o.UserId,
+                    UserName = o.User.UserName,
                 })
                 .FirstOrDefaultAsync();
 

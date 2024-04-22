@@ -53,6 +53,10 @@ $("#PhoneNumber").on("keyup", function () {
     
 }).trigger("keyup");
 
+
+$(".modal").on("show.bs.modal", function () {
+    $(".error-message").remove();
+});
 $(".modal-address-footer .submit").on("click", function () {
     let address = $(".modal input#Name");
     const verificationToken = $("[name='__RequestVerificationToken']").attr("value");

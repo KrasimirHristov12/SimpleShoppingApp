@@ -297,5 +297,11 @@ namespace SimpleShoppingApp.Web.Controllers
             }
             return View(userInfo);
         }
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

@@ -59,6 +59,7 @@
         public const string InvalidImageUrlErrorMessage = "Invalid image url";
         public const string HasDiscountErrorMessage = "Please check Has Discount or delete the specified new price";
         public const string NewPriceErrorMessage = "Please specify new price";
+        public const string NewPriceHigherOrEqualToOriginalErrorMessage = "New price should be lower than original price";
         public const string AddCategoryErrorMessage = "There is already category with that name.";
 
 
