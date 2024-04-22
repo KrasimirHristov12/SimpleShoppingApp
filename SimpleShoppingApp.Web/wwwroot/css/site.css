@@ -57,7 +57,26 @@ label.error {
 }
 
 .product-img {
-    max-height: 160px;
+    max-width: 150px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.product .card {
+    height: 370px;
+    margin-bottom: 10px;
+}
+
+.carousel {
+    max-height: 500px;
+}
+
+.carousel img {
+    max-height: 450px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .add-url-btn {
