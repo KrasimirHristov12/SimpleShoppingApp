@@ -88,8 +88,8 @@ label.error {
 }
 
 .notifications-container .dropdown-menu {
-    width: 500px;
     white-space: normal;
+    width: 450px;
 }
 .notifications-container .dropdown-menu .dropdown-item {
     white-space: normal;

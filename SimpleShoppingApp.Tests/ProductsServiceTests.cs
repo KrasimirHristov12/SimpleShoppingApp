@@ -487,7 +487,7 @@ namespace SimpleShoppingApp.Tests
 
                     var ratingsList = kvp.Value;
 
-                    await productsService.AddRatingFromUserAsync(result.ProductId ?? 0, "UserId", ratingsList[0], null);
+                    await productsService.AddRatingFromUserAsync(result.ProductId ?? 0, "UserId3", ratingsList[0], null);
                     await productsService.AddRatingFromUserAsync(result.ProductId ?? 0, "UserId2", ratingsList[1], null);
                 }
 
@@ -1249,7 +1249,7 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "AdminId");
 
-            var result = await productsService.AddRatingFromUserAsync(1, "UserId", 3, null);
+            var result = await productsService.AddRatingFromUserAsync(1, "UserId2", 3, null);
 
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
             Assert.That(result.AvgRating, Is.EqualTo(3));
@@ -1271,7 +1271,7 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "AdminId");
 
-            var result = await productsService.AddRatingFromUserAsync(1, "UserId", 3, null);
+            var result = await productsService.AddRatingFromUserAsync(1, "UserId3", 3, null);
             var result2 = await productsService.AddRatingFromUserAsync(1, "UserId2", 4, null);
             var result3 = await productsService.AddRatingFromUserAsync(1, "UserId2", 5, null);
 
@@ -1301,8 +1301,8 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "AdminId");
 
-            var result = await productsService.AddRatingFromUserAsync(1, "UserId", 3, null);
-            var result2 = await productsService.AddRatingFromUserAsync(1, "UserId", 4, null);
+            var result = await productsService.AddRatingFromUserAsync(1, "UserId2", 3, null);
+            var result2 = await productsService.AddRatingFromUserAsync(1, "UserId2", 4, null);
 
 
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
@@ -1350,8 +1350,8 @@ namespace SimpleShoppingApp.Tests
             }, "UserId", string.Empty);
 
             await productsService.ApproveAsync(1, "AdminId");
-            await productsService.AddRatingFromUserAsync(1, "UserId", 3, "testtext");
-            var result = await productsService.GetReviewTextAsync("UserId", 1);
+            await productsService.AddRatingFromUserAsync(1, "UserId2", 3, "testtext");
+            var result = await productsService.GetReviewTextAsync("UserId2", 1);
             Assert.NotNull(result);
             Assert.That(result, Is.EqualTo("testtext"));
         }
@@ -1395,11 +1395,11 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "AdminId");
 
-            await productsService.AddRatingFromUserAsync(1, "UserId", 3, "testtext");
+            await productsService.AddRatingFromUserAsync(1, "UserId2", 3, "testtext");
 
             var result = await productsService.GetReviewsAsync(1, null);
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result.First().UserName, Is.EqualTo("testuser@test.test"));
+            Assert.That(result.First().UserName, Is.EqualTo("testuser2@test.test"));
             Assert.That(result.First().Rating, Is.EqualTo(3));
             Assert.That(result.First().Text, Is.EqualTo("testtext"));
             Assert.IsFalse(result.First().IsMine);
@@ -1419,11 +1419,11 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "AdminId");
 
-            await productsService.AddRatingFromUserAsync(1, "UserId", 3, "testtext");
+            await productsService.AddRatingFromUserAsync(1, "UserId2", 3, "testtext");
 
-            var result = await productsService.GetReviewsAsync(1, "testuser@test.test");
+            var result = await productsService.GetReviewsAsync(1, "testuser2@test.test");
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result.First().UserName, Is.EqualTo("testuser@test.test"));
+            Assert.That(result.First().UserName, Is.EqualTo("testuser2@test.test"));
             Assert.That(result.First().Rating, Is.EqualTo(3));
             Assert.That(result.First().Text, Is.EqualTo("testtext"));
             Assert.IsTrue(result.First().IsMine);

@@ -30,6 +30,12 @@ namespace SimpleShoppingApp.Models.Products
             {
                 yield return new ValidationResult(NewPriceHigherOrEqualToOriginalErrorMessage);
             }
+
+            if (NewPrice < 0.50M)
+            {
+                yield return new ValidationResult(NewPriceAtLeastErrorMessage);
+
+            }
         }
     }
 }

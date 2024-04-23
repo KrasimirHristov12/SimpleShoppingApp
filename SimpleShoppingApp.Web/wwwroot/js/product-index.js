@@ -1,9 +1,6 @@
 ﻿$("table").addClass("table").addClass("table-striped").addClass("table-bordered");
 
 const productId = $(".productId").val();
-$.get(`/Products/GetReviewText?productId=${productId}`, function (data) {
-    $("#review-text-input").val(data);
-});
 
 
 
@@ -43,6 +40,10 @@ $(".bi-star-fill").on("mouseleave", function () {
 
 
 $(".bi-star-fill").on("click", function () {
+    $.get(`/Products/GetReviewText?productId=${productId}`, function (data) {
+        $("#review-text-input").val(data);
+    });
+
     $(".review-text-input-container").removeClass("d-none");
     $(".rating-info").addClass("d-none");
     let rating = $(".bi-star-fill").index($(this)) + 1;
@@ -56,6 +57,7 @@ $(".bi-star-fill").on("click", function () {
 
 $(".review-text-input-container").find(".btn").on("click", function () {
     const verificationToken = $("[name='__RequestVerificationToken']").attr("value");
+    const productId = $(".productId").val();
     let reviewText = $("#review-text-input").val();
     let rating = $(".bi-star-fill").index($(".star-selected")) + 1;
     $.ajax({

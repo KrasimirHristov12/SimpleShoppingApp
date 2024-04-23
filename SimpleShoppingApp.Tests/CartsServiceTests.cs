@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SimpleShoppingApp.Data;
@@ -9,7 +8,6 @@ using SimpleShoppingApp.Data.Repository;
 using SimpleShoppingApp.Models.Products;
 using SimpleShoppingApp.Services.Carts;
 using SimpleShoppingApp.Services.Categories;
-using SimpleShoppingApp.Services.Notifications;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
 
@@ -26,7 +24,6 @@ namespace SimpleShoppingApp.Tests
         private IProductsService productsService;
         private IUsersService usersService;
         private ICategoriesService categoriesService;
-        private INotificationsService notificationsService;
 
         [SetUp]
         public void Initialize()
@@ -34,9 +31,6 @@ namespace SimpleShoppingApp.Tests
             var usersServiceMock = new Mock<IUsersService>();
 
             var categoriesServiceMock = new Mock<ICategoriesService>();
-
-            var notificationsServiceMock = new Mock<INotificationsService>();
-
 
             usersServiceMock.Setup(x => x.GetAdminIdAsync())
                 .ReturnsAsync("TestAdminId");
@@ -47,8 +41,6 @@ namespace SimpleShoppingApp.Tests
             categoriesServiceMock.Setup(x => x.DoesCategoryExistAsync(1))
                 .ReturnsAsync(true);
 
-            notificationsServiceMock.Setup(x => x.AddAsync(string.Empty, string.Empty, string.Empty, null))
-                .ReturnsAsync(1);
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -61,7 +53,6 @@ namespace SimpleShoppingApp.Tests
             usersRatingRepo = new Repository<UsersRating>(db);
             usersService = usersServiceMock.Object;
             categoriesService = categoriesServiceMock.Object;
-            notificationsService = notificationsServiceMock.Object;
             productsService = new ProductsService(productsRepo, usersRatingRepo, cartsProductsRepo, null, categoriesService, usersService, null, null);
             cartsService = new CartsService(cartsRepo, cartsProductsRepo, productsService, null, usersService);
         }
@@ -153,6 +144,25 @@ namespace SimpleShoppingApp.Tests
         }
 
         [Test]
+        public async Task TestAddProductWhenTriedByOwnerOfProduct()
+        {
+            await productsService.AddAsync(new AddProductInputModel
+            {
+                CategoryId = 1,
+                Name = "TestProd",
+                Price = 2M,
+                Quantity = 2,
+                Description = "Test Description",
+
+            }, "TestUserId", string.Empty);
+            await productsService.ApproveAsync(1, "TestAdminId");
+
+            await cartsService.AddAsync("TestUserId");
+            var result = await cartsService.AddProductAsync(1, 1, "TestUserId");
+            Assert.That(result, Is.EqualTo(AddUpdateProductToCartResult.Forbidden));
+        }
+
+        [Test]
         public async Task TestAddProductWhenProductExistsInCart()
         {
             await productsService.AddAsync(new AddProductInputModel
@@ -166,9 +176,9 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
-            var result = await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddAsync("TestUserId2");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
+            var result = await cartsService.AddProductAsync(1, 1, "TestUserId2");
             Assert.That(result, Is.EqualTo(AddUpdateProductToCartResult.AlreadyExist));
         }
 
@@ -202,7 +212,7 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
 
             await cartsProductsRepo.AddAsync(new CartsProducts
             {
@@ -212,7 +222,7 @@ namespace SimpleShoppingApp.Tests
             });
             await cartsProductsRepo.SaveChangesAsync();
 
-            var result = await cartsService.AddProductAsync(1, 1, "TestUserId");
+            var result = await cartsService.AddProductAsync(1, 1, "TestUserId2");
 
             Assert.That(result, Is.EqualTo(AddUpdateProductToCartResult.NotInStock));
         }
@@ -232,7 +242,7 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
             await cartsProductsRepo.AddAsync(new CartsProducts
             {
                 CartId = 1,
@@ -241,7 +251,7 @@ namespace SimpleShoppingApp.Tests
             });
             await cartsProductsRepo.SaveChangesAsync();
 
-            var result = await cartsService.AddProductAsync(1, 1, "TestUserId");
+            var result = await cartsService.AddProductAsync(1, 1, "TestUserId2");
             Assert.That(result, Is.EqualTo(AddUpdateProductToCartResult.Success));
         }
 
@@ -260,8 +270,8 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
-            var result = await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddAsync("TestUserId2");
+            var result = await cartsService.AddProductAsync(1, 1, "TestUserId2");
             Assert.That(result, Is.EqualTo(AddUpdateProductToCartResult.Success));
         }
 
@@ -429,13 +439,13 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(3, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
 
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
-            await cartsService.AddProductAsync(1, 2, "TestUserId");
-            await cartsService.AddProductAsync(1, 3, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
+            await cartsService.AddProductAsync(1, 2, "TestUserId2");
+            await cartsService.AddProductAsync(1, 3, "TestUserId2");
 
-            var result = await cartsService.RemoveProductAsync(1, 1, "TestUserId");
+            var result = await cartsService.RemoveProductAsync(1, 1, "TestUserId2");
             var model = result.Model;
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
             Assert.NotNull(model);
@@ -443,7 +453,7 @@ namespace SimpleShoppingApp.Tests
             Assert.That(model.NewCount, Is.EqualTo(2));
             Assert.That(model.NewTotalPrice, Is.EqualTo(5.5M));
 
-            var result2 = await cartsService.RemoveProductAsync(1, 2, "TestUserId");
+            var result2 = await cartsService.RemoveProductAsync(1, 2, "TestUserId2");
 
             var model2 = result2.Model;
             Assert.That(result2.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
@@ -452,7 +462,7 @@ namespace SimpleShoppingApp.Tests
             Assert.That(model2.NewCount, Is.EqualTo(1));
             Assert.That(model2.NewTotalPrice, Is.EqualTo(2));
 
-            var result3 = await cartsService.RemoveProductAsync(1, 3, "TestUserId");
+            var result3 = await cartsService.RemoveProductAsync(1, 3, "TestUserId2");
 
             var model3 = result3.Model;
             Assert.That(result3.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
@@ -501,11 +511,11 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
 
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
 
-            var result = await cartsService.RemoveAllProductsAsync(1, "TestUserId2");
+            var result = await cartsService.RemoveAllProductsAsync(1, "TestUserId3");
             Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.Forbidden));
         }
 
@@ -524,11 +534,11 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
 
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
 
-            var result = await cartsService.RemoveAllProductsAsync(1, "TestUserId");
+            var result = await cartsService.RemoveAllProductsAsync(1, "TestUserId2");
             Assert.That(result, Is.EqualTo(AddUpdateDeleteResult.Success));
         }
 
@@ -582,7 +592,7 @@ namespace SimpleShoppingApp.Tests
         [Test]
         public async Task TestUpdateQuantityWhenTriedToUpdateByNotTheOwner()
         {
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
             await productsService.AddAsync(new AddProductInputModel
             {
                 CategoryId = 1,
@@ -594,16 +604,16 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
 
-            var result = await cartsService.UpdateQuantityInCartAsync(1, 1, 3, "TestUserId2");
+            var result = await cartsService.UpdateQuantityInCartAsync(1, 1, 3, "TestUserId3");
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Forbidden));
         }
 
         [Test]
         public async Task TestUpdateQuantityWhenThereIsLessThanRequested()
         {
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
             await productsService.AddAsync(new AddProductInputModel
             {
                 CategoryId = 1,
@@ -615,9 +625,9 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
 
-            var result = await cartsService.UpdateQuantityInCartAsync(1, 1, 4, "TestUserId");
+            var result = await cartsService.UpdateQuantityInCartAsync(1, 1, 4, "TestUserId2");
             var model = result.Model;
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
             Assert.IsNotNull(model);
@@ -630,7 +640,7 @@ namespace SimpleShoppingApp.Tests
         [Test]
         public async Task TestUpdateQuantityWhenThereIsMoreOrEqualThanRequested()
         {
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
             await productsService.AddAsync(new AddProductInputModel
             {
                 CategoryId = 1,
@@ -642,10 +652,10 @@ namespace SimpleShoppingApp.Tests
 
             await productsService.ApproveAsync(1, "TestAdminId");
 
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
 
-            var result = await cartsService.UpdateQuantityInCartAsync(1, 1, 4, "TestUserId");
-            var result2 = await cartsService.UpdateQuantityInCartAsync(1, 1, 5, "TestUserId");
+            var result = await cartsService.UpdateQuantityInCartAsync(1, 1, 4, "TestUserId2");
+            var result2 = await cartsService.UpdateQuantityInCartAsync(1, 1, 5, "TestUserId2");
             var model = result.Model;
             var model2 = result2.Model;
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
@@ -666,7 +676,7 @@ namespace SimpleShoppingApp.Tests
         [Test]
         public async Task TestUpdateQuantityWhenThereAreMultipleProducts()
         {
-            await cartsService.AddAsync("TestUserId");
+            await cartsService.AddAsync("TestUserId2");
             await productsService.AddAsync(new AddProductInputModel
             {
                 CategoryId = 1,
@@ -700,11 +710,11 @@ namespace SimpleShoppingApp.Tests
             }, "TestUserId", string.Empty);
 
             await productsService.ApproveAsync(3, "TestAdminId");
-            await cartsService.AddProductAsync(1, 1, "TestUserId");
-            await cartsService.AddProductAsync(1, 2, "TestUserId");
-            await cartsService.AddProductAsync(1, 3, "TestUserId");
+            await cartsService.AddProductAsync(1, 1, "TestUserId2");
+            await cartsService.AddProductAsync(1, 2, "TestUserId2");
+            await cartsService.AddProductAsync(1, 3, "TestUserId2");
 
-            var result = await cartsService.UpdateQuantityInCartAsync(1, 3, 4, "TestUserId");
+            var result = await cartsService.UpdateQuantityInCartAsync(1, 3, 4, "TestUserId2");
             var model = result.Model;
             Assert.That(result.Result, Is.EqualTo(AddUpdateDeleteResult.Success));
             Assert.IsNotNull(model);

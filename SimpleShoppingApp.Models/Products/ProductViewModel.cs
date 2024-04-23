@@ -40,6 +40,8 @@ namespace SimpleShoppingApp.Models.Products
 
         public bool IsUserAdmin { get; set; }
 
+        public bool IsMine { get; set; }
+
         public IEnumerable<ImageViewModel> Images { get; set; }
     }
 }

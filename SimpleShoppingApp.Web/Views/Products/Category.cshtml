@@ -20,7 +20,7 @@ else
 
 
 
-<div class="offset-md-3 col-md-4">
+<div class="col-md-4">
     <nav aria-label="Page navigation example">
         <ul class="pagination">
             <li class="page-item prev @(Model.CurrentPage == 1 ? "disabled" : "")"><a class="page-link" asp-route-id="@Model.CategoryId" asp-route-name="@Model.CategoryName" asp-route-page="@(Model.CurrentPage - 1)">Previous</a></li>

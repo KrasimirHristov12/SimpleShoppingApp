@@ -172,7 +172,8 @@ namespace SimpleShoppingApp.Services.Products
             }
             else
             {
-                
+                var ownerUserId = await GetOwnerIdAsync(id);
+                product.IsMine = ownerUserId == userId;
                 product.IsUserAdmin = isUserAdmin;
                 product.BelongsToCurrentUser = await BelognsToUserAsync(id, userId);
                 var rating = await GetRatingAsync(id, userId);
@@ -574,6 +575,15 @@ namespace SimpleShoppingApp.Services.Products
                 return new ProductRatingViewModel
                 {
                     Result = AddUpdateDeleteResult.NotFound,
+                    AvgRating = null,
+                };
+            }
+
+            if (loggedInUserId == product.UserId)
+            {
+                return new ProductRatingViewModel
+                {
+                    Result = AddUpdateDeleteResult.Forbidden,
                     AvgRating = null,
                 };
             }

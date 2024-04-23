@@ -96,7 +96,7 @@
     </div>
     <div class="col-md-4 my-auto">
 
-        @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved)
+        @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved && !Model.IsMine)
         {
             <div class="rating-container text-center">
                 <span class="rating-info"><span class="rating-number">@Model.Rating</span><span>/</span><span class="rating-number-avg">@(Model.AvgRating.ToString("F2"))</span><span> (<a asp-action="Reviews" asp-route-id="@Model.Id" class="link-dark">Reviews</a>)</span></span>
@@ -112,10 +112,10 @@
             </div>
         }
 
-        @if (User.Identity != null && !User.Identity.IsAuthenticated && Model.IsApproved)
+        @if ((User.Identity != null && !User.Identity.IsAuthenticated && Model.IsApproved) || (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved && Model.IsMine))
         {
             <div class="text-center" style="font-size:20px;"><a asp-action="Reviews" asp-route-id="@Model.Id" class="link-dark">Reviews</a></div>
-            <hr/>
+            <hr />
         }
 
 
@@ -149,20 +149,26 @@
                 }
 
             </li>
-            <li class="list-group-item text-center">
                 @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsApproved)
                 {
-                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                        <input type="hidden" name="id" class="productId" value="@Model.Id" />
-                        <button class="btn btn-success">Add to cart</button>
-                    </form>
+                    if (!Model.IsMine)
+                    {
+                    <li class="list-group-item text-center">
+                        <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="id" class="productId" value="@Model.Id" />
+                            <button class="btn btn-success">Add to cart</button>
+                        </form>
+                    </li>
+                    }
 
                 }
                 else if (User.Identity == null || !User.Identity.IsAuthenticated)
                 {
+                <li class="list-group-item text-center">
                     <span><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Log-in</a> to be able to buy this product.</span>
+                </li>
                 }
-            </li>
+
         </ul>
     </div>
 </div>

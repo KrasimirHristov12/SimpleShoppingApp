@@ -1,20 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Moq;
 using NUnit.Framework;
 using SimpleShoppingApp.Data;
+using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Data.Models;
 using SimpleShoppingApp.Data.Repository;
-using SimpleShoppingApp.Services.Orders;
+using SimpleShoppingApp.Models.Images;
 using SimpleShoppingApp.Models.Orders;
-using SimpleShoppingApp.Data.Enums;
 using SimpleShoppingApp.Services.Addresses;
-using Moq;
+using SimpleShoppingApp.Services.Emails;
+using SimpleShoppingApp.Services.Images;
+using SimpleShoppingApp.Services.Orders;
 using SimpleShoppingApp.Services.Products;
 using SimpleShoppingApp.Services.Users;
-using SimpleShoppingApp.Services.Emails;
-using SimpleShoppingApp.Services.Notifications;
-using SimpleShoppingApp.Services.Images;
-using SimpleShoppingApp.Models.Images;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SimpleShoppingApp.Tests
 {
@@ -23,6 +21,7 @@ namespace SimpleShoppingApp.Tests
         private IRepository<Order> ordersRepository;
         private IRepository<Product> productsRepository;
         private IRepository<ShippingAddress> addressesRepo;
+        private IRepository<ApplicationUser> userRepository;
         private IOrdersService ordersService;
         private IAddressesService addressesService;
         private IProductsService productsService;
@@ -32,7 +31,7 @@ namespace SimpleShoppingApp.Tests
         private ApplicationDbContext db;
 
         [SetUp]
-        public void Initialize()
+        public async Task Initialize()
         {
             var productsServiceMock = new Mock<IProductsService>();
 
@@ -50,9 +49,15 @@ namespace SimpleShoppingApp.Tests
                 .ReturnsAsync("TestUserId");
 
             usersServiceMock.Setup(x => x.GetEmailAsync("TestUserId"))
-                .ReturnsAsync("test@test.test");
+                .ReturnsAsync("testuser@test.test");
 
             usersServiceMock.Setup(x => x.GetFullNameAsync("TestUserId"))
+                .ReturnsAsync("Test Test");
+
+            usersServiceMock.Setup(x => x.GetEmailAsync("TestUserId2"))
+                .ReturnsAsync("testuser2@test.test");
+
+            usersServiceMock.Setup(x => x.GetFullNameAsync("TestUserId2"))
                 .ReturnsAsync("Test Test");
 
             emailsServiceMock.Setup(x => x.SendAsync(string.Empty, string.Empty, string.Empty, string.Empty))
@@ -71,6 +76,20 @@ namespace SimpleShoppingApp.Tests
 
             db = new ApplicationDbContext(options);
             ordersRepository = new Repository<Order>(db);
+            userRepository = new Repository<ApplicationUser>(db);
+            await userRepository.AddAsync(new ApplicationUser
+            {
+                Id = "TestUserId",
+                Email = "testuser@test.test",
+                UserName = "testuser@test.test",
+            });
+
+            await userRepository.AddAsync(new ApplicationUser
+            {
+                Id = "TestUserId2",
+                Email = "testuser2@test.test",
+                UserName = "testuser2@test.test",
+            });
             productsRepository = new Repository<Product>(db);
             addressesRepo = new Repository<ShippingAddress>(db);
             addressesService = new AddressesService(addressesRepo);
@@ -280,7 +299,7 @@ namespace SimpleShoppingApp.Tests
             await addressesRepo.AddAsync(new ShippingAddress
             {
                 Name = "Test Address",
-                UserId = "TestUserId"
+                UserId = "TestUserId2"
             });
 
             await addressesRepo.SaveChangesAsync();
@@ -301,7 +320,7 @@ namespace SimpleShoppingApp.Tests
                 ProductIds = new List<int> { 1 },
                 Quantities = new List<int> { 3 },
                 PhoneNumber = "0000000000",
-            }, "TestUserId");
+            }, "TestUserId2");
 
             Assert.That(result.Result, Is.EqualTo(MakeOrderResult.Success));
         }

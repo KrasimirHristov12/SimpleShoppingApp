@@ -3,7 +3,7 @@
     ViewData["Title"] = "Search";
 }
 
-<h2>Search term: @ViewData["Name"]</h2>
+<h2>Search term: @ViewData["Name"] (@Model.Count() found)</h2>
 
 @if (Model.Count() == 0)
 {

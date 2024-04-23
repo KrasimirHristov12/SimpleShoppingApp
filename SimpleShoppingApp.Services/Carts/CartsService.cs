@@ -65,6 +65,13 @@ namespace SimpleShoppingApp.Services.Carts
                 return AddUpdateProductToCartResult.NotFound;
             }
 
+            var productOwnerId = await productsService.GetOwnerIdAsync(productId);
+
+            if (productOwnerId == currentUserId)
+            {
+                return AddUpdateProductToCartResult.Forbidden;
+            }
+
             var ownerUserId = await GetUserIdAsync(cartId);
 
             if (ownerUserId == null)
